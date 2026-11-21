@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.1"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.2"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -683,8 +683,8 @@ Object.assign(FORMS, {
     if (t.category === 'form') input.form = v;
     if (t.category === 'ack') { input.signature = v.signature; input.agree = v.agree; }
     if (t.category === 'hr') { input.eVerifyCase = v.eVerifyCase; input.receiptNumber = v.receiptNumber; }
-    await call('submitTask', input); closeModal();
-    toast(t.category === 'upload' && !can('onboarding.manage') ? 'Uploaded — HR will review it.' : 'Saved', 'ok'); await reloadCurrent();
+    const r = await call('submitTask', input); closeModal();
+    toast(t.category === 'upload' && !can('onboarding.manage') ? 'Uploaded — HR will review it.' : 'Saved', 'ok'); await reloadCurrent(); aiNotice(r && r.ai);
   },
   'task-decide': async v => { await call('reviewTask', v); closeModal(); toast(v.decision === 'reject' ? 'Sent back with your note' : 'Waived', 'ok'); await reloadCurrent(); }
 });
@@ -788,8 +788,9 @@ function empOnboarding(E) {
 function docsTable(docs, hr) {
   if (!docs.length) return '<div class="empty">No documents yet.</div>';
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Expires</th><th>Status</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' +
-    docs.slice().sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt))).map(d => '<tr><td><b>' + esc(d.type) + '</b><br><small class="muted">' + esc(d.fileName) + '</small></td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td>' +
+    docs.slice().sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt))).map(d => '<tr><td><b>' + esc(d.type) + '</b> ' + aiChip(d) + '<br><small class="muted">' + esc(d.fileName) + '</small></td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td>' +
       '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="doc-open" data-id="' + d.id + '">' + ic('download') + 'Open</button>' +
+      (hr && AI().on && d.aiStatus !== 'Skipped' ? '<button class="btn xs ghost" data-action="ai-doc" data-id="' + d.id + '" title="What AI read">' + ic('spark') + 'AI</button>' : '') +
       (hr ? (d.status !== 'Verified' ? '<button class="btn xs ghost" data-action="doc-verify" data-id="' + d.id + '">Verify</button>' : '') + '<button class="btn xs ghost" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + '</button><button class="btn xs danger" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + '</button>' : '') +
       '</div></td></tr>').join('') + '</tbody></table></div>';
 }
@@ -841,7 +842,7 @@ Object.assign(ACTIONS, {
     field('Due date', inp('dueDate', '', 'type="date"')) + field('Required', sel('required', [['yes', 'Required'], ['no', 'Optional']], 'yes')) + field('Instructions', area('help', ''), 'span2') + '</div><div class="foot-btns"><button class="btn">Add</button></div></form>'),
   'checklist-reset': async el => { const r = await busy(el, call('resetChecklist', { employeeId: S.cache.emp.employee.id })); toast(r.added ? r.added + ' item(s) added' : 'Checklist is up to date', 'ok'); await reloadCurrent(); },
   'doc-add': el => openModal('Add a document', '<form data-form="doc-upload"><input type="hidden" name="employeeId" value="' + esc(el.dataset.emp) + '"><div class="grid g2">' + field('Type', sel('type', L('docTypes'), 'Other'), 'span2') +
-    field('File (up to 10 MB)', '<input type="file" name="file" required>', 'span2') + field('Issued', inp('issuedOn', '', 'type="date"')) + field('Expires', inp('expiresOn', '', 'type="date"'), '', 'Required for EAD, I-797, green card, passport') +
+    field('File (up to 10 MB)', '<input type="file" name="file" required>', 'span2') + field('Issued', inp('issuedOn', '', 'type="date"')) + field('Expires', inp('expiresOn', '', 'type="date"'), '', AI().docs ? 'Leave blank — AI reads it from the document' : 'Required for EAD, I-797, green card, passport') +
     field('Notes', inp('notes', ''), 'span2') + '</div><div class="foot-btns"><button class="btn">Upload</button></div></form>'),
   'doc-verify': async el => { await busy(el, call('updateDocument', { id: el.dataset.id, status: 'Verified' })); toast('Verified', 'ok'); await reloadCurrent(); },
   'doc-edit': el => { const d = (S.cache.emp.documents || []).find(x => x.id === el.dataset.id) || {};
@@ -856,7 +857,7 @@ Object.assign(FORMS, {
   'emp-update': async v => { const o = Object.assign({}, v); ['payRate'].forEach(k => { if (o[k] !== '' && o[k] !== undefined) o[k] = Number(o[k]); });
     const r = await call('updateEmployee', o); closeModal(); toast(r && r.checklistUpdated ? 'Saved — checklist updated for the new work authorization' : 'Saved', 'ok'); await reloadCurrent(); },
   'task-add': async v => { v.required = v.required !== 'no'; await call('addTask', v); closeModal(); toast('Added', 'ok'); await reloadCurrent(); },
-  'doc-upload': async (v, form) => { v.file = await readFile(form.querySelector('[name=file]').files[0]); await call('uploadDocument', v); closeModal(); toast('Uploaded', 'ok'); await reloadCurrent(); },
+  'doc-upload': async (v, form) => { v.file = await readFile(form.querySelector('[name=file]').files[0]); const r = await call('uploadDocument', v); closeModal(); toast('Uploaded', 'ok'); await reloadCurrent(); aiNotice(r.ai); },
   'doc-update': async v => { await call('updateDocument', v); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); }
 });
 
@@ -877,8 +878,8 @@ FORMS['emp-import'] = async (v, form) => {
   S.db = null; await loadDb(); if (S.route.parts[0] === 'employees') await renderApp();
 };
 
-ACTIONS['add-from-docs'] = () => openModal('Add an employee from documents', '<form data-form="docs-analyze"><p class="muted">Drop the EAD, I-797, I-94, passport, green card, offer letter or resume. IntelliEmp reads them and fills in the record — you check it before anything is saved.</p>' +
-  '<div class="drop" id="drop">' + ic('upload') + '<p>Drag files here or choose them</p><input type="file" name="files" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt"></div>' +
+ACTIONS['add-from-docs'] = () => openModal('Add an employee from documents', '<form data-form="docs-analyze"><p class="muted">Drop the EAD, I-797, I-94, passport, green card, offer letter or resume. IntelliEmp reads them' + (AI().docs ? ' with AI (' + esc(AI().provider) + ')' : '') + ' and fills in the record — you check it before anything is saved.</p>' +
+  '<div class="drop" id="drop">' + ic('upload') + '<p>Drag files here or choose them</p><input type="file" name="files" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.doc,.docx,.txt"></div>' +
   '<div class="foot-btns"><button class="btn">' + ic('spark') + 'Read documents</button></div></form>', true);
 FORMS['docs-analyze'] = async (v, form) => {
   const list = Array.from(form.querySelector('[name=files]').files || []);
@@ -887,10 +888,11 @@ FORMS['docs-analyze'] = async (v, form) => {
   const r = await call('analyzeEmployeeDocs', { files: files });
   S.cache.docFiles = files; S.cache.docRead = r;
   const p = r.proposed || {};
-  openModal('Check and save', (r.duplicate ? '<div class="banner warn">' + ic('alert') + '<div>' + esc(r.duplicate.name) + ' (' + esc(r.duplicate.code) + ') already has this email. <a href="#app/employee/' + r.duplicate.id + '">Open their record</a> instead?</div></div>' : '') +
+  openModal('Check and save', (r.aiNote ? '<div class="banner warn">' + ic('alert') + '<div>AI was not used for some files: ' + esc(r.aiNote) + ' The built-in reader was used instead.</div></div>' : '') + (r.duplicate ? '<div class="banner warn">' + ic('alert') + '<div>' + esc(r.duplicate.name) + ' (' + esc(r.duplicate.code) + ') already has this email. <a href="#app/employee/' + r.duplicate.id + '">Open their record</a> instead?</div></div>' : '') +
     '<form data-form="docs-create"><table class="tbl" style="margin-bottom:14px"><thead><tr><th>File</th><th>Read as</th><th>Expires</th><th>Details</th></tr></thead><tbody>' +
-    r.documents.map((d, i) => '<tr><td><small>' + esc(d.name) + '</small>' + (d.readable ? '' : '<br>' + chip('No text found', 'warn')) + '</td><td>' + sel('type_' + i, L('docTypes'), d.type || 'Other') + '</td><td>' + inp('exp_' + i, d.expiresOn || '', 'type="date"') + '</td>' +
-      '<td><small>' + esc([d.workAuth, d.category ? 'Category ' + d.category : '', d.receiptNumber].filter(Boolean).join(' · ')) + '</small></td></tr>').join('') + '</tbody></table>' +
+    r.documents.map((d, i) => '<tr><td><small>' + esc(d.name) + '</small>' + (d.readable ? '' : '<br>' + chip('No text found', 'warn')) + (d.readBy && d.readBy !== 'Built-in reader' ? '<br>' + chip('AI · ' + d.readBy, 'teal') : '') + '</td><td>' + sel('type_' + i, L('docTypes'), d.type || 'Other') + '</td><td>' + inp('exp_' + i, d.expiresOn || '', 'type="date"') + '</td>' +
+      '<td><small>' + esc([d.workAuth, d.category ? 'Category ' + d.category : '', d.receiptNumber].filter(Boolean).join(' · ')) + '</small>' + (d.summary ? '<br><small class="muted">' + esc(d.summary) + '</small>' : '') +
+      ((d.issues || []).length ? '<br><small style="color:var(--warn,#b45309)">' + d.issues.map(esc).join('<br>') + '</small>' : '') + '</td></tr>').join('') + '</tbody></table>' +
     empForm(p, 'new') + '<label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal</label>' +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Create employee and file documents</button></div></form>', true);
 };
@@ -930,7 +932,7 @@ PAGES['my-timesheet'] = async parts => {
 PAGES.timesheet = async parts => timesheetPage(parts[0], parts[1] || D().thisWeek, false);
 
 async function timesheetPage(empId, week, mine) {
-  const G = await call('getTimesheet', { employeeId: empId, weekStart: week }); S.cache.ts = G;
+  const G = await call('getTimesheet', { employeeId: empId, weekStart: week }); S.cache.ts = G; S.cache.tsAi = null;
   const t = G.timesheet, e = G.employee, edit = G.canEdit;
   const rows = (t && t.entries.rows) || {};
   const base = mine ? '#app/my-timesheet/' : '#app/timesheet/' + empId + '/';
@@ -954,11 +956,13 @@ async function timesheetPage(empId, week, mine) {
     '</tbody><tfoot><tr><td>Total</td>' + G.days.map((d, i) => '<td id="day_' + i + '">' + G.rows.reduce((s, rw) => s + (Number((rows[rw] || [])[i]) || 0), 0) + '</td>').join('') + '<td id="tot_all">' + (t ? esc(t.totalHours) : 0) + '</td></tr></tfoot></table></div>' +
     (t && t.entries.totalOnly !== undefined && !G.rows.some(rowTot) ? '<p><b>Total from the attached timesheet: ' + esc(t.entries.totalOnly) + ' hours</b></p>' : '') +
     '<div class="grid g2" style="margin-top:14px">' + field('Notes for the approver', inp('notes', t ? t.notes : '', (edit ? '' : 'disabled ') + 'maxlength="500"')) +
-    (edit ? field('Attach the signed timesheet (optional)', '<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.doc,.docx">', '', t && t.hasFile ? 'Current file: ' + t.fileName : 'Some clients need their own signed sheet.') : '') + '</div>' +
+    (edit ? field('Attach the signed timesheet (optional)', '<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.xlsx,.xls,.csv,.doc,.docx">' +
+      (AI().timesheets ? '<button type="button" class="btn ghost sm" style="margin-top:6px" data-action="ts-ai-read">' + ic('spark') + 'Read hours from the file</button>' : ''), '',
+      t && t.hasFile ? 'Current file: ' + t.fileName : AI().timesheets ? 'AI can fill in the hours from a signed sheet, scan, photo or spreadsheet.' : 'Some clients need their own signed sheet.') : '') + '</div><div id="ts-ai"></div>' +
     (t && t.hasFile ? '<p><button type="button" class="btn ghost sm" data-action="ts-file" data-id="' + t.id + '">' + ic('download') + esc(t.fileName) + '</button></p>' : '') +
     (t && (t.steps || []).length ? '<div class="steps">' + t.steps.map((s, i) => '<span class="step">' + (s.status === 'Approved' ? ic('check') : s.status === 'Rejected' ? ic('x') : ic('clock')) + (i + 1) + '. ' + esc(s.name || s.email) + ' <small class="muted">(' + esc(s.role) + ')</small> ' + statusChip(s.status) + '</span>').join('') + '</div>' : '') +
     (edit ? '<p class="hint">' + esc(flowNote) + '</p><div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button>' + (future ? '<span class="muted">You can submit once the week starts.</span>' : '<button class="btn" name="mode" value="submit">' + ic('send') + 'Submit for approval</button>') + '</div>' : '') +
-    '</form>' +
+    '</form>' + tsAiPanel(t, !mine && isStaff()) +
     (canApprove ? '<div class="card"><h3>' + ic('check') + 'Your approval</h3><p class="muted">Step ' + (Number(t.stepIndex) + 1) + ' of ' + t.steps.length + ' (' + esc(step.role) + ').</p><div class="btns"><button class="btn" data-action="ts-approve" data-id="' + t.id + '">Approve ' + esc(t.totalHours) + ' hours</button><button class="btn danger" data-action="ts-reject" data-id="' + t.id + '">Send back</button></div></div>' : '') +
     (t && t.status === 'Submitted' && (mine || can('timesheets.all')) ? '<div class="card tight"><div class="btns"><span class="muted">Waiting for ' + esc(step ? (step.name || step.email) : '') + '.</span><button class="btn ghost sm" data-action="ts-resend" data-id="' + t.id + '">' + ic('mail') + 'Resend approval email</button>' + (can('timesheets.all') ? '<button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '">Reopen</button>' : '') + '</div></div>' : '') +
     (t && t.status === 'Approved' && can('timesheets.all') ? '<div class="card tight"><div class="btns"><button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '">Reopen this week</button></div></div>' : '') +
@@ -982,8 +986,12 @@ FORMS['ts-save'] = async (v, form, submitter) => {
   const input = { employeeId: G.employee.id, weekStart: G.weekStart, rows: tsRowsFromForm(form), notes: v.notes };
   if (f && f.files[0]) input.file = await readFile(f.files[0]);
   const total = Object.keys(input.rows).reduce((s, k) => s + input.rows[k].reduce((a, b) => a + b, 0), 0);
-  if (mode === 'submit' && !total && !input.file) throw new Error('Enter your hours or attach the signed timesheet.');
-  if (mode === 'submit' && !total && input.file) { const n = prompt('Total hours on the attached timesheet?'); if (n === null) return; input.totalOnly = Number(n); }
+  if (mode === 'submit' && !total && !input.file && !(G.timesheet && G.timesheet.hasFile)) throw new Error('Enter your hours or attach the signed timesheet.');
+  if (mode === 'submit' && !total && (input.file || (G.timesheet && G.timesheet.hasFile)) && AI().timesheets && !S.cache.tsAi) {
+    try { const a = await tsAiRead(form, submitter); if (a.rows) { toast('Hours filled from the file — check them and press Submit again.', 'ok', 6000); return; } if (a.totalOnly) input.totalOnly = a.totalOnly; } catch (e) { fail(e); }
+  }
+  if (mode === 'submit' && !total && !input.totalOnly && S.cache.tsAi && S.cache.tsAi.totalOnly) input.totalOnly = S.cache.tsAi.totalOnly;
+  if (mode === 'submit' && !total && input.file && !input.totalOnly) { const n = prompt('Total hours on the attached timesheet?'); if (n === null) return; input.totalOnly = Number(n); }
   const r = await call(mode === 'submit' ? 'submitTimesheet' : 'saveTimesheet', input);
   toast(mode === 'submit' ? (r.timesheet.status === 'Approved' ? 'Submitted and approved' : 'Submitted — the approver has been emailed') : 'Draft saved', 'ok');
   if (S.db) loadDb().catch(() => {});
@@ -1135,6 +1143,7 @@ PAGES.settings = async () => {
     field('Reminder day', sel('reminderDay', ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday'], o.reminderDay), '', 'Employees who have not submitted get a reminder that morning; another on Monday for last week.') + '</div><button class="btn">Save</button></form>' +
     '<div class="card"><h3>' + ic('mail') + 'Emailed timesheets</h3>' + (o.timesheetInbox ? '<p>Employees can email signed timesheets to <b>' + esc(o.timesheetInbox) + '</b> from the email on their profile. IntelliEmp reads the week and hours, files the attachment and sends it for approval — every 10 minutes.</p>'
       : '<p class="muted">The Intellisoft administrator has not turned on the timesheet inbox yet.</p>') + '</div>' +
+    aiSettingsCard() +
     '<div class="card"><h3>' + ic('lock') + 'Security</h3><p>' + (o.requireMfa ? chip('Two-step sign-in required for staff', 'ok') : 'Two-step sign-in is optional.') + '</p>' +
     '<button class="btn ghost" data-action="mfa-policy" data-on="' + (o.requireMfa ? '' : '1') + '">' + (o.requireMfa ? 'Make two-step sign-in optional' : 'Require two-step sign-in') + '</button><p class="hint">Turn it on for your own account first (Account).</p></div>' +
     '<div class="card"><h3>' + ic('link') + 'IntelliHire</h3><p>When a candidate is hired in IntelliHire — or a bench consultant is placed — they arrive here as an employee in onboarding, with their documents, and are invited to the portal.</p>' +
@@ -1194,7 +1203,7 @@ PAGES.platform = async () => {
   const r = await call('platformOverview');
   return head('Platform', r.orgs.length + ' companies · ' + r.users + ' accounts') +
     '<form class="card" data-form="plat-save"><h3>' + ic('gear') + 'Platform settings</h3><div class="grid g3">' + field('App address', inp('appUrl', r.settings.appUrl || 'https://employee.intellisoft-tech.com', 'type="url"')) +
-    field('Timesheet inbox address', inp('timesheetInbox', r.settings.timesheetInbox, 'type="email" placeholder="timesheets@intellisoft-tech.com"')) + field('New company sign-ups', sel('signupOpen', [['true', 'Open'], ['false', 'Paused']], r.settings.signupOpen)) + '</div><button class="btn">Save</button></form>' +
+    field('Timesheet inbox address', inp('timesheetInbox', r.settings.timesheetInbox, 'type="email" placeholder="timesheets@intellisoft-tech.com"')) + field('New company sign-ups', sel('signupOpen', [['true', 'Open'], ['false', 'Paused']], r.settings.signupOpen)) + '</div><button class="btn">Save</button></form>' + aiPlatformCard(r.ai) +
     '<div class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>Company</th><th>Owner</th><th class="num">Employees</th><th class="num">Staff + portal users</th><th>Status</th><th></th></tr></thead><tbody>' +
     r.orgs.map(o => '<tr><td><b>' + esc(o.name) + '</b><br><small class="muted">' + esc(fmtDate(o.createdAt)) + '</small></td><td><small>' + esc(o.ownerEmail) + '</small></td><td class="num">' + o.employees + '</td><td class="num">' + o.members + '</td><td>' + statusChip(o.status === 'Suspended' ? 'Rejected' : 'Active').replace('Rejected', 'Suspended') + '</td>' +
       '<td class="num"><button class="btn xs ghost" data-action="plat-org" data-id="' + o.id + '" data-s="' + (o.status === 'Suspended' ? 'Active' : 'Suspended') + '">' + (o.status === 'Suspended' ? 'Reactivate' : 'Suspend') + '</button></td></tr>').join('') + '</tbody></table></div></div>';
@@ -1294,6 +1303,165 @@ const QR = (() => {
   }
   return { encode: encode, svg: svg };
 })();
+const AI = () => (D().org && D().org.ai) || {};
+const aiChip = d => {
+  if (!d || !d.aiStatus) return '';
+  if (d.aiStatus === 'Read') { const n = d.ai && d.ai.issues ? d.ai.issues.length : 0; return chip(n ? 'AI · ' + n + ' to check' : 'AI read', n ? 'warn' : 'teal'); }
+  return chip({ Queued: 'AI reading…', Failed: 'AI could not read', Skipped: 'Not sent to AI' }[d.aiStatus] || d.aiStatus, d.aiStatus === 'Failed' ? 'bad' : '');
+};
+const issuesHtml = list => (list || []).length ? '<div class="banner warn">' + ic('alert') + '<div>' + list.map(esc).join('<br>') + '</div></div>' : '';
+
+function aiNotice(ai) {
+  if (!ai) return;
+  if (ai.status !== 'Read') { if (ai.status === 'Queued') toast('Uploaded — AI will read it in a few minutes.', 'ok'); return; }
+  const filled = ai.filled || [], issues = ai.issues || [];
+  if (!filled.length && !issues.length) { toast('Uploaded and read by AI' + (ai.type ? ' as ' + ai.type : ''), 'ok'); return; }
+  openModal('What AI found', (ai.summary ? '<p>' + esc(ai.summary) + '</p>' : '') + (filled.length ? '<p>' + ic('check') + ' Filled in: ' + filled.map(esc).join(', ') + '</p>' : '') + issuesHtml(issues) +
+    '<p class="hint">AI reading can be wrong. ' + (can('docs.manage') ? 'Check it against the document before you verify it.' : 'HR checks every document.') + '</p><div class="foot-btns"><button class="btn" data-action="close-modal">OK</button></div>');
+}
+
+const AI_FACTS = [['documentType', 'Type'], ['personName', 'Name on document'], ['formType', 'Form'], ['noticeType', 'Notice'], ['receiptNumber', 'Receipt number'],
+  ['workAuthorization', 'Work authorization'], ['eadCategory', 'EAD category'], ['classOfAdmission', 'Class of admission'], ['issuedOn', 'Issued'], ['validFrom', 'Valid from'],
+  ['expiresOn', 'Expires / valid to'], ['responseDueDate', 'Response due'], ['documentNumberLast4', 'Number (last 4)'], ['employer', 'Employer'], ['jobTitle', 'Job title'],
+  ['startDate', 'Start date'], ['payRate', 'Pay'], ['clientName', 'Client'], ['worksite', 'Worksite'], ['parties', 'Parties'], ['effectiveDate', 'Effective'], ['endDate', 'Ends'], ['signed', 'Signed']];
+function aiDocModal(d) {
+  const a = d.ai || {}, E = S.cache.emp || {}, e = E.employee || {};
+  const fmt = (k, v) => k === 'payRate' ? money(v, a.payPeriod === 'hour' ? 'Hourly' : 'Salary') : k === 'signed' ? (v ? 'Yes' : 'No') : Array.isArray(v) ? v.join('; ') : /On$|Date$|From$|^startDate$/.test(k) ? fmtDate(v) : v;
+  const facts = AI_FACTS.filter(([k]) => a[k] !== undefined && a[k] !== null && a[k] !== '' && !(Array.isArray(a[k]) && !a[k].length))
+    .map(([k, l]) => '<dt>' + esc(l) + '</dt><dd>' + esc(fmt(k, a[k])) + '</dd>').join('');
+  const notice = a.noticeType || /I-797|RFE|I-140|PERM|LCA|I-485/.test(a.documentType || '');
+  const cases = (E.cases || []).filter(c => c.status === 'Open' || c.receiptNumber === a.receiptNumber);
+  const empChange = (a.workAuthorization && a.workAuthorization !== e.workAuth) || (a.receiptNumber && a.receiptNumber !== e.receiptNumber) || (a.expiresOn && /EAD|I-797|Green card|TN|E-3|I-94/.test(a.documentType || ''));
+  if (d.aiStatus !== 'Read') return openModal(d.type + ' · AI', '<p>' + aiChip(d) + '</p>' + (a.error ? '<p class="muted">' + esc(a.error) + '</p>' : '') +
+    '<div class="foot-btns"><button class="btn" data-action="ai-doc-read" data-id="' + d.id + '">' + ic('spark') + 'Read with AI now</button></div>');
+  openModal(d.type + ' · what AI read', '<p class="muted"><small>' + esc(d.aiProvider || '') + ' · ' + esc(fmtWhen(d.aiAt)) + (a.confidence ? ' · confidence ' + Math.round(a.confidence * 100) + '%' : '') + '</small></p>' +
+    (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + issuesHtml(a.issues) +
+    (facts ? '<dl class="kv">' + facts + '</dl>' : '') +
+    ((a.keyTerms || []).length ? '<h4>' + ic('book') + 'Key terms</h4><table class="tbl"><tbody>' + a.keyTerms.map(k => '<tr><td style="width:34%"><b>' + esc(k.label) + '</b></td><td>' + esc(k.value) + '</td></tr>').join('') + '</tbody></table>' +
+      '<p class="hint">A summary to help HR, not legal advice. Have counsel review flagged clauses.</p>' : '') +
+    '<form data-form="ai-apply" style="margin-top:14px"><input type="hidden" name="id" value="' + d.id + '"><h4>Use what AI read</h4>' +
+    '<label class="check"><input type="checkbox" name="document" checked> Document type and dates</label>' +
+    (empChange && can('employees.edit') ? '<label class="check"><input type="checkbox" name="employee"> Employee record: ' + esc([a.workAuthorization && a.workAuthorization !== e.workAuth ? 'work authorization → ' + a.workAuthorization : '',
+      a.expiresOn ? 'valid until ' + fmtDate(a.expiresOn) : '', a.receiptNumber && a.receiptNumber !== e.receiptNumber ? 'receipt ' + a.receiptNumber : ''].filter(Boolean).join(', ')) + '</label>' : '') +
+    (notice && can('immigration.manage') && cases.length ? field('Update an immigration case', sel('caseId', [['', 'No case']].concat(cases.map(c => [c.id, c.type + (c.receiptNumber ? ' · ' + c.receiptNumber : '')])), ''), '',
+      a.noticeType === 'RFE' || a.noticeType === 'NOID' ? 'Sets the next action to respond by ' + fmtDate(a.responseDueDate) + '.' : 'Adds the receipt number and dates, and a note.') : '') +
+    '<div class="btns"><button class="btn sm">Apply</button><button type="button" class="btn ghost sm" data-action="ai-doc-read" data-id="' + d.id + '">' + ic('spark') + 'Read again</button></div></form>' +
+    '<form data-form="ai-ask" style="margin-top:16px"><input type="hidden" name="id" value="' + d.id + '"><h4>' + ic('spark') + 'Ask about this document</h4><div class="grid">' +
+    inp('question', '', 'required maxlength="500" placeholder="' + (d.legal ? 'What is the non-compete period and area?' : 'When does this expire, and is it signed?') + '"') + '</div><button class="btn ghost sm">Ask</button><div id="ai-answer"></div></form>', true);
+}
+Object.assign(ACTIONS, {
+  'ai-doc': el => { const d = (S.cache.emp.documents || []).find(x => x.id === el.dataset.id); if (d) aiDocModal(d); },
+  'ai-doc-read': async el => {
+    const r = await busy(el, call('aiReadDocument', { id: el.dataset.id }));
+    toast('Read by ' + (r.provider || 'AI') + (r.filled && r.filled.length ? ' · filled ' + r.filled.join(', ') : ''), 'ok');
+    await reloadCurrent(); const d = (S.cache.emp.documents || []).find(x => x.id === el.dataset.id); if (d) aiDocModal(d);
+  }
+});
+Object.assign(FORMS, {
+  'ai-apply': async v => {
+    const r = await call('applyDocumentInsights', { id: v.id, document: !!v.document, employee: !!v.employee, caseId: v.caseId || '' });
+    closeModal(); toast(r.applied.length ? 'Updated: ' + r.applied.join(', ') + (r.checklistUpdated ? ' · checklist updated' : '') : 'Nothing to change', 'ok'); await reloadCurrent();
+  },
+  'ai-ask': async v => {
+    const box = $('ai-answer'); if (box) box.innerHTML = '<p class="muted">Reading…</p>';
+    const r = await call('askDocument', { id: v.id, question: v.question });
+    if ($('ai-answer')) $('ai-answer').innerHTML = '<div class="alert"><span class="lv' + (r.found ? '' : ' warn') + '"></span><div>' + esc(r.answer).replace(/\n/g, '<br>') +
+      (r.quote ? '<div class="muted" style="margin-top:6px">“' + esc(r.quote) + '”</div>' : '') + '<small class="muted">' + esc(r.provider) + '</small></div></div>';
+  }
+});
+
+function tsAiPanel(t, staff) {
+  if (!t || !t.hasFile || !(t.aiStatus || t.aiCheck)) return '';
+  const c = t.aiCheck || {};
+  if (t.aiStatus === 'Queued') return '<div class="card tight"><p class="muted">' + ic('spark') + ' AI is reading the attached timesheet — the check appears here in a few minutes.</p></div>';
+  if (c.error) return staff ? '<div class="card tight"><p class="muted">' + ic('spark') + ' AI could not read the attached file: ' + esc(c.error) + '</p><button class="btn ghost sm" data-action="ai-ts-check" data-id="' + t.id + '">Try again</button></div>' : '';
+  if (t.aiStatus !== 'Read') return '';
+  return '<div class="card tight"><div class="card-h"><h3>' + ic('spark') + 'AI check of the attached file</h3>' + (staff ? '<button class="btn ghost xs" data-action="ai-ts-check" data-id="' + t.id + '">Check again</button>' : '') + '</div>' +
+    '<p>' + (c.fileHours !== null && c.fileHours !== undefined ? 'File shows <b>' + esc(c.fileHours) + '</b> hours · entered <b>' + esc(c.enteredHours) + '</b> ' + (c.match ? chip('Matches', 'ok') : chip('Differs', 'bad')) : 'No hours could be read from the file.') +
+    ' ' + (c.approverSigned === true ? chip('Approver signed' + (c.approverName ? ': ' + c.approverName : ''), 'ok') : c.approverSigned === false ? chip('Not signed by approver', 'warn') : '') + '</p>' +
+    issuesHtml((c.issues || []).filter(x => !/^The file shows/.test(x) && !/approver has not signed/.test(x))) + '<p class="hint">' + esc(c.provider || '') + ' · ' + esc(fmtWhen(c.at)) + '. AI can misread handwriting — open the file if anything looks off.</p></div>';
+}
+function fillTsRows(form, rows) {
+  const G = S.cache.ts;
+  G.rows.forEach(rw => G.days.forEach((d, i) => { const el = form.querySelector('[name="h_' + rw.replace(/\W/g, '') + '_' + i + '"]'); if (el) el.value = rows[rw] && Number(rows[rw][i]) ? rows[rw][i] : ''; }));
+  const any = form.querySelector('[data-change="ts-sum"]'); if (any) CHANGES['ts-sum'](any);
+}
+async function tsAiRead(form, btn) {
+  const G = S.cache.ts, f = form.querySelector('[name=file]');
+  const input = { employeeId: G.employee.id, weekStart: G.weekStart };
+  if (f && f.files[0]) input.file = await readFile(f.files[0]);
+  else if (!(G.timesheet && G.timesheet.hasFile)) throw new Error('Choose the timesheet file first.');
+  const r = await busy(btn, call('aiReadTimesheet', input));
+  S.cache.tsAi = r;
+  if (r.rows) fillTsRows(form, r.rows);
+  const box = $('ts-ai'); if (box) box.innerHTML = '<div class="banner ' + (r.issues.length ? 'warn' : 'ok') + '">' + ic('spark') + '<div>' +
+    (r.rows ? 'Filled <b>' + esc(r.total) + '</b> hours from the file.' : r.totalOnly ? 'The file shows a total of <b>' + esc(r.totalOnly) + '</b> hours (no daily breakdown).' : 'No hours for this week were found in the file.') +
+    (r.otherWeeks.length ? ' It also covers ' + r.otherWeeks.map(w => '<a href="' + (S.route.parts[0] === 'my-timesheet' ? '#app/my-timesheet/' : '#app/timesheet/' + G.employee.id + '/') + w + '">week of ' + esc(fmtDate(w)) + '</a>').join(', ') + '.' : '') +
+    (r.issues.length ? '<br>' + r.issues.map(esc).join('<br>') : '') + '<br><small class="muted">Check the hours, then save or submit. Read by ' + esc(r.provider) + '.</small></div></div>';
+  return r;
+}
+Object.assign(ACTIONS, {
+  'ts-ai-read': async el => { await tsAiRead(el.form || el.closest('form'), el); },
+  'ai-ts-check': async el => { const c = await busy(el, call('aiCheckTimesheet', { id: el.dataset.id })); toast(c.match ? 'The file matches the entered hours' : 'Checked — see the notes', c.match ? 'ok' : 'error'); await reloadCurrent(); }
+});
+
+function aiSettingsCard() {
+  const a = AI();
+  if (!can('settings.manage')) return '';
+  if (!a.platformOn) return '<div class="card"><h3>' + ic('spark') + 'AI document processing</h3><p class="muted">AI is switched off for the platform by the Intellisoft administrator.</p></div>';
+  const usage = a.cap ? a.used + ' of ' + a.cap + ' AI reads used this month' : a.used + ' AI reads this month' + (a.ownProvider ? ' (your own key — no IntelliEmp limit)' : '');
+  return '<form class="card" data-form="ai-save"><h3>' + ic('spark') + 'AI document processing</h3>' +
+    '<p>AI reads uploaded documents — passports, EADs, I-797 and I-94 records, RFEs, offer letters, employment and client agreements — and fills in types and dates, flags problems ' +
+    '(expired, unsigned, name mismatch, risky clauses), and answers questions about a document. It also reads timesheets: signed client sheets, scans, phone photos, spreadsheets and emailed hours.</p>' +
+    '<label class="check"><input type="checkbox" name="enabled"' + (a.enabled ? ' checked' : '') + '> Turn on AI for ' + esc(D().org.name) + '</label>' +
+    '<div class="grid g2" style="margin-top:10px">' + field('Provider', sel('provider', [['', 'Platform default' + (a.providers.length ? '' : ' (none set up yet)')]].concat(a.providers.map(p => [p.id, p.label])), a.preferred), '',
+      a.fallbackOrder && a.fallbackOrder.length ? 'Tried in this order: ' + a.fallbackOrder.join(' → ') : 'No provider is available yet.') +
+    field('This month', '<p style="margin:8px 0">' + esc(usage) + '</p>') + '</div>' +
+    '<label class="check"><input type="checkbox" name="autoDocs"' + (a.enabled ? (a.docs ? ' checked' : '') : ' checked') + '> Read documents as soon as they are uploaded</label>' +
+    '<label class="check"><input type="checkbox" name="autoTimesheets"' + (a.enabled ? (a.timesheets ? ' checked' : '') : ' checked') + '> Read timesheet files and emailed timesheets (hours, weeks, approver signature)</label>' +
+    '<label class="check"><input type="checkbox" name="payroll"' + (a.payroll ? ' checked' : '') + '> Also send tax and bank forms (W-4, state withholding, direct deposit) — off by default</label>' +
+    '<h4 style="margin-top:14px">Use your own AI key (optional)</h4><p class="hint">With your own Gemini, OpenAI or Anthropic key, reads are billed to you and have no IntelliEmp monthly limit. The key is stored on the server and never shown again.</p>' +
+    (a.ownProvider ? '<p>' + chip((a.ownProviders.find(p => p.id === a.ownProvider) || {}).label + ' key ' + (a.ownKeyHint || ''), 'ok') + ' <label class="check" style="display:inline-flex"><input type="checkbox" name="removeOwnKey"> Remove it</label></p>' : '') +
+    '<div class="grid g2">' + field('Provider for your key', sel('ownProvider', a.ownProviders.map(p => [p.id, p.label]), a.ownProvider || 'gemini')) +
+    field(a.ownProvider ? 'Replace the key' : 'API key', inp('ownKey', '', 'type="password" autocomplete="off" placeholder="Paste the key"')) + '</div>' +
+    '<p class="hint">' + ic('lock') + ' Files go to the provider only to be read, and only for the features ticked above. Use paid-tier keys (Gemini paid tier, OpenAI and Anthropic API): on those tiers the ' +
+    'providers do not train on your data. AI answers are stored with the document for HR; full SSNs and account numbers are masked. AI never verifies a document or approves a timesheet — people do.</p>' +
+    '<button class="btn">Save AI settings</button></form>';
+}
+FORMS['ai-save'] = async v => {
+  await call('updateAiSettings', { enabled: !!v.enabled, provider: v.provider, autoDocs: !!v.autoDocs, autoTimesheets: !!v.autoTimesheets, payroll: !!v.payroll,
+    ownProvider: v.ownProvider, ownKey: v.ownKey || '', removeOwnKey: !!v.removeOwnKey });
+  toast('AI settings saved', 'ok'); await refresh();
+};
+
+function aiPlatformCard(a) {
+  if (!a) return '';
+  const row = p => '<div class="card tight" style="margin:10px 0"><div class="card-h"><h4 style="margin:0">' + esc(p.label) + ' ' + (p.configured ? chip('Ready', 'ok') : chip('Not set up')) + '</h4>' +
+    (p.configured ? '<button type="button" class="btn ghost xs" data-action="ai-test" data-p="' + p.id + '">Test</button>' : '') + '</div><div class="grid g3">' +
+    field('API key', inp('key_' + p.id, '', 'type="password" autocomplete="off" placeholder="' + (p.hasKey ? 'Saved ' + esc(p.keyHint) + ' — paste to replace' : 'Paste the key') + '"')) +
+    field('Model', inp('model_' + p.id, p.model, 'list="models_' + p.id + '"' + (p.id === 'compatible' ? ' placeholder="e.g. mistral-large-latest"' : '')) + '<datalist id="models_' + p.id + '">' + (p.models || []).map(m => '<option value="' + esc(m) + '">').join('') + '</datalist>') +
+    (p.id === 'compatible' ? field('Base URL', inp('baseUrl_compatible', p.baseUrl, 'type="url" placeholder="https://api.mistral.ai/v1"')) + field('Service name', inp('name_compatible', p.name, 'placeholder="Azure OpenAI, Mistral, Groq…"')) : '') +
+    (p.hasKey ? field('', '<label class="check"><input type="checkbox" name="remove_' + p.id + '"> Remove the key</label>') : '') + '</div><div id="ai-test-' + p.id + '"></div></div>';
+  return '<form class="card" data-form="plat-ai"><h3>' + ic('spark') + 'AI providers</h3><p class="muted">Keys are kept in Script Properties on the server — never in the database or the browser. Companies turn AI on in their own Settings.</p>' +
+    '<div class="grid g3">' + field('AI for companies', sel('enabled', [['true', 'Available'], ['false', 'Switched off']], String(a.enabled))) +
+    field('Default provider', sel('def', a.providers.map(p => [p.id, p.label]), a.def)) + field('If it fails', sel('fallback', [['true', 'Try the next provider'], ['false', 'Stop']], String(a.fallback))) +
+    field('Companies may use these keys', sel('shared', [['true', 'Yes'], ['false', 'No — own keys only']], String(a.shared))) + field('AI reads per company per month', inp('cap', a.cap, 'type="number" min="0" step="10"'), '', '0 = no limit. Own keys are never limited.') + '</div>' +
+    a.providers.map(row).join('') + '<button class="btn">Save AI settings</button>' +
+    ((a.usage || []).length ? '<h4 style="margin-top:16px">This month</h4><table class="tbl"><tbody>' + a.usage.map(u => '<tr><td>' + esc(u.name) + '</td><td>' + (u.on ? chip('On', 'ok') : chip('Off')) + (u.ownKey ? ' ' + chip('Own key', 'teal') : '') + '</td><td class="num">' + u.used + ' reads</td></tr>').join('') + '</tbody></table>' : '') + '</form>';
+}
+FORMS['plat-ai'] = async v => {
+  const providers = ['gemini', 'openai', 'anthropic', 'compatible'].map(id => {
+    const p = { id: id, model: v['model_' + id] }; if (v['key_' + id]) p.key = v['key_' + id]; if (v['remove_' + id]) p.removeKey = true;
+    if (id === 'compatible') { p.baseUrl = v.baseUrl_compatible; p.name = v.name_compatible; }
+    return p;
+  });
+  await call('platformSaveAi', { enabled: v.enabled === 'true', def: v.def, fallback: v.fallback === 'true', shared: v.shared === 'true', cap: Number(v.cap || 0), providers: providers });
+  toast('AI providers saved', 'ok'); await refresh();
+};
+ACTIONS['ai-test'] = async el => {
+  const r = await busy(el, call('platformTestAi', { provider: el.dataset.p })), box = $('ai-test-' + el.dataset.p);
+  if (box) box.innerHTML = '<div class="banner ' + (r.ok ? 'ok' : 'bad') + '">' + ic(r.ok ? 'check' : 'alert') + '<div>' + (r.ok ? 'Working — ' + esc(r.model) + ' answered in ' + (r.ms / 1000).toFixed(1) + ' s.' : esc(r.error || 'No usable answer.')) + '</div></div>';
+};
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
   copy: el => copy(el.dataset.text || ''),
