@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.6"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.7"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -603,7 +603,7 @@ async function employeeHome() {
 }
 const alertsBanner = list => (list || []).map(a => '<div class="banner ' + (a.level === 'bad' ? 'bad' : a.level === 'warn' ? 'warn' : '') + '">' + ic('alert') + '<div>' + esc(a.text) + '</div></div>').join('');
 
-const CAT_ICON = { upload: 'upload', form: 'edit', ack: 'edit', sign: 'edit', info: 'book', hr: 'shield' };
+const CAT_ICON = { upload: 'upload', form: 'edit', ack: 'edit', sign: 'edit', fill: 'edit', info: 'book', hr: 'shield' };
 const NEEDS_EXPIRY = ['EAD card', 'I-797 approval', 'Green card', 'TN approval', 'E-3 approval', 'Passport', 'I-94', 'Visa stamp', 'I-20'];
 function checklistHtml(list, opts) {
   opts = opts || {};
@@ -629,7 +629,10 @@ function taskHtml(t, hr, opts) {
   if (canDo && isSignTask(t)) {
     if (opts.self && !hr && t.key === 'offer' && !(sg && sg.status === 'Sent')) act += '<span class="muted" style="font-size:13px">' + (sg && sg.status === 'Declined' ? 'You declined this offer' : 'HR will send your offer') + '</span>';
     else act += '<button class="btn sm" data-action="task-do" data-id="' + t.id + '">' + (opts.self && !hr ? 'Review and sign' : t.key === 'offer' ? (sg && sg.status === 'Sent' ? 'View offer' : 'Prepare offer') : 'Preview') + '</button>';
-  } else if (canDo) act += '<button class="btn sm" data-action="task-do" data-id="' + t.id + '">' + ({ upload: 'Upload', form: 'Fill in', ack: 'Review and sign', info: 'Mark as read', hr: 'Complete' }[t.category] || 'Open') + '</button>';
+  } else if (canDo && isFillTask(t)) act += '<button class="btn sm" data-action="task-do" data-id="' + t.id + '">' + (opts.self && !hr ? 'Fill in and sign' : 'Upload paper copy') + '</button>';
+  else if (canDo && t.key === 'statew4') act += '<button class="btn sm" data-action="task-do" data-id="' + t.id + '">' + 'See what\'s needed' + '</button>';
+  else if (canDo && t.key === 'i9s2') act += '<button class="btn sm" data-action="task-do" data-id="' + t.id + '">Complete Section 2</button>';
+  else if (canDo) act += '<button class="btn sm" data-action="task-do" data-id="' + t.id + '">' + ({ upload: 'Upload', form: 'Fill in', ack: 'Review and sign', info: 'Mark as read', hr: 'Complete' }[t.category] || 'Open') + '</button>';
   if (done && isSignTask(t) && sg && sg.status === 'Signed') act += '<button class="btn sm ghost" data-action="task-do" data-id="' + t.id + '" title="View the signed text">View</button>';
   if (hr && t.status === 'Submitted') act += '<button class="btn sm" data-action="task-review" data-id="' + t.id + '" data-d="approve">' + ic('check') + 'Approve</button><button class="btn sm danger" data-action="task-review" data-id="' + t.id + '" data-d="reject">Reject</button>';
   if (t.docId && (hr || opts.self)) act += '<button class="btn sm ghost" data-action="doc-open" data-id="' + t.docId + '" title="Open the file">' + ic('download') + '</button>';
@@ -652,9 +655,11 @@ Object.assign(ACTIONS, {
   'task-do': el => {
     const t = findTask(el.dataset.id); if (!t) return;
     if (isSignTask(t) && !el.dataset.paper) return openSignTask(t, el.tagName ? el : null);
+    if (!el.dataset.paper && (t.key === 'statew4' || (isFillTask(t) && (findTask(t.id) && (S.cache.portal && S.cache.portal.employee && S.cache.portal.employee.id === t.employeeId))))) return openFormTask(t, el.tagName ? el : null);
+    if (!el.dataset.paper && t.key === 'i9s2') return i9s2Modal(t.employeeId, el.tagName ? el : null);
     let body = '<form data-form="task-submit"><input type="hidden" name="taskId" value="' + t.id + '">' + (t.help ? '<p class="muted">' + esc(t.help) + '</p>' : '');
-    if (t.category === 'upload' || isSignTask(t)) {
-      body += '<div class="grid">' + field(isSignTask(t) ? 'The signed copy (PDF or image)' : 'File (PDF, image or Word, up to 10 MB)', '<input type="file" name="file" required accept=".pdf,.png,.jpg,.jpeg,.heic,.doc,.docx,.txt">') +
+    if (t.category === 'upload' || t.category === 'fill' || isSignTask(t) || el.dataset.paper) {
+      body += '<div class="grid">' + field(isSignTask(t) || isFillTask(t) || el.dataset.paper ? 'The signed copy (PDF or image)' : 'File (PDF, image or Word, up to 10 MB)', '<input type="file" name="file" required accept=".pdf,.png,.jpg,.jpeg,.heic,.doc,.docx,.txt">') +
         (NEEDS_EXPIRY.indexOf(t.docType) >= 0 ? field('Expiry / valid-until date', inp('expiresOn', '', 'type="date"' + (['I-94', 'Visa stamp', 'I-20'].indexOf(t.docType) >= 0 ? '' : ' required')), '', t.docType === 'I-94' ? 'The "Admit until" date on the I-94.' : 'As printed on the ' + t.docType + '.') : '') +
         field('Note for HR (optional)', inp('note', '', 'maxlength="500"')) + '</div>';
     } else if (t.category === 'form') {
@@ -668,7 +673,7 @@ Object.assign(ACTIONS, {
       body += '<div class="grid">' + (t.key === 'everify' ? field('E-Verify case number', inp('eVerifyCase', '')) : '') + (t.key === 'receipt' ? field('USCIS receipt number', inp('receiptNumber', '', 'placeholder="e.g. IOE0912345678"')) : '') +
         field('Note', inp('note', '', 'maxlength="500"')) + '</div>';
     } else body += '<p>Confirm you have read this.</p>';
-    openModal(t.title, body + '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + (t.category === 'upload' || isSignTask(t) ? 'Upload' : 'Save') + '</button></div></form>');
+    openModal(t.title, body + '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + (t.category === 'upload' || t.category === 'fill' || isSignTask(t) || el.dataset.paper ? 'Upload' : 'Save') + '</button></div></form>');
   },
   'task-review': async el => {
     const d = el.dataset.d, id = el.dataset.id;
@@ -686,7 +691,7 @@ Object.assign(FORMS, {
   'task-submit': async (v, form) => {
     const t = findTask(v.taskId), f = form.querySelector('[name=file]');
     const input = { taskId: v.taskId, note: v.note };
-    if (t.category === 'upload' || isSignTask(t)) { input.file = await readFile(f && f.files[0]); input.expiresOn = v.expiresOn; }
+    if (f && f.files && f.files[0]) { input.file = await readFile(f.files[0]); input.expiresOn = v.expiresOn; }
     if (t.category === 'form') input.form = v;
     if (t.category === 'ack') { input.signature = v.signature; input.agree = v.agree; }
     if (t.category === 'hr') { input.eVerifyCase = v.eVerifyCase; input.receiptNumber = v.receiptNumber; }
@@ -1501,20 +1506,23 @@ function profileForm(p) {
   return '<form class="card" data-form="profile-save"><div class="card-h"><h3>' + ic('briefcase') + 'Company profile</h3>' +
     (p.missing.length ? chip('Missing: ' + p.missing.join(', '), 'warn') : chip('Complete', 'ok')) + '</div>' +
     '<p class="muted">Used on offer letters, the Confidentiality and IP agreement, the handbook acknowledgment and signed PDFs.</p>' +
-    '<h4>Legal entity</h4><div class="grid g2">' + field('Display name (in the app)', inp('name', p.name, 'required' + ro)) + f('Legal name (exactly as registered)', 'legalName', 'placeholder="Intellisoft Technologies Inc."') +
+    '<h4>Legal entity</h4><div class="grid g2">' + field('Display name (in the app)', inp('name', p.name, 'required' + ro)) + f('Legal name (exactly as registered)', 'legalName', 'placeholder="' + esc(p.name || 'Your Company Inc.') + '" data-change="legal-suggest"') +
     f('DBA / trade name (optional)', 'dba') + field('Entity type', sel('entityType', [['', '—']].concat(L2.entityTypes), p.entityType, ro)) +
     field('State of incorporation / formation', sel('stateOfIncorporation', [['', '—']].concat(L2.states), p.stateOfIncorporation, ro)) + f('Date of incorporation', 'incorporatedOn', 'type="date"') +
-    f('Federal EIN', 'ein', 'placeholder="54-1234567" inputmode="numeric" maxlength="10"', '', 'On the IRS CP 575 or 147C letter') + f('NAICS code (optional)', 'naics', 'inputmode="numeric" maxlength="6"') + '</div>' +
+    f('Federal EIN', 'ein', smart('ein', 'placeholder="54-1234567" inputmode="numeric" maxlength="10"'), '', 'On the IRS CP 575 or 147C letter') + f('NAICS code (optional)', 'naics', 'inputmode="numeric" maxlength="6"') + '</div>' +
     '<h4>Official address</h4><div class="grid g2">' + f('Street', 'addrStreet', '', 'span2') + f('Suite / floor', 'addrSuite') + f('City', 'addrCity') +
-    field('State', sel('addrState', [['', '—']].concat(L2.states), p.addrState, ro)) + f('ZIP', 'addrZip', 'inputmode="numeric" maxlength="10"') +
-    field('Mailing address, if different', area('mailingAddress', p.mailingAddress, 'rows="2"' + ro), 'span2') + f('Phone', 'phone', 'type="tel"') + f('Website', 'website', 'type="url" placeholder="https://"') + '</div>' +
+    field('State', sel('addrState', [['', '—']].concat(L2.states), p.addrState, ro)) + f('ZIP', 'addrZip', smart('zip', 'inputmode="numeric" maxlength="10"')) +
+    field('Mailing address, if different', area('mailingAddress', p.mailingAddress, 'rows="2"' + ro), 'span2') + f('Phone', 'phone', smart('phone', 'type="tel" placeholder="(703) 555-0100"')) + f('Website', 'website', smart('url', 'type="text" placeholder="www.yourcompany.com"')) + '</div>' +
     '<h4>Signatory and HR</h4><div class="grid g3">' + f('Authorized signatory', 'signatoryName', 'placeholder="Full name"', '', 'Countersigns offer letters and agreements') + f('Signatory title', 'signatoryTitle', 'placeholder="President"') +
-    f('Signatory email', 'signatoryEmail', 'type="email"') + f('HR email', 'hrEmail', 'type="email"', '', 'Gets review notices; replies go here') +
+    f('Signatory email', 'signatoryEmail', smart('lower', 'type="email"')) + f('HR email', 'hrEmail', smart('lower', 'type="email"'), '', 'Gets review notices; replies go here') +
     field('Pay frequency', sel('payFrequency', [['', '—']].concat(L2.payFrequencies), p.payFrequency, ro)) + '</div>' +
     '<h4>Employer registrations</h4><div class="grid g2">' + f('E-Verify company ID', 'eVerifyCompanyId', 'maxlength="20"') +
     field('State tax and unemployment (SUI) account numbers', area('stateTaxIds', p.stateTaxIds, 'rows="2" placeholder="VA withholding 30-123456789F-001 · VA SUI 1234567"' + ro), 'span2') + '</div>' +
     (p.canEdit ? '<button class="btn">Save company profile</button>' : '<p class="hint">Only admins can change the company profile.</p>') + '</form>';
 }
+CHANGES['legal-suggest'] = el => { const v = el.value.trim(), et = el.form.querySelector('[name=entityType]'); if (!et || et.value) return;
+  const m = /\bLLC\b|L\.L\.C\./i.test(v) ? 'Limited liability company (LLC)' : /\bLLP\b/i.test(v) ? 'Limited liability partnership (LLP)' : /\b(P\.?C\.?|Professional Corporation)$/i.test(v) ? 'Professional corporation' : /\b(Inc\.?|Incorporated|Corp\.?|Corporation|Co\.)$/i.test(v) ? 'Corporation (C corporation)' : '';
+  if (m) { et.value = m; toast('Entity type set to ' + m + ' — change it if that is wrong', 'ok'); } };
 FORMS['profile-save'] = async v => {
   const name = v.name; delete v.name;
   if (name && name !== D().org.name) await call('updateOrgSettings', { name: name });
@@ -1569,7 +1577,9 @@ function templatesCard(list, p) {
     'These are starting points — have your employment counsel review them for your states before use.</p>' +
     list.map(t => '<div class="res"><span class="ri">' + ic('doc') + '</span><div style="flex:1"><b>' + esc(t.title) + '</b> ' + (t.custom ? chip('Customized', 'teal') : chip('Standard')) +
       (t.custom ? '<div class="muted"><small>Changed ' + esc(fmtWhen(t.updatedAt)) + ' by ' + esc(t.updatedBy || '') + '</small></div>' : '') + '</div>' +
-      (p.canEdit ? '<button class="btn xs ghost" data-action="tpl-edit" data-k="' + t.kind + '">' + ic('edit') + 'Edit</button>' : '') + '</div>').join('') + '</div>';
+      '<div class="btns"><button class="btn xs ghost" data-action="tpl-preview" data-k="' + t.kind + '">Preview</button><button class="btn xs ghost" data-action="tpl-pdf" data-k="' + t.kind + '">' + ic('download') + 'PDF</button>' +
+      (can('employees.edit') ? '<button class="btn xs" data-action="tpl-create" data-k="' + t.kind + '">' + ic('send') + (t.kind === 'offer' ? 'Create offer…' : 'Send to employee…') + '</button>' : '') +
+      (p.canEdit ? '<button class="btn xs ghost" data-action="tpl-edit" data-k="' + t.kind + '">' + ic('edit') + 'Edit</button>' : '') + '</div></div>').join('') + '</div>';
 }
 ACTIONS['tpl-edit'] = el => {
   const t = S.cache.templates.find(x => x.kind === el.dataset.k);
@@ -1577,7 +1587,7 @@ ACTIONS['tpl-edit'] = el => {
     field('Text — blank line = new paragraph, "# " starts a heading', area('body', t.body, 'rows="18" style="font-family:ui-monospace,Menlo,monospace;font-size:12.5px" required')) + '</div>' +
     '<p class="hint">Fields you can use: ' + t.tokens.map(k => '<code>{{' + esc(k) + '}}</code>').join(' ') + '</p>' +
     '<p class="hint">Already-signed documents never change. Unsigned confidentiality agreements and handbook acknowledgments are regenerated with the new text when the employee next opens them.</p>' +
-    '<div class="foot-btns">' + (t.custom ? '<button type="button" class="btn ghost" data-action="tpl-reset" data-k="' + t.kind + '">Reset to the standard text</button>' : '') + '<button class="btn">Save template</button></div></form>', true);
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="tpl-draft-preview" data-k="' + t.kind + '">Preview these edits</button>' + (t.custom ? '<button type="button" class="btn ghost" data-action="tpl-reset" data-k="' + t.kind + '">Reset to the standard text</button>' : '') + '<button class="btn">Save template</button></div></form>', true);
 };
 ACTIONS['tpl-reset'] = async el => { if (!confirm('Go back to the standard text?')) return; await call('saveTemplate', { kind: el.dataset.k, reset: true }); closeModal(); toast('Reset', 'ok'); await reloadCurrent(); };
 FORMS['tpl-save'] = async v => { await call('saveTemplate', v); closeModal(); toast('Template saved', 'ok'); await reloadCurrent(); };
@@ -1650,6 +1660,212 @@ async function sendOfferNow(offer) {
 }
 ACTIONS['offer-send-now'] = async el => busy(el, sendOfferNow(S.cache.offerDraft));
 ACTIONS['offer-back'] = async () => { const d = S.cache.offerDraft; await offerModal(S.cache.offerEmp); const f = document.querySelector('[data-form="offer-send"]'); if (f && d) Object.keys(d).forEach(k => { const el = f.querySelector('[name=' + k + ']'); if (el) el.value = d[k]; }); };
+
+async function empChoices() { if (!S.cache.emps) S.cache.emps = await call('listEmployees'); return S.cache.emps.filter(e => e.status !== 'Terminated'); }
+function showTplPreview(r, kind) {
+  openModal('Preview: ' + r.title, (r.missing.length ? '<div class="banner warn">' + ic('alert') + '<div>Highlighted items are missing from the company profile: ' + esc(r.missing.join(', ')) + '.</div></div>' : '') +
+    '<p class="muted">Filled in for <b>' + esc(r.employee) + '</b>' + (r.sample ? ' (a sample person)' : '') + ' with your company profile.</p>' + docBox(r.html) +
+    '<div class="foot-btns"><button class="btn ghost" data-action="tpl-pdf" data-k="' + kind + '">' + ic('download') + 'Download PDF</button>' + (can('employees.edit') ? '<button class="btn" data-action="tpl-create" data-k="' + kind + '">' + ic('send') + (kind === 'offer' ? 'Create an offer…' : 'Send to an employee…') + '</button>' : '') + '</div>', true);
+}
+Object.assign(ACTIONS, {
+  'tpl-preview': async el => showTplPreview(await busy(el, call('previewTemplate', { kind: el.dataset.k })), el.dataset.k),
+  'tpl-draft-preview': async el => { const f = el.closest('form'); const r = await busy(el, call('previewTemplate', { kind: el.dataset.k, title: f.querySelector('[name=title]').value, body: f.querySelector('[name=body]').value }));
+    const w = window.open('', '_blank'); if (w) { w.document.write('<title>' + esc(r.title) + '</title><body style="max-width:760px;margin:30px auto;font-family:Georgia,serif;line-height:1.55"><h1>' + esc(r.title) + '</h1>' + r.html + '</body>'); w.document.close(); } else toast('Allow pop-ups to preview', 'error'); },
+  'tpl-pdf': async el => saveB64(await busy(el, call('templatePdf', { kind: el.dataset.k, employeeId: el.dataset.emp || '' }))),
+  'tpl-create': async el => {
+    const k = el.dataset.k, list = await busy(el, empChoices());
+    openModal(k === 'offer' ? 'Create an offer letter' : 'Send for signature', '<form data-form="tpl-create"><input type="hidden" name="kind" value="' + k + '"><div class="grid">' +
+      field('Employee', sel('employeeId', list.map(e => [e.id, e.name + (e.jobTitle ? ' — ' + e.jobTitle : '') + ' (' + e.status + ')']), '')) + '</div>' +
+      '<p class="hint">' + (k === 'offer' ? 'Opens the offer form prefilled from their record.' : 'Puts it on their checklist and emails them to review and sign (they are invited to the portal if needed).') + '</p>' +
+      '<div class="foot-btns"><button type="button" class="btn ghost" data-action="tpl-create-preview">Preview for this person</button><button class="btn">' + (k === 'offer' ? 'Continue' : ic('send') + 'Send') + '</button></div></form>');
+  },
+  'tpl-create-preview': async el => { const f = el.closest('form'), k = f.querySelector('[name=kind]').value; showTplPreview(await busy(el, call('previewTemplate', { kind: k, employeeId: f.querySelector('[name=employeeId]').value })), k); }
+});
+FORMS['tpl-create'] = async v => {
+  if (v.kind === 'offer') { closeModal(); return offerModal(v.employeeId); }
+  let r;
+  try { r = await call('sendAgreementFor', { kind: v.kind, employeeId: v.employeeId }); }
+  catch (e) { if (e.code === 'ALREADY' && confirm(e.message + ' Ask them to sign it again?')) r = await call('sendAgreementFor', { kind: v.kind, employeeId: v.employeeId, again: true }); else throw e; }
+  closeModal(); toast('Sent for signature' + (r.invited ? ' — they were invited to the portal' : ''), 'ok');
+};
+const FILL_KEYS = { i9s1: 'i9', w4: 'w4', dd: 'dd' };
+const isFillTask = t => !!FILL_KEYS[t.key] && (t.category === 'fill' || t.category === 'upload');
+
+const FMT = {
+  ein: v => { const d = v.replace(/\D/g, '').slice(0, 9); return d.length > 2 ? d.slice(0, 2) + '-' + d.slice(2) : d; },
+  phone: v => { const d = v.replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : v; },
+  zip: v => { const d = v.replace(/\D/g, ''); return d.length === 9 ? d.slice(0, 5) + '-' + d.slice(5) : d.length === 5 ? d : v; },
+  url: v => { v = v.trim(); return v && !/^https?:\/\//i.test(v) ? 'https://' + v : v; },
+  ssn: v => { const d = v.replace(/\D/g, '').slice(0, 9); return d.length > 5 ? d.slice(0, 3) + '-' + d.slice(3, 5) + '-' + d.slice(5) : d.length > 3 ? d.slice(0, 3) + '-' + d.slice(3) : d; },
+  upper: v => v.toUpperCase(), lower: v => v.trim().toLowerCase(),
+  money: v => { const n = Number(String(v).replace(/[$,\s]/g, '')); return v === '' || isNaN(n) ? v : String(n); }
+};
+CHANGES.fmt = el => { const f = FMT[el.dataset.fmt]; if (f) el.value = f(el.value); };
+const smart = (kind, extra) => 'data-change="fmt" data-fmt="' + kind + '" ' + (extra || '');
+const abaOk = r => { const d = String(r).replace(/\D/g, ''); if (d.length !== 9) return false; const x = d.split('').map(Number); return (3 * (x[0] + x[3] + x[6]) + 7 * (x[1] + x[4] + x[7]) + (x[2] + x[5] + x[8])) % 10 === 0; };
+CHANGES.aba = el => { CHANGES.fmt(el); const ok = abaOk(el.value), h = el.parentNode.querySelector('.abahint'); if (h) { h.textContent = el.value ? (ok ? '✓ Valid routing number' : 'This routing number does not check out — look at the 9 digits at the bottom left of a check.') : ''; h.style.color = ok ? 'var(--green,#15803d)' : 'var(--red,#b91c1c)'; } };
+
+const signBlock = (who, attest) => (attest ? '<div class="banner" style="margin-top:12px">' + ic('shield') + '<div><small>' + esc(attest) + '</small></div></div>' : '') +
+  '<label class="check" style="margin-top:8px"><input type="checkbox" name="consent"> I agree to sign this form electronically, and I understand my typed name is my legal signature.</label>' +
+  '<div class="grid g2" style="margin-top:6px">' + field('Type your full name to sign', inp('signature', '', 'required autocomplete="name" placeholder="' + esc(who || '') + '"')) + '</div>';
+const sectionHead = (n, title, hint) => '<h4 style="margin:16px 0 6px">' + (n ? '<span class="chip teal" style="margin-right:6px">' + esc(n) + '</span>' : '') + esc(title) + '</h4>' + (hint ? '<p class="hint" style="margin-top:0">' + esc(hint) + '</p>' : '');
+
+async function openFormTask(t, btn) {
+  const d = await busy(btn, call('getFormDraft', { taskId: t.id }));
+  S.cache.form = { task: t, draft: d };
+  if (d.kind === 'statew4') return stateModal(t, d);
+  if (!d.canSign) return openModal(d.title, '<p class="muted">The employee fills in and signs this form in their portal. You can also upload a paper copy.</p><div class="foot-btns"><button class="btn ghost" data-action="form-paper">Upload a paper copy</button></div>');
+  if (d.kind === 'w4') return w4Modal(d);
+  if (d.kind === 'dd') return ddModal(d);
+  if (d.kind === 'i9') return i9Modal(d);
+}
+ACTIONS['form-paper'] = () => { const t = S.cache.form.task; closeModal(); ACTIONS['task-do']({ dataset: { id: t.id, paper: '1' } }); };
+
+function w4Modal(d) {
+  const p = d.prefill;
+  openModal('Form W-4 (2026) — Employee\'s Withholding Certificate', '<form data-form="form-w4"><p class="muted">Tells ' + esc(d.employer.name) + ' how much federal income tax to withhold. Not sure? Use the IRS estimator at <a href="https://www.irs.gov/w4app" target="_blank" rel="noopener">irs.gov/w4app</a>.</p>' +
+    sectionHead('Step 1', 'Personal information') + '<div class="grid g2">' + field('First name and middle initial', inp('firstName', p.firstName, 'required')) + field('Last name', inp('lastName', p.lastName, 'required')) +
+    field('Address', inp('address', p.address, 'required'), 'span2') + field('City', inp('city', p.city, 'required')) + '<div class="grid g2" style="gap:10px">' + field('State', inp('state', p.state, smart('upper', 'required maxlength="2"'))) + field('ZIP', inp('zip', p.zip, smart('zip', 'required inputmode="numeric"'))) + '</div>' +
+    field('Social Security number', inp('ssn', '', smart('ssn', 'required inputmode="numeric" autocomplete="off" placeholder="123-45-6789"'))) +
+    field('Filing status', sel('filing', d.filing, d.filing[0])) + '</div>' +
+    '<label class="check" style="margin-top:10px"><input type="checkbox" name="exempt" data-change="w4-calc"> I claim exemption from withholding for 2026 (I had no tax liability in 2025 and expect none in 2026)</label>' +
+    '<div id="w4-steps">' + sectionHead('Step 2', 'Multiple jobs or spouse works', 'Only if you have more than one job at a time, or are married filing jointly and your spouse also works.') +
+    '<label class="check"><input type="checkbox" name="twoJobs"> There are only two jobs in total (check this box on the W-4 for both jobs)</label>' +
+    sectionHead('Step 3', 'Dependents and other credits', 'If your income is $200,000 or less ($400,000 married filing jointly).') + '<div class="grid g3">' +
+    field('Qualifying children under 17', inp('children', '0', 'type="number" min="0" max="20" data-change="w4-calc"'), '', '× $' + d.child.toLocaleString()) +
+    field('Other dependents', inp('otherDeps', '0', 'type="number" min="0" max="20" data-change="w4-calc"'), '', '× $' + d.otherDep) +
+    field('Other credits (optional, $)', inp('otherCredits', '', smart('money', 'inputmode="decimal" data-change="w4-calc"'))) + '</div><p><b>Step 3 total: <span id="w4-total">$0</span></b></p>' +
+    sectionHead('Step 4', 'Other adjustments (optional)') + '<div class="grid g3">' + field('(a) Other income, not from jobs ($/yr)', inp('otherIncome', '', smart('money', 'inputmode="decimal"'))) +
+    field('(b) Deductions beyond the standard ($/yr)', inp('deductions', '', smart('money', 'inputmode="decimal"'))) + field('(c) Extra withholding ($ per pay period)', inp('extra', '', smart('money', 'inputmode="decimal"'))) + '</div></div>' +
+    sectionHead('', 'Employers only (filled in by IntelliEmp)') + '<p class="muted"><small>' + esc(d.employer.name) + ' · ' + esc(d.employer.address) + ' · EIN ' + esc(d.employer.ein || '—') + ' · first date of employment ' + esc(fmtDate(d.employer.firstDay) || '—') + '</small></p>' +
+    sectionHead('Step 5', 'Sign') + signBlock(d.employeeName, 'Under penalties of perjury, I declare that this certificate, to the best of my knowledge and belief, is true, correct, and complete.') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="form-paper">Upload a paper copy instead</button><button class="btn">' + ic('edit') + 'Sign Form W-4</button></div></form>', true);
+}
+CHANGES['w4-calc'] = el => {
+  const f = el.form, g = n => Number((f.querySelector('[name=' + n + ']') || {}).value || 0) || 0, d = S.cache.form.draft;
+  const ex = f.querySelector('[name=exempt]').checked, steps = $('w4-steps'); if (steps) steps.style.opacity = ex ? '.35' : '1'; if (steps) steps.querySelectorAll('input').forEach(i => { i.disabled = ex; });
+  const tot = g('children') * d.child + g('otherDeps') * d.otherDep + g('otherCredits'); const o = $('w4-total'); if (o) o.textContent = '$' + tot.toLocaleString('en-US');
+};
+FORMS['form-w4'] = async v => submitFormNow({ firstName: v.firstName, lastName: v.lastName, address: v.address, city: v.city, state: v.state, zip: v.zip, ssn: v.ssn, filing: v.filing, exempt: !!v.exempt,
+  twoJobs: !!v.twoJobs, children: v.children, otherDeps: v.otherDeps, otherCredits: v.otherCredits, otherIncome: v.otherIncome, deductions: v.deductions, extra: v.extra }, v);
+
+function ddAcct(i) {
+  return '<div class="card tight" style="margin:8px 0"><b>' + (i ? 'Second account — gets the rest of your pay' : 'Account') + '</b><div class="grid g2" style="margin-top:6px">' +
+    field('Bank name', inp('bank' + i, '', 'required placeholder="Chase, Bank of America…"')) + field('Account type', sel('type' + i, ['Checking', 'Savings'], 'Checking')) +
+    field('Routing number (9 digits)', inp('routing' + i, '', 'required inputmode="numeric" maxlength="9" data-change="aba" data-fmt="" autocomplete="off"') + '<div class="hint abahint"></div>') +
+    field('Account number', inp('account' + i, '', 'required inputmode="numeric" autocomplete="off"')) + field('Account number again', inp('accountConfirm' + i, '', 'required inputmode="numeric" autocomplete="off"')) +
+    (i === 0 ? '<div id="dd-split" hidden>' + field('Amount to this account', '<div class="grid g2" style="gap:8px">' + sel('mode0', [['amount', '$ per pay'], ['percent', '% of pay']], 'amount') + inp('value0', '', smart('money', 'inputmode="decimal"')) + '</div>') + '</div>' : '') + '</div></div>';
+}
+function ddModal(d) {
+  openModal('Direct deposit', '<form data-form="form-dd"><p class="muted">Where ' + esc(d.employer.name) + ' should pay you. Find the routing and account numbers at the bottom of a check or in your bank app.</p>' +
+    ddAcct(0) + '<div id="dd-second"></div><button type="button" class="btn ghost sm" data-action="dd-split">' + ic('plus') + 'Split my pay between two accounts</button>' +
+    signBlock(d.employeeName, 'I authorize ' + d.employer.name + ' to deposit my pay into the account(s) above and, if a deposit is made in error, to initiate an adjustment to correct it, as permitted by law.') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="form-paper">Upload a voided check instead</button><button class="btn">' + ic('edit') + 'Sign authorization</button></div></form>', true);
+}
+ACTIONS['dd-split'] = el => { const s = $('dd-second'); if (!s) return; if (s.innerHTML) { s.innerHTML = ''; $('dd-split').hidden = true; el.innerHTML = ic('plus') + 'Split my pay between two accounts'; } else { s.innerHTML = ddAcct(1); $('dd-split').hidden = false; el.innerHTML = 'Use one account'; } };
+FORMS['form-dd'] = async v => {
+  const two = !!$('dd-second') && !!$('dd-second').innerHTML, accts = [];
+  [0].concat(two ? [1] : []).forEach(i => accts.push({ bank: v['bank' + i], type: v['type' + i], routing: v['routing' + i], account: v['account' + i], accountConfirm: v['accountConfirm' + i], mode: v.mode0, value: v.value0 }));
+  return submitFormNow({ accounts: accts }, v);
+};
+
+function i9Modal(d) {
+  const p = d.prefill, st = p.status || '';
+  const radio = n => '<label class="check" style="align-items:flex-start"><input type="radio" name="status" value="' + n + '" data-change="i9-status"' + (String(st) === String(n) ? ' checked' : '') + '> <span><b>' + n + '.</b> ' + esc(d.statuses[n]) + '</span></label>';
+  openModal('Form I-9, Section 1 — Employment Eligibility Verification', '<form data-form="form-i9"><p class="muted">Fill this in on or before your first day. HR then examines your original documents (Section 2). <small>' + esc(d.edition) + '</small></p>' +
+    sectionHead('', 'Your information') + '<div class="grid g3">' + field('Last name (family name)', inp('lastName', p.lastName, 'required')) + field('First name (given name)', inp('firstName', p.firstName, 'required')) +
+    field('Middle initial', inp('middleInitial', '', smart('upper', 'maxlength="1"'))) + field('Other last names used (if any)', inp('otherLastNames', '', 'placeholder="N/A"'), 'span2') + field('Date of birth', inp('dob', '', 'type="date" required')) +
+    field('Address (street number and name)', inp('address', p.address, 'required'), 'span2') + field('Apt. number', inp('apt', '')) + field('City or town', inp('city', p.city, 'required')) +
+    field('State', inp('state', p.state, smart('upper', 'required maxlength="2"'))) + field('ZIP code', inp('zip', p.zip, smart('zip', 'required inputmode="numeric"'))) +
+    field('U.S. Social Security number', inp('ssn', '', smart('ssn', (d.everify ? 'required ' : '') + 'inputmode="numeric" autocomplete="off" placeholder="123-45-6789"')), '', d.everify ? 'Required — your employer uses E-Verify' : 'Optional — your employer does not use E-Verify') +
+    field('Email (optional)', inp('email', p.email, smart('lower', 'type="email"'))) + field('Telephone (optional)', inp('phone', p.phone, smart('phone', 'type="tel"'))) + '</div>' +
+    sectionHead('', 'I attest, under penalty of perjury, that I am (check one):') + [1, 2, 3, 4].map(radio).join('') + '<div id="i9-extra" style="margin-top:8px"></div>' +
+    '<label class="check" style="margin-top:10px"><input type="checkbox" name="preparerUsed" data-change="i9-prep"> Someone helped me fill this in (preparer or translator)</label><div id="i9-prep"></div>' +
+    signBlock(d.employeeName, 'I am aware that federal law provides for imprisonment and/or fines for false statements, or the use of false documents, in connection with the completion of this form. I attest, under penalty of perjury, that this information, including my selection of the box attesting to my citizenship or immigration status, is true and correct.') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="form-paper">Upload a paper Form I-9 instead</button><button class="btn">' + ic('edit') + 'Sign Section 1</button></div></form>', true);
+  setTimeout(() => { const r = document.querySelector('[name=status]:checked'); if (r) CHANGES['i9-status'](r); }, 0);
+}
+CHANGES['i9-status'] = el => {
+  const box = $('i9-extra'), p = S.cache.form.draft.prefill; if (!box) return;
+  if (el.value === '3') box.innerHTML = '<div class="grid g2">' + field('USCIS or A-Number', inp('lprNumber', '', smart('upper', 'required placeholder="A123456789"')), '', 'On your green card') + '</div>';
+  else if (el.value === '4') box.innerHTML = '<div class="grid g2">' + field('Work authorization expires', inp('workUntil', p.workUntil || '', 'type="date"'), '', 'From your EAD or I-94. Leave blank and tick below if none') +
+    field('', '<label class="check"><input type="checkbox" name="noExpiry"> My authorization has no expiration date</label>') +
+    field('Give one of these', sel('idType', [['aNumber', 'USCIS or A-Number'], ['i94', 'Form I-94 admission number'], ['passport', 'Foreign passport number and country']], 'i94', 'data-change="i9-id"')) + '<div id="i9-id"></div></div>';
+  else box.innerHTML = '';
+  const s = box.querySelector('[name=idType]'); if (s) CHANGES['i9-id'](s);
+};
+CHANGES['i9-id'] = el => {
+  const b = $('i9-id'); if (!b) return;
+  b.innerHTML = el.value === 'aNumber' ? field('USCIS or A-Number', inp('aNumber', '', smart('upper', 'required'))) : el.value === 'i94' ? field('Form I-94 admission number (11 characters)', inp('i94', '', smart('upper', 'required maxlength="11"')), '', 'From i94.cbp.dhs.gov') :
+    '<div class="grid g2" style="gap:8px">' + field('Foreign passport number', inp('passport', '', smart('upper', 'required'))) + field('Country of issuance', inp('passportCountry', '', 'required')) + '</div>';
+};
+CHANGES['i9-prep'] = el => { const b = $('i9-prep'); if (b) b.innerHTML = el.checked ? '<div class="grid g2">' + field('Preparer / translator name', inp('preparerName', '', 'required')) + field('Their address', inp('preparerAddress', '', 'required')) + '</div>' : ''; };
+FORMS['form-i9'] = async v => {
+  if (!v.status) throw new Error('Check the box that describes your citizenship or immigration status.');
+  const keys = ['lastName', 'firstName', 'middleInitial', 'otherLastNames', 'dob', 'address', 'apt', 'city', 'state', 'zip', 'ssn', 'email', 'phone', 'status', 'lprNumber', 'workUntil', 'noExpiry', 'idType', 'aNumber', 'i94', 'passport', 'passportCountry', 'preparerUsed', 'preparerName', 'preparerAddress'];
+  const data = {}; keys.forEach(k => { if (v[k] !== undefined) data[k] = v[k]; });
+  return submitFormNow(data, v);
+};
+
+async function submitFormNow(data, v) {
+  const t = S.cache.form.task;
+  const r = await call('submitForm', { taskId: t.id, data: data, signature: v.signature, consent: !!v.consent, agent: navigator.userAgent });
+  closeModal(); toast('Signed — the completed form is in your documents', 'ok', 6000); if (r.activated) toast('Onboarding complete!', 'ok'); await reloadCurrent();
+}
+
+function stateModal(t, d) {
+  const s = d.state;
+  const rows = s.states.length ? s.states.map(x => '<div class="alert"><span class="lv' + (x.noTax ? '' : ' warn') + '"></span><div><b>' + esc(x.name) + '</b> ' + (x.code === s.work ? chip('Work state') : '') + (x.code === s.home ? ' ' + chip('Home state') : '') + '<br>' +
+    (x.noTax ? 'No state income tax on wages — no form needed.' : 'Use <b>' + esc(x.form || 'the state withholding certificate') + '</b> from the ' + esc(x.name) + ' tax department website.') + '</div></div>').join('')
+    : '<p class="muted">Add your home address (Personal details) so IntelliEmp can tell which state form you need.</p>';
+  openModal('State tax withholding', rows + (s.notNeeded ? '<div class="foot-btns"><button class="btn" data-action="state-skip">' + ic('check') + 'Mark as not needed</button></div>'
+    : '<form data-form="task-submit"><input type="hidden" name="taskId" value="' + t.id + '"><div class="grid">' + field('Upload the signed state form', '<input type="file" name="file" required accept=".pdf,.png,.jpg,.jpeg">') + '</div>' +
+      '<p class="hint">If you live in one state and work in another, HR may need both forms (some neighboring states have reciprocity agreements).</p><div class="foot-btns"><button class="btn">Upload</button></div></form>'), true);
+}
+ACTIONS['state-skip'] = async el => { await busy(el, call('stateWithholdingNotNeeded', { taskId: S.cache.form.task.id })); closeModal(); toast('Marked as not needed', 'ok'); await reloadCurrent(); };
+
+async function i9s2Modal(empId, btn) {
+  const r = await busy(btn, call('getI9Section2', { employeeId: empId }));
+  S.cache.i9s2 = r;
+  if (!r.section1) return openModal('Form I-9, Section 2', '<p>' + (r.section1Paper ? 'Section 1 was completed on paper. Upload the completed paper Form I-9 on this item instead.' : esc(r.employee.name) + ' has not signed Section 1 yet. Section 2 opens once they do.') + '</p>' +
+    (r.section1Paper ? '<div class="foot-btns"><button class="btn" data-action="i9s2-paper">Upload the paper form</button></div>' : ''));
+  const sug = r.suggestions.map((x, i) => '<button type="button" class="btn ghost sm" data-action="i9-use" data-i="' + i + '">' + ic('doc') + 'Use ' + esc(x.title.replace(/ \(.*/, '')) + (x.expiresOn ? ' · expires ' + esc(fmtDate(x.expiresOn)) : '') + '</button>').join(' ');
+  const docRow = (i, list) => '<div class="card tight" style="margin:8px 0" data-docrow="' + i + '"><div class="grid g2">' + field('List', sel('list' + i, [['A', 'List A — identity and work authorization'], ['B', 'List B — identity'], ['C', 'List C — work authorization']], list, 'data-change="i9-list"')) +
+    field('Document title', sel('title' + i, (r.lists[list] || r.lists.A), list === 'A' ? ({ 1: 'U.S. Passport', 3: 'Permanent Resident Card (Form I-551)', 4: 'Employment Authorization Document (Form I-766)' }[r.section1.status] || '') : '')) + field('Issuing authority', inp('authority' + i, '', 'required')) + field('Document number', inp('number' + i, '', smart('upper', 'required'))) +
+    field('Expiration date', inp('expiresOn' + i, '', 'type="date"')) + field('', '<label class="check"><input type="checkbox" name="noExpiry' + i + '"> No expiration date</label>') + '</div></div>';
+  openModal('Form I-9, Section 2 — ' + r.employee.name, '<p>' + ic('check') + ' Section 1 signed ' + esc(fmtWhen(r.section1.signedAt)) + ': <b>' + esc(r.section1.statusText) + '</b>' + (r.section1.workUntil ? ' until ' + esc(fmtDate(r.section1.workUntil) || r.section1.workUntil) : '') + (r.section1.ssn ? ' · SSN ' + esc(r.section1.ssn) : '') + '</p>' +
+    (r.deadline ? '<div class="banner ' + (daysTo(r.deadline) < 0 ? 'bad' : 'warn') + '">' + ic('clock') + '<div>Examine the original documents in person (or by the DHS-authorized remote procedure) by <b>' + esc(fmtDate(r.deadline)) + '</b> — 3 business days after the start date.</div></div>' : '') +
+    '<form data-form="i9s2"><p class="muted">Record <b>one List A</b> document, <b>or one List B and one List C</b>. The employee chooses which documents to show — do not ask for specific ones.</p>' + (sug ? '<p>From their uploads: ' + sug + '</p>' : '') +
+    '<div id="i9-docs">' + docRow(0, 'A') + '</div><button type="button" class="btn ghost sm" data-action="i9-bc">Use List B + List C instead</button>' +
+    '<div class="grid g2" style="margin-top:10px">' + field('Employee\'s first day of employment', inp('firstDay', r.employee.startDate || '', 'type="date" required')) + field('Additional information (optional)', inp('additional', '')) +
+    field('Your name', inp('signature', r.signer.name, 'required')) + field('Your title', inp('title', '', 'required placeholder="HR Manager"')) + '</div>' +
+    '<label class="check"><input type="checkbox" name="alternative"> Documents were examined using an alternative procedure authorized by DHS (remote examination — E-Verify employers only)</label>' +
+    '<div class="banner" style="margin-top:8px">' + ic('shield') + '<div><small>I attest, under penalty of perjury, that (1) I have physically examined the documentation presented by the above-named employee, (2) the above-listed documentation appears to be genuine and to relate to the employee named, and (3) to the best of my knowledge, the employee is authorized to work in the United States.</small></div></div>' +
+    '<label class="check"><input type="checkbox" name="consent"> I agree to sign this certification electronically.</label>' +
+    '<p class="hint">Business name and address come from the company profile: ' + esc(r.company.name) + ', ' + esc(r.company.address) + '.</p><div class="foot-btns"><button class="btn">' + ic('edit') + 'Sign Section 2</button></div></form>', true);
+  S.cache.i9rows = 1;
+  if (r.suggestions.length === 1) setTimeout(() => { const b = document.querySelector('[data-action="i9-use"]'); if (b) b.click(); }, 0);
+}
+CHANGES['i9-list'] = el => { const i = el.name.replace('list', ''), r = S.cache.i9s2, t = el.form.querySelector('[name=title' + i + ']'); if (t) t.innerHTML = opts(r.lists[el.value], ''); };
+Object.assign(ACTIONS, {
+  'i9-bc': el => { const box = $('i9-docs'), r = S.cache.i9s2; const two = S.cache.i9rows === 2;
+    const row = (i, list) => box.querySelector('[data-docrow="0"]').outerHTML.replace(/data-docrow="0"/, 'data-docrow="' + i + '"').replace(/name="(\w+?)0"/g, 'name="$1' + i + '"');
+    if (two) { box.innerHTML = box.querySelector('[data-docrow="0"]').outerHTML; S.cache.i9rows = 1; box.querySelector('[name=list0]').value = 'A'; CHANGES['i9-list'](box.querySelector('[name=list0]')); el.textContent = 'Use List B + List C instead'; return; }
+    box.innerHTML = row(0, 'B') + row(1, 'C'); S.cache.i9rows = 2;
+    box.querySelector('[name=list0]').value = 'B'; CHANGES['i9-list'](box.querySelector('[name=list0]')); box.querySelector('[name=list1]').value = 'C'; CHANGES['i9-list'](box.querySelector('[name=list1]'));
+    void r; el.textContent = 'Use one List A document instead'; },
+  'i9-use': el => { const x = S.cache.i9s2.suggestions[Number(el.dataset.i)], f = document.querySelector('[data-form="i9s2"]'); if (!f || !x) return;
+    if (S.cache.i9rows === 2 && x.list === 'A') ACTIONS['i9-bc'](f.querySelector('[data-action="i9-bc"]'));
+    const i = x.list === 'C' ? 1 : 0, set = (n, v) => { const e = f.querySelector('[name=' + n + i + ']'); if (e) e.value = v; };
+    set('list', x.list); CHANGES['i9-list'](f.querySelector('[name=list' + i + ']')); set('title', x.title); set('authority', x.authority || ''); set('expiresOn', x.expiresOn || '');
+    toast('Filled from ' + x.fileName + ' — type the full document number from the original', 'ok', 5000); const n = f.querySelector('[name=number' + i + ']'); if (n) n.focus(); },
+  'i9s2-paper': () => { closeModal(); const t = (S.cache.emp.checklist || []).find(x => x.key === 'i9s2'); if (t) ACTIONS['task-do']({ dataset: { id: t.id, paper: '1' } }); }
+});
+FORMS.i9s2 = async v => {
+  const docs = []; for (let i = 0; i < (S.cache.i9rows || 1); i++) docs.push({ list: v['list' + i], title: v['title' + i], authority: v['authority' + i], number: v['number' + i], expiresOn: v['expiresOn' + i], noExpiry: !!v['noExpiry' + i] });
+  const r = await call('completeI9Section2', { employeeId: S.cache.i9s2.employee.id, documents: docs, firstDay: v.firstDay, additional: v.additional, alternative: !!v.alternative, signature: v.signature, title: v.title, consent: !!v.consent });
+  closeModal(); toast('Form I-9 complete' + (r.late ? ' — note: after the 3-business-day deadline' : ''), r.late ? 'error' : 'ok', 6000); await reloadCurrent();
+};
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
   copy: el => copy(el.dataset.text || ''),
@@ -1681,7 +1897,7 @@ document.addEventListener('submit', async ev => {
 });
 const onChange = async ev => { const el = ev.target.closest && ev.target.closest('[data-change]'); if (!el || !CHANGES[el.dataset.change]) return; try { await CHANGES[el.dataset.change](el, ev); } catch (e) { fail(e); } };
 document.addEventListener('change', onChange);
-document.addEventListener('input', ev => { if (ev.target.dataset && ev.target.dataset.change === 'ts-sum') onChange(ev); });
+document.addEventListener('input', ev => { if (ev.target.dataset && ['ts-sum', 'w4-calc'].indexOf(ev.target.dataset.change) >= 0) onChange(ev); });
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && S.modal) closeModal(); });
 ['dragover', 'dragleave', 'drop'].forEach(t => document.addEventListener(t, ev => {
   const z = ev.target.closest && ev.target.closest('.drop'); if (!z) return;
