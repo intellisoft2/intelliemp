@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.3"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.4"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -771,8 +771,8 @@ function empProfile(E) {
     kv('Client manager', esc(e.clientManagerName || '') + (e.clientManagerEmail ? ' <small class="muted">' + esc(e.clientManagerEmail) + '</small>' : '')) + kv('Worksite', esc(e.worksite)) + '</dl></div>' +
     '<div class="card"><h3>' + ic('clock') + 'Timesheets</h3><dl class="kv">' + kv('Weekly timesheet', e.timesheetRequired === 'No' ? 'Not required' : 'Required') + kv('Approval', esc(e.approvalFlow)) +
     (flowSteps.length ? kv('Approvers', flowSteps.map((n, i) => (i + 1) + '. ' + esc(n)).join('<br>')) : '') + '</dl>' +
-    (e.workAuth !== undefined ? '<h3 style="margin-top:16px">' + ic('passport') + 'Work authorization</h3><dl class="kv">' + kv('Status', esc(e.workAuth)) + kv('Valid until', expiryChip(e.workAuthExpiry)) + kv('I-94 admit until', expiryChip(e.i94Expiry)) +
-      kv('Receipt number', esc(e.receiptNumber)) + kv('E-Verify case', esc(e.eVerifyCase) + (e.eVerifyStatus ? ' · ' + esc(e.eVerifyStatus) : '')) + '</dl>' : '') + '</div>' +
+    (e.workAuth !== undefined ? '<h3 style="margin-top:16px">' + ic('passport') + 'Work authorization</h3><dl class="kv">' + kv('Status', esc(e.workAuth)) + kv(((L('waFields') || {})[e.workAuth] || {}).expiry || 'Valid until', expiryChip(e.workAuthExpiry)) + kv('I-94 admit until', expiryChip(e.i94Expiry)) +
+      kv(((L('waFields') || {})[e.workAuth] || {}).receipt || 'Receipt number', esc(e.receiptNumber)) + (((L('waFields') || {})[e.workAuth] || {}).note ? '<dt></dt><dd><small class="muted">' + esc(L('waFields')[e.workAuth].note) + '</small></dd>' : '') + kv('E-Verify case', esc(e.eVerifyCase) + (e.eVerifyStatus ? ' · ' + esc(e.eVerifyStatus) : '')) + '</dl>' : '') + '</div>' +
     '<div class="card"><h3>' + ic('user') + 'Contact</h3><dl class="kv">' + kv('Work email', esc(e.email)) + kv('Personal email', esc(e.personalEmail)) + kv('Phone', esc(e.phone)) +
     kv('Address', esc([e.address, e.city, e.state, e.zip].filter(Boolean).join(', '))) + kv('Emergency contact', esc([e.emergencyName, e.emergencyPhone].filter(Boolean).join(' · '))) + '</dl></div>' +
     '<div class="card"><h3>' + ic('shield') + 'Portal access</h3>' + (E.member ? '<p>' + esc(E.member.email) + ' · ' + esc(roleName(E.member.role)) + ' ' + statusChip(E.member.status) + '</p>' :
@@ -823,13 +823,29 @@ function empForm(e, mode) {
     field('Employment type', sel('employmentType', lists.empTypes, e.employmentType || 'W2 Full-time (salary)')) + field('Start date', inp('startDate', e.startDate, 'type="date"')) +
     (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + field('Pay rate (USD)', inp('payRate', e.payRate, 'type="number" step="0.01" min="0"')) : '') +
     (isNew ? '' : field('Status', sel('status', lists.empStatuses, e.status)) + field('End date', inp('endDate', e.endDate, 'type="date"'))) +
-    '</div><h4>Work authorization</h4><div class="grid g3">' + field('Status', sel('workAuth', lists.workAuth, e.workAuth || 'U.S. Citizen')) + field('Valid until', inp('workAuthExpiry', e.workAuthExpiry, 'type="date"'), '', 'EAD / I-797 end date') +
-    field('I-94 admit until', inp('i94Expiry', e.i94Expiry, 'type="date"')) + '</div>' +
+    '</div><h4>Work authorization</h4>' + waBlock(e) +
     '<h4>Manager, client and timesheet approval</h4><div class="grid g2">' + field('Manager name', inp('managerName', e.managerName)) + field('Manager email', inp('managerEmail', e.managerEmail, 'type="email"')) +
     field('Client', inp('clientName', e.clientName)) + field('Project', inp('projectName', e.projectName)) + field('Client manager name', inp('clientManagerName', e.clientManagerName)) + field('Client manager email', inp('clientManagerEmail', e.clientManagerEmail, 'type="email"')) +
     field('Who approves timesheets', sel('approvalFlow', (isNew ? [['', 'Company default (' + (D().org.defaultApproval || 'Client manager') + ')']] : []).concat(lists.approvalFlows), e.approvalFlow || '')) +
     field('Weekly timesheet', sel('timesheetRequired', [['Yes', 'Required'], ['No', 'Not required (salaried, no client)']], e.timesheetRequired || 'Yes')) + field('Worksite address', inp('worksite', e.worksite), 'span2') + '</div>';
 }
+function waBlock(e) {
+  const st = e.workAuth || 'U.S. Citizen', f = (L('waFields') || {})[st] || { expiry: 'Valid until', i94: true, receipt: 'Receipt number' };
+  const keep = (k, html) => '<div data-wa="' + k + '"' + (html ? '' : ' hidden') + '>' + (html || '') + '</div>';
+  return '<div class="grid g3" id="wa-grid">' + field('Status', sel('workAuth', L('workAuth'), st, 'data-change="wa-fields"')) +
+    keep('workAuthExpiry', f.expiry ? field(f.expiry, inp('workAuthExpiry', e.workAuthExpiry, 'type="date"'), '', f.expiryHint || '') : '') +
+    keep('i94Expiry', f.i94 ? field('I-94 admit until', inp('i94Expiry', e.i94Expiry, 'type="date"'), '', 'From the most recent I-94 (i94.cbp.dhs.gov)') : '') +
+    keep('receiptNumber', f.receipt ? field(f.receipt, inp('receiptNumber', e.receiptNumber, 'maxlength="20" placeholder="e.g. IOE0912345678"')) : '') +
+    '</div>' + (f.note ? '<p class="hint" id="wa-note">' + esc(f.note) + '</p>' : '<p class="hint" id="wa-note" hidden></p>');
+}
+CHANGES['wa-fields'] = el => {
+  const form = el.form; if (!form) return;
+  const vals = {}; ['workAuthExpiry', 'i94Expiry', 'receiptNumber'].forEach(k => { const x = form.querySelector('[name=' + k + ']'); vals[k] = x ? x.value : ''; });
+  const grid = form.querySelector('#wa-grid'), note = form.querySelector('#wa-note');
+  const tmp = document.createElement('div'); tmp.innerHTML = waBlock(Object.assign(vals, { workAuth: el.value }));
+  ['workAuthExpiry', 'i94Expiry', 'receiptNumber'].forEach(k => { const a = grid.querySelector('[data-wa="' + k + '"]'), b = tmp.querySelector('[data-wa="' + k + '"]'); if (a && b) a.replaceWith(b); });
+  const n2 = tmp.querySelector('#wa-note'); if (note && n2) note.replaceWith(n2);
+};
 const cleanEmp = v => { const o = Object.assign({}, v); Object.keys(o).forEach(k => { if (o[k] === '') delete o[k]; }); if (o.payRate !== undefined) o.payRate = Number(o.payRate); return o; };
 Object.assign(ACTIONS, {
   'add-employee': () => openModal('Add employee', '<form data-form="emp-create">' + empForm({}, 'new') + '<label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal now</label>' +
