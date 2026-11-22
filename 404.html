@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.37"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.38"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -218,6 +218,7 @@ pre.viewer.text{overflow:auto;padding:14px;white-space:pre-wrap;font-size:13px;m
 .ctable td b{color:#fff}.soon{display:inline-block;font-size:11px;font-weight:700;color:#0b1f35;background:#f5c26b;border-radius:999px;padding:1px 8px;margin-right:4px}
 .ctable.light{border-color:var(--line,#e2e8f0)}.ctable.light table{color:var(--ink,#0f172a)}.ctable.light th{background:#f1f5f9;color:var(--ink,#0f172a)}.ctable.light td{border-top-color:var(--line,#e2e8f0)}.ctable.light td b{color:var(--ink,#0f172a)}
 .locked-row td{background:#f8fafc}.chip svg{width:12px;height:12px;vertical-align:-2px;margin-right:3px}
+.ver-row td{background:#fbfcfe;color:var(--muted,#64748b)}.ver-row td b{font-weight:600}.ver-indent{color:#94a3b8}
 </style>
 
 </head>
@@ -1048,7 +1049,7 @@ PAGES['my-documents'] = async () => {
   const P = await call('getMyPortal'); S.cache.portal = P;
   if (!P.employee) return head('Documents') + '<div class="card"><p>No employee record is linked to your account.</p></div>';
   return head('My documents', 'Private to you and HR. Payroll sees only tax and bank forms.', (D().org.hasHandbook ? '<button class="btn ghost" data-action="handbook-open">' + ic('book') + 'Employee handbook</button>' : '') + '<button class="btn" data-action="intake" data-emp="' + P.employee.id + '">' + ic('upload') + 'Add documents</button>') +
-    '<div class="card">' + docsTable(P.documents || [], false, P.checklist) + '</div>';
+    '<div class="card">' + docsTable(P.documents || [], false, P.checklist, P.employee.id) + '</div>';
 };
 PAGES['my-cases'] = async () => {
   if (!D().who.immigration) return go('#app');
@@ -1128,24 +1129,60 @@ function empOnboarding(E) {
     (hr ? '<button class="btn ghost sm" data-action="task-add">' + ic('plus') + 'Add item</button><button class="btn ghost sm" data-action="checklist-reset" title="Add any items the current work authorization needs">Refresh checklist</button>' : '') + '</div></div>' + bar(pr.pct) +
     '<p class="hint">Checklist for <b>' + esc(E.employee.workAuth || '') + '</b>. Changing the work authorization adds the items it needs.</p></div><div class="card">' + checklistHtml(E.checklist || [], { self: D().who.employeeId === E.employee.id, signs: E.signs }) + '</div>';
 }
-function docsTable(docs, hr, tasks) {
+function docsTable(docs, hr, tasks, empId) {
   const forDoc = d => (tasks || []).filter(t => t.docId === d.id).map(t => chip((t.status === 'Approved' ? '✓ ' : 'For: ') + t.title.replace(/\s*\((if you have one|front and back|photo page)\)/i, ''), t.status === 'Approved' ? 'ok' : 'info')).join(' ');
   if (!docs.length) return '<div class="empty">No documents yet.</div>';
+  const byId = {}; docs.forEach(d => { byId[d.id] = d; });
+  const newest = (a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt));
+  const current = docs.filter(d => !d.supersededBy || !byId[d.supersededBy]).sort(newest);
+  const older = cur => { const out = []; let p = cur.replaces && byId[cur.replaces]; while (p && out.length < 50) { out.push(p); p = p.replaces && byId[p.replaces]; } return out; };
+  const mine = D().who.employeeId && D().who.employeeId === (empId || (docs[0] && docs[0].employeeId));
+  const canAdd = hr || mine;
+  const row = (d, cur, nOld) => {
+    if (d.locked && !d.unlockedUntil) return lockedRow(d, forDoc, cur, nOld, canAdd);
+    const old = !!cur;
+    return '<tr' + (old ? ' class="ver-row" data-ver-of="' + esc(cur) + '" hidden' : '') + '><td>' + (old ? '<span class="ver-indent">↳ </span>' : '') + '<b>' + esc(d.type) + '</b> ' + verChip(d) + (d.locked ? chip('Unlocked until ' + fmtTime(d.unlockedUntil), 'warn') + ' ' : '') + (old ? '' : aiChip(d)) +
+      '<br><small class="muted">' + esc(d.fileName) + '</small>' + verLine(d, byId) + (!old && forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (old ? '<small class="muted">' + esc(fmtDate(d.expiresOn) || '—') + '</small>' : (expiryChip(d.expiresOn) || '—')) + '</td><td>' + statusChip(d.status) + '</td>' +
+      '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' +
+      (!old && d.type === 'Form I-9' && d.source !== 'Official USCIS PDF' && d.source !== 'Portal form' && can('onboarding.manage') ? '<button class="btn xs" data-action="i9-paper" data-id="' + d.id + '" title="Read this paper Form I-9 and fill the official USCIS form">' + ic('doc') + 'Convert to official form</button>' : '') + fileBtns('doc', d.id) +
+      (!old && hr && AI().on && d.aiStatus !== 'Skipped' ? '<button class="btn xs ghost" data-action="ai-doc" data-id="' + d.id + '" title="What AI read">' + ic('spark') + 'AI</button>' : '') +
+      (!old && hr && (!d.locked || d.unlockMode === 'update') ? (d.status !== 'Verified' ? '<button class="btn xs ghost" data-action="doc-verify" data-id="' + d.id + '">Verify</button>' : '') + '<button class="btn xs ghost" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + '</button>' +
+        (d.status !== 'Verified' ? '<button class="btn xs danger" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + '</button>' : '') : '') +
+      (!old ? verBtns(d, nOld, canAdd) : '') + (d.locked ? '<button class="btn xs ghost" data-action="doc-relock" data-id="' + d.id + '" title="End the access now">' + ic('lock') + 'Lock again</button>' : '') +
+      '</div></td></tr>';
+  };
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Expires</th><th>Status</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' +
-    docs.slice().sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt))).map(d => d.locked && !d.unlockedUntil ? lockedRow(d, forDoc) : '<tr><td><b>' + esc(d.type) + '</b> ' + (d.locked ? chip('Unlocked until ' + fmtTime(d.unlockedUntil), 'warn') + ' ' : '') + aiChip(d) + '<br><small class="muted">' + esc(d.fileName) + '</small>' + (forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td>' +
-      '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' + (d.type === 'Form I-9' && d.source !== 'Official USCIS PDF' && d.source !== 'Portal form' && can('onboarding.manage') ? '<button class="btn xs" data-action="i9-paper" data-id="' + d.id + '" title="Read this paper Form I-9 and fill the official USCIS form">' + ic('doc') + 'Convert to official form</button>' : '') + fileBtns('doc', d.id) +
-      (hr && AI().on && d.aiStatus !== 'Skipped' ? '<button class="btn xs ghost" data-action="ai-doc" data-id="' + d.id + '" title="What AI read">' + ic('spark') + 'AI</button>' : '') +
-      (hr && (!d.locked || d.unlockMode === 'update') ? (d.status !== 'Verified' ? '<button class="btn xs ghost" data-action="doc-verify" data-id="' + d.id + '">Verify</button>' : '') + '<button class="btn xs ghost" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + '</button><button class="btn xs danger" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + '</button>' : '') +
-      (d.locked ? '<button class="btn xs ghost" data-action="doc-relock" data-id="' + d.id + '" title="End the access now">' + ic('lock') + 'Lock again</button>' : '') +
-      '</div></td></tr>').join('') + '</tbody></table></div>';
+    current.map(d => { const h = older(d); return row(d, '', h.length) + h.map(o => row(o, d.id, 0)).join(''); }).join('') + '</tbody></table></div>';
+}
+const verChip = d => Number(d.version) > 1 || d.supersededBy ? '<span class="chip">v' + esc(d.version || 1) + '</span> ' : '';
+const verLine = (d, byId) => d.supersededBy ? '<br><small class="muted">Replaced ' + esc(fmtDate(d.supersededAt)) + ' by v' + esc((byId[d.supersededBy] || {}).version || '') + ((byId[d.supersededBy] || {}).versionReason ? ' — ' + esc(byId[d.supersededBy].versionReason) : '') + ' · kept for the record</small>' : '';
+function verBtns(d, nOld, canAdd) {
+  return (canAdd ? '<button class="btn xs ghost" data-action="doc-newver" data-id="' + d.id + '" data-type="' + esc(d.type) + '" data-emp="' + esc(d.employeeId) + '" title="Renewed, expired, corrected or a clearer copy — the current one is kept as a previous version">' + ic('upload') + 'New version</button>' : '') +
+    (nOld ? '<button class="btn xs ghost" data-action="doc-history" data-id="' + d.id + '" aria-expanded="false">' + ic('clock') + 'History (' + nOld + ')</button>' : '');
 }
 const fmtTime = iso => { const t = new Date(iso); return isNaN(t) ? '' : t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + (t.toDateString() === new Date().toDateString() ? '' : ' ' + t.toLocaleDateString([], { month: 'short', day: 'numeric' })); };
-function lockedRow(d, forDoc) {
-  return '<tr class="locked-row"><td><b>' + esc(d.type) + '</b> ' + '<span class="chip teal">' + ic('lock') + 'Locked</span>' + '<br><small class="muted">' + esc(d.fileName) + '</small>' + (forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td>' +
-    '<td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td><td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td>' +
+function lockedRow(d, forDoc, cur, nOld, canAdd) {
+  const old = !!cur;
+  return '<tr class="locked-row' + (old ? ' ver-row' : '') + '"' + (old ? ' data-ver-of="' + esc(cur) + '" hidden' : '') + '><td>' + (old ? '<span class="ver-indent">↳ </span>' : '') + '<b>' + esc(d.type) + '</b> ' + verChip(d) + '<span class="chip teal">' + ic('lock') + 'Locked</span>' + '<br><small class="muted">' + esc(d.fileName) + '</small>' +
+    (d.supersededBy ? '<br><small class="muted">Replaced ' + esc(fmtDate(d.supersededAt)) + ' · kept for the record</small>' : '') + (!old && forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td>' +
+    '<td>' + (old ? '<small class="muted">' + esc(fmtDate(d.expiresOn) || '—') + '</small>' : (expiryChip(d.expiresOn) || '—')) + '</td><td>' + statusChip(d.status) + '</td><td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td>' +
     '<td class="num"><div class="btns" style="justify-content:flex-end">' + (d.canUnlock ? '<button class="btn xs" data-action="doc-unlock" data-id="' + d.id + '" data-type="' + esc(d.type) + '">' + ic('key') + 'Unlock</button>'
-      : d.requested ? chip('Access requested', 'info') : '<button class="btn xs ghost" data-action="doc-request" data-id="' + d.id + '" data-type="' + esc(d.type) + '">' + ic('key') + 'Request access</button>') + '</div></td></tr>';
+      : d.requested ? chip('Access requested', 'info') : '<button class="btn xs ghost" data-action="doc-request" data-id="' + d.id + '" data-type="' + esc(d.type) + '">' + ic('key') + 'Request access</button>') + (old ? '' : verBtns(d, nOld, canAdd)) + '</div></td></tr>';
 }
+Object.assign(ACTIONS, {
+  'doc-history': el => { const open = el.getAttribute('aria-expanded') !== 'true'; el.setAttribute('aria-expanded', open); document.querySelectorAll('tr[data-ver-of="' + el.dataset.id + '"]').forEach(r => { r.hidden = !open; }); },
+  'doc-newver': el => openModal('New version: ' + el.dataset.type, '<form data-form="doc-newver"><input type="hidden" name="replaces" value="' + esc(el.dataset.id) + '"><input type="hidden" name="employeeId" value="' + esc(el.dataset.emp) + '">' +
+    '<p class="muted">The current ' + esc(el.dataset.type) + ' stays on file as a previous version — nothing is overwritten. HR verifies the new one.</p><div class="grid g2">' +
+    field('Why a new version?', sel('versionReason', ['Renewed or extended', 'Expired', 'Correction', 'Clearer copy', 'Other'], 'Renewed or extended')) + field('Details (optional)', inp('versionNote', '', 'maxlength="200"')) +
+    field('File', '<input type="file" name="file" required accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.doc,.docx">', 'span2') +
+    (NEEDS_EXPIRY.indexOf(el.dataset.type) >= 0 ? field('Expiry / valid-until date', inp('expiresOn', '', 'type="date"' + (['I-94', 'Visa stamp', 'I-20'].indexOf(el.dataset.type) >= 0 ? '' : ' required'))) + field('Issued (optional)', inp('issuedOn', '', 'type="date"')) : '') + '</div>' +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + ic('upload') + 'Add new version</button></div></form>')
+});
+FORMS['doc-newver'] = async (v, form) => {
+  v.file = await readFile(form.querySelector('[name=file]').files[0]); v.readLater = true;
+  const r = await call('uploadDocument', v); closeModal(); toast('New version added — the earlier one is kept in History', 'ok'); await reloadCurrent();
+  if (r && r.readDocId) readAfterUpload(r, 'the new version');
+};
 const ACCESS_HOURS = [['1', '1 hour'], ['4', '4 hours'], ['24', '1 day'], ['72', '3 days']];
 Object.assign(ACTIONS, {
   'doc-unlock': el => openModal('Unlock ' + el.dataset.type, '<form data-form="doc-unlock"><input type="hidden" name="docId" value="' + esc(el.dataset.id) + '">' +
@@ -1168,7 +1205,7 @@ function empDocuments(E) {
   const i9done = (E.checklist || []).some(t => t.key === 'i9s1' && t.status === 'Approved' && t.docId);
   return '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Documents</h3><div class="btns">' + (i9done && (can('onboarding.manage') || D().who.employeeId === E.employee.id) ? '<button class="btn sm ghost" data-action="i9-official" data-emp="' + E.employee.id + '" title="Fill the official USCIS Form I-9 PDF with the signed answers">' + ic('doc') + 'Official Form I-9 (USCIS PDF)</button>' : '') +
     (hr || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="intake" data-emp="' + E.employee.id + '">' + ic('upload') + 'Add documents</button>' : '') + '</div></div>' +
-    docsTable(E.documents || [], hr, E.checklist) + '<p class="hint">Files are private: only the employee and HR can open them; payroll sees W-4, state withholding and direct-deposit forms. Identity, immigration and bank documents lock once verified. Every view, download and unlock is recorded in the audit log.</p></div>';
+    docsTable(E.documents || [], hr, E.checklist, E.employee.id) + '<p class="hint">Files are private: only the employee and HR can open them; payroll sees W-4, state withholding and direct-deposit forms. Identity, immigration and bank documents lock once verified. Every view, download and unlock is recorded in the audit log.</p></div>';
 }
 function empTimesheets(E) {
   const ts = E.timesheets || [];
