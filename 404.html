@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.7"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.8"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -840,7 +840,8 @@ function empForm(e, mode) {
     '<h4>Manager, client and timesheet approval</h4><div class="grid g2">' + field('Manager name', inp('managerName', e.managerName)) + field('Manager email', inp('managerEmail', e.managerEmail, 'type="email"')) +
     field('Client', inp('clientName', e.clientName)) + field('Project', inp('projectName', e.projectName)) + field('Client manager name', inp('clientManagerName', e.clientManagerName)) + field('Client manager email', inp('clientManagerEmail', e.clientManagerEmail, 'type="email"')) +
     field('Who approves timesheets', sel('approvalFlow', (isNew ? [['', 'Company default (' + (D().org.defaultApproval || 'Client manager') + ')']] : []).concat(lists.approvalFlows), e.approvalFlow || '')) +
-    field('Weekly timesheet', sel('timesheetRequired', [['Yes', 'Required'], ['No', 'Not required (salaried, no client)']], e.timesheetRequired || 'Yes')) + field('Worksite address', inp('worksite', e.worksite), 'span2') + '</div>';
+    field('Weekly timesheet', sel('timesheetRequired', [['Yes', 'Required'], ['No', 'Not required (salaried, no client)']], e.timesheetRequired || 'Yes')) +
+    field('Record of hours', sel('timesheetSource', [['', 'Automatic — client timesheet when placed at a client'], ['client', 'Client-approved timesheet (required)'], ['portal', 'Hours entered in the portal']], e.timesheetSource || '')) + field('Worksite address', inp('worksite', e.worksite), 'span2') + '</div>';
 }
 function waBlock(e) {
   const st = e.workAuth || 'U.S. Citizen', f = (L('waFields') || {})[st] || { expiry: 'Valid until', i94: true, receipt: 'Receipt number' };
@@ -981,7 +982,9 @@ async function timesheetPage(empId, week, mine) {
     'Manager, then client manager': 'Goes to ' + (e.managerName || 'your manager') + ', then ' + (e.clientManagerName || 'the client manager') + (e.clientName ? ' at ' + e.clientName : '') + '.' }[e.approvalFlow] || '';
   return head(mine ? 'My timesheet' : e.name, (mine ? '' : idTag(e.code) + ' ') + esc(e.clientName || '') + (e.projectName ? ' · ' + esc(e.projectName) : ''),
     '<div class="weeknav"><a class="btn ghost sm" href="' + base + addDays(G.weekStart, -7) + '" aria-label="Previous week">' + ic('back') + '</a><b>' + esc(weekLabel(G.weekStart)) + '</b>' +
-    '<a class="btn ghost sm" href="' + base + addDays(G.weekStart, 7) + '" aria-label="Next week">' + ic('chev') + '</a>' + (G.weekStart !== D().thisWeek ? '<a class="btn ghost sm" href="' + base + D().thisWeek + '">This week</a>' : '') + '</div>') +
+    '<a class="btn ghost sm" href="' + base + addDays(G.weekStart, 7) + '" aria-label="Next week">' + ic('chev') + '</a>' + (G.weekStart !== D().thisWeek ? '<a class="btn ghost sm" href="' + base + D().thisWeek + '">This week</a>' : '') +
+    '<button class="btn ghost sm" data-action="ts-calendar" data-emp="' + empId + '" data-month="' + G.weekStart.slice(0, 7) + '" data-mine="' + (mine ? '1' : '') + '">' + ic('calendar') + 'Calendar</button></div>') +
+    (G.source === 'client' ? '<div class="banner">' + ic('doc') + '<div><b>' + esc(e.clientName || 'The client') + '\'s timesheet is the record of hours.</b> Attach the timesheet approved in ' + esc(e.clientName || 'the client') + '\'s system' + (edit ? ' — IntelliEmp reads the hours from it' + (G.readerAi ? '' : ' with its built-in reader') + '. Check them, then submit.' : '.') + '</div></div>' : '') +
     (t && t.status === 'Rejected' ? '<div class="banner bad">' + ic('alert') + '<div><b>Sent back:</b> ' + esc(t.rejectReason || '') + ' — correct the hours and submit again.</div></div>' : '') +
     (t && t.status === 'Approved' ? '<div class="banner ok">' + ic('check') + '<div>Approved' + (t.approvedAt ? ' on ' + fmtDate(t.approvedAt) : '') + '. ' + (can('timesheets.all') ? 'Reopen it if hours must change.' : 'Ask payroll if anything must change.') + '</div></div>' : '') +
     '<form class="card" data-form="ts-save"><div class="card-h"><h3>' + ic('clock') + 'Hours</h3><div>' + (t ? statusChip(t.status) : chip('Not started', 'warn')) + (t && t.source === 'Email' ? ' ' + chip('Emailed') : '') + '</div></div>' +
@@ -990,9 +993,9 @@ async function timesheetPage(empId, week, mine) {
     '</tbody><tfoot><tr><td>Total</td>' + G.days.map((d, i) => '<td id="day_' + i + '">' + G.rows.reduce((s, rw) => s + (Number((rows[rw] || [])[i]) || 0), 0) + '</td>').join('') + '<td id="tot_all">' + (t ? esc(t.totalHours) : 0) + '</td></tr></tfoot></table></div>' +
     (t && t.entries.totalOnly !== undefined && !G.rows.some(rowTot) ? '<p><b>Total from the attached timesheet: ' + esc(t.entries.totalOnly) + ' hours</b></p>' : '') +
     '<div class="grid g2" style="margin-top:14px">' + field('Notes for the approver', inp('notes', t ? t.notes : '', (edit ? '' : 'disabled ') + 'maxlength="500"')) +
-    (edit ? field('Attach the signed timesheet (optional)', '<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.xlsx,.xls,.csv,.doc,.docx">' +
-      (AI().timesheets ? '<button type="button" class="btn ghost sm" style="margin-top:6px" data-action="ts-ai-read">' + ic('spark') + 'Read hours from the file</button>' : ''), '',
-      t && t.hasFile ? 'Current file: ' + t.fileName : AI().timesheets ? 'AI can fill in the hours from a signed sheet, scan, photo or spreadsheet.' : 'Some clients need their own signed sheet.') : '') + '</div><div id="ts-ai"></div>' +
+    (edit ? field(G.source === 'client' ? 'Client-approved timesheet (required)' : 'Attach the signed timesheet (optional)', '<input type="file" name="file" data-change="ts-file-pick" accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.xlsx,.xls,.csv,.txt,.doc,.docx">' +
+      '<div class="btns" style="margin-top:6px"><button type="button" class="btn ghost sm" data-action="ts-ai-read">' + ic('spark') + 'Read hours from the file</button>' + (G.readerAi ? '<button type="button" class="btn ghost sm" data-action="ts-ai-read" data-offline="1" title="Uses IntelliEmp\'s own reader — nothing is sent to an AI provider">Read without AI</button>' : '') + '</div>', '',
+      t && t.hasFile ? 'Current file: ' + t.fileName : (G.readerAi ? 'AI reads signed sheets, scans, photos and spreadsheets; the built-in reader takes over if AI is unavailable.' : 'The built-in reader handles client-system PDFs, spreadsheets and CSV; scans are read with Google\'s text recognition.')) : '') + '</div><div id="ts-ai"></div>' +
     (t && t.hasFile ? '<p><button type="button" class="btn ghost sm" data-action="ts-file" data-id="' + t.id + '">' + ic('download') + esc(t.fileName) + '</button></p>' : '') +
     (t && (t.steps || []).length ? '<div class="steps">' + t.steps.map((s, i) => '<span class="step">' + (s.status === 'Approved' ? ic('check') : s.status === 'Rejected' ? ic('x') : ic('clock')) + (i + 1) + '. ' + esc(s.name || s.email) + ' <small class="muted">(' + esc(s.role) + ')</small> ' + statusChip(s.status) + '</span>').join('') + '</div>' : '') +
     (edit ? '<p class="hint">' + esc(flowNote) + '</p><div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button>' + (future ? '<span class="muted">You can submit once the week starts.</span>' : '<button class="btn" name="mode" value="submit">' + ic('send') + 'Submit for approval</button>') + '</div>' : '') +
@@ -1020,8 +1023,9 @@ FORMS['ts-save'] = async (v, form, submitter) => {
   const input = { employeeId: G.employee.id, weekStart: G.weekStart, rows: tsRowsFromForm(form), notes: v.notes };
   if (f && f.files[0]) input.file = await readFile(f.files[0]);
   const total = Object.keys(input.rows).reduce((s, k) => s + input.rows[k].reduce((a, b) => a + b, 0), 0);
+  if (mode === 'submit' && G.source === 'client' && !input.file && !(G.timesheet && G.timesheet.hasFile)) throw new Error('Attach the timesheet approved in ' + (G.employee.clientName || 'the client') + '\'s system — it is the record of hours.');
   if (mode === 'submit' && !total && !input.file && !(G.timesheet && G.timesheet.hasFile)) throw new Error('Enter your hours or attach the signed timesheet.');
-  if (mode === 'submit' && !total && (input.file || (G.timesheet && G.timesheet.hasFile)) && AI().timesheets && !S.cache.tsAi) {
+  if (mode === 'submit' && !total && (input.file || (G.timesheet && G.timesheet.hasFile)) && !S.cache.tsAi) {
     try { const a = await tsAiRead(form, submitter); if (a.rows) { toast('Hours filled from the file — check them and press Submit again.', 'ok', 6000); return; } if (a.totalOnly) input.totalOnly = a.totalOnly; } catch (e) { fail(e); }
   }
   if (mode === 'submit' && !total && !input.totalOnly && S.cache.tsAi && S.cache.tsAi.totalOnly) input.totalOnly = S.cache.tsAi.totalOnly;
@@ -1175,7 +1179,8 @@ PAGES.settings = async () => {
   return head('Settings', esc(o.legalName || o.name)) + profileForm(prof) + corpDocsCard(corp, prof) + templatesCard(tpls, prof) +
     '<form class="card" data-form="org-save">' +
     '<h3>' + ic('clock') + 'Timesheets</h3><div class="grid g3">' + field('Week starts on', sel('weekStart', ['Monday', 'Sunday'], o.weekStart)) + field('Default approval for new employees', sel('defaultApproval', L('approvalFlows'), o.defaultApproval)) +
-    field('Reminder day', sel('reminderDay', ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday'], o.reminderDay), '', 'Employees who have not submitted get a reminder that morning; another on Monday for last week.') + '</div><button class="btn">Save</button></form>' +
+    field('Reminder day', sel('reminderDay', ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday'], o.reminderDay), '', 'Employees who have not submitted get a reminder that morning; another on Monday for last week.') + '</div>' +
+    '<label class="check"><input type="checkbox" name="clientTimesheetRequired"' + (o.clientTimesheetRequired ? ' checked' : '') + '> For people placed at a client, the client-approved timesheet is the record of hours (it must be attached to submit)</label><button class="btn">Save</button></form>' +
     '<div class="card"><h3>' + ic('mail') + 'Emailed timesheets</h3>' + (o.timesheetInbox ? '<p>Employees can email signed timesheets to <b>' + esc(o.timesheetInbox) + '</b> from the email on their profile. IntelliEmp reads the week and hours, files the attachment and sends it for approval — every 10 minutes.</p>'
       : '<p class="muted">The Intellisoft administrator has not turned on the timesheet inbox yet.</p>') + '</div>' +
     aiSettingsCard() +
@@ -1185,7 +1190,7 @@ PAGES.settings = async () => {
     (o.integration.connected ? '<p>' + chip('Connected', 'ok') + ' Key <code>' + esc(o.integration.hint) + '</code></p>' : '<p>' + chip('Not connected') + '</p>') +
     '<button class="btn ghost" data-action="int-key">' + ic('key') + (o.integration.connected ? 'Replace the company key' : 'Create a company key') + '</button><p class="hint">Paste the key into IntelliHire → Settings → IntelliEmp. A new key stops the old one.</p></div>';
 };
-FORMS['org-save'] = async v => { await call('updateOrgSettings', v); toast('Saved', 'ok'); await refresh(); };
+FORMS['org-save'] = async v => { v.clientTimesheetRequired = !!v.clientTimesheetRequired; await call('updateOrgSettings', v); toast('Saved', 'ok'); await refresh(); };
 Object.assign(ACTIONS, {
   'mfa-policy': async el => { await busy(el, call('updateMfaPolicy', { require: !!el.dataset.on })); toast('Saved', 'ok'); await refresh(); },
   'int-key': async el => {
@@ -1426,13 +1431,14 @@ async function tsAiRead(form, btn) {
   const input = { employeeId: G.employee.id, weekStart: G.weekStart };
   if (f && f.files[0]) input.file = await readFile(f.files[0]);
   else if (!(G.timesheet && G.timesheet.hasFile)) throw new Error('Choose the timesheet file first.');
+  if (btn && btn.dataset && btn.dataset.offline) input.offline = true;
   const r = await busy(btn, call('aiReadTimesheet', input));
   S.cache.tsAi = r;
   if (r.rows) fillTsRows(form, r.rows);
   const box = $('ts-ai'); if (box) box.innerHTML = '<div class="banner ' + (r.issues.length ? 'warn' : 'ok') + '">' + ic('spark') + '<div>' +
     (r.rows ? 'Filled <b>' + esc(r.total) + '</b> hours from the file.' : r.totalOnly ? 'The file shows a total of <b>' + esc(r.totalOnly) + '</b> hours (no daily breakdown).' : 'No hours for this week were found in the file.') +
     (r.otherWeeks.length ? ' It also covers ' + r.otherWeeks.map(w => '<a href="' + (S.route.parts[0] === 'my-timesheet' ? '#app/my-timesheet/' : '#app/timesheet/' + G.employee.id + '/') + w + '">week of ' + esc(fmtDate(w)) + '</a>').join(', ') + '.' : '') +
-    (r.issues.length ? '<br>' + r.issues.map(esc).join('<br>') : '') + '<br><small class="muted">Check the hours, then save or submit. Read by ' + esc(r.provider) + '.</small></div></div>';
+    (r.issues.length ? '<br>' + r.issues.map(esc).join('<br>') : '') + '<br><small class="muted">Check the hours, then save or submit. Read by ' + esc(r.via === 'offline' ? 'IntelliEmp\'s built-in reader (no AI)' : r.provider) + '.</small></div></div>';
   return r;
 }
 Object.assign(ACTIONS, {
@@ -1497,6 +1503,7 @@ ACTIONS['ai-test'] = async el => {
   const r = await busy(el, call('platformTestAi', { provider: el.dataset.p })), box = $('ai-test-' + el.dataset.p);
   if (box) box.innerHTML = '<div class="banner ' + (r.ok ? 'ok' : 'bad') + '">' + ic(r.ok ? 'check' : 'alert') + '<div>' + (r.ok ? 'Working — ' + esc(r.model) + ' answered in ' + (r.ms / 1000).toFixed(1) + ' s.' : esc(r.error || 'No usable answer.')) + '</div></div>';
 };
+CHANGES['ts-file-pick'] = async el => { if (!el.files || !el.files[0]) return; const f = el.form, b = f.querySelector('[data-action="ts-ai-read"]'); try { await tsAiRead(f, b); } catch (e) { fail(e); } };
 const SIGN_KEYS = { offer: 'offer', nda: 'cia', handbook: 'handbook' };
 const isSignTask = t => !!SIGN_KEYS[t.key] && ['sign', 'ack', 'upload'].indexOf(t.category) >= 0;
 
@@ -1866,6 +1873,31 @@ FORMS.i9s2 = async v => {
   const r = await call('completeI9Section2', { employeeId: S.cache.i9s2.employee.id, documents: docs, firstDay: v.firstDay, additional: v.additional, alternative: !!v.alternative, signature: v.signature, title: v.title, consent: !!v.consent });
   closeModal(); toast('Form I-9 complete' + (r.late ? ' — note: after the 3-business-day deadline' : ''), r.late ? 'error' : 'ok', 6000); await reloadCurrent();
 };
+const CAL_CLS = { Approved: 'ok', Submitted: 'info', Draft: 'warn', Rejected: 'bad', Missing: 'bad' };
+async function calendarModal(empId, month, mine, btn) {
+  const c = await busy(btn, call('getTimesheetCalendar', { employeeId: empId, month: month }));
+  S.cache.cal = { empId: empId, mine: mine };
+  const prev = addDays(c.month + '-01', -1).slice(0, 7), next = addDays(c.month + '-01', 32).slice(0, 7);
+  const names = c.weekStartDay === 'Sunday' ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const title = new Date(c.month + '-15T12:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const cell = d => '<td style="height:58px;vertical-align:top;padding:4px 6px;border:1px solid var(--line,#e5e9f0);' + (d.inMonth ? '' : 'background:#f8fafc;color:#94a3b8;') + (d.today ? 'box-shadow:inset 0 0 0 2px #1fb5a3;' : '') + '">' +
+    '<div style="font-size:12px">' + Number(d.date.slice(8)) + '</div>' + (d.hours ? '<div style="font-weight:700;font-size:15px">' + d.hours + 'h</div>' + (d.kinds.filter(k => k !== 'Regular').length ? '<div style="font-size:10.5px;color:#64748b">' + esc(d.kinds.filter(k => k !== 'Regular').join(', ')) + '</div>' : '') : '') + '</td>';
+  const rows = c.weeks.map(w => '<tr class="click" data-action="cal-week" data-wk="' + w.weekStart + '" title="Open the week of ' + esc(fmtDate(w.weekStart)) + '">' + w.days.map(cell).join('') +
+    '<td style="vertical-align:middle;padding:4px 8px;min-width:120px;border:1px solid var(--line,#e5e9f0)">' + (w.status ? chip(w.status, CAL_CLS[w.status] || '') : '<span class="muted" style="font-size:12px">—</span>') +
+    '<div style="font-size:12px;margin-top:3px">' + (w.total ? '<b>' + w.total + 'h</b>' + (w.totalOnly ? ' <span class="muted">(total only)</span>' : '') : '') + (w.hasFile ? ' ' + ic('doc') : '') +
+    (w.check && w.check.fileHours !== null && w.check.fileHours !== undefined && !w.check.match ? '<div style="color:var(--red,#b91c1c)">File: ' + w.check.fileHours + 'h</div>' : '') + '</div></td></tr>').join('');
+  openModal('Timesheets — ' + c.employee.name, '<div class="weeknav" style="margin-bottom:10px"><button class="btn ghost sm" data-action="cal-month" data-m="' + prev + '">' + ic('back') + '</button><b style="min-width:150px;text-align:center">' + esc(title) + '</b>' +
+    '<button class="btn ghost sm" data-action="cal-month" data-m="' + next + '">' + ic('chev') + '</button><input type="month" value="' + c.month + '" data-change="cal-pick" style="max-width:170px"></div>' +
+    '<div class="tblwrap"><table style="width:100%;border-collapse:collapse;table-layout:fixed"><thead><tr>' + names.map(n => '<th style="font-size:12px;padding:4px">' + n + '</th>').join('') + '<th style="font-size:12px;width:130px">Week</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+    '<p style="margin-top:10px"><b>' + c.totals.hours + ' hours</b> this month · ' + c.totals.approved + ' approved · ' + c.totals.submitted + ' waiting · ' + (c.totals.missing ? '<span style="color:var(--red,#b91c1c)">' + c.totals.missing + ' missing</span>' : '0 missing') + '</p>' +
+    '<p class="hint">Click a week to open it. Weeks entered as a total only show the total in the Week column.</p>', true);
+}
+Object.assign(ACTIONS, {
+  'ts-calendar': el => calendarModal(el.dataset.emp, el.dataset.month, !!el.dataset.mine, el),
+  'cal-month': el => calendarModal(S.cache.cal.empId, el.dataset.m, S.cache.cal.mine, el),
+  'cal-week': el => { closeModal(); go((S.cache.cal.mine ? '#app/my-timesheet/' : '#app/timesheet/' + S.cache.cal.empId + '/') + el.dataset.wk); }
+});
+CHANGES['cal-pick'] = el => { if (/^\d{4}-\d{2}$/.test(el.value)) calendarModal(S.cache.cal.empId, el.value, S.cache.cal.mine, null); };
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
   copy: el => copy(el.dataset.text || ''),
