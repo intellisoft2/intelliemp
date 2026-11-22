@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.32"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.33"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -876,7 +876,7 @@ async function employeeHome() {
 const alertsBanner = list => (list || []).map(a => '<div class="banner ' + (a.level === 'bad' ? 'bad' : a.level === 'warn' ? 'warn' : '') + '">' + ic('alert') + '<div>' + esc(a.text) + '</div></div>').join('');
 
 const CAT_ICON = { upload: 'upload', form: 'edit', ack: 'edit', sign: 'edit', fill: 'edit', info: 'book', hr: 'shield' };
-const NEEDS_EXPIRY = ['EAD card', 'I-797 approval', 'Green card', 'TN approval', 'E-3 approval', 'Passport', 'I-94', 'Visa stamp', 'I-20'];
+const NEEDS_EXPIRY = ['EAD card', 'I-797 approval', 'Green card', 'TN approval', 'E-3 approval', 'Work permit', 'Passport', 'I-94', 'Visa stamp', 'I-20'];
 function checklistHtml(list, opts) {
   opts = opts || {};
   const hr = can('onboarding.manage');
@@ -913,9 +913,10 @@ function taskHtml(t, hr, opts) {
   return '<div class="task"><span class="dot ' + dot + '">' + ic(done ? 'check' : CAT_ICON[t.category] || 'doc') + '</span><div class="body"><b>' + esc(t.title) + '</b>' +
     (t.required === 'Yes' ? '' : ' ' + chip('Optional')) + (t.owner === 'hr' ? ' ' + chip('HR', 'info') : '') +
     '<div class="meta">' + statusChip(t.status) + (sg && !done ? (sg.status === 'Sent' ? chip(t.key === 'offer' ? 'Offer sent ' + fmtDate(sg.sentAt) : 'Ready to sign', 'info') : sg.status === 'Declined' ? chip('Declined', 'bad') : '') : '') + (t.dueDate && !done ? '<span class="' + (late ? 'due late' : '') + '" style="' + (late ? 'color:var(--red);font-weight:600' : '') + '">Due ' + fmtDate(t.dueDate) + '</span>' : '') +
-    (t.reviewedAt && done ? '<span>' + fmtDate(t.reviewedAt) + '</span>' : '') + '</div>' +
+    (t.reviewedAt && done ? '<span>' + fmtDate(t.reviewedAt) + '</span>' : '') +
+    (t.docType && !done && t.status !== 'Submitted' && (t.category === 'upload' || t.category === 'fill') ? '<span class="muted" title="A document of this type added anywhere — Documents tab, Add documents or email — completes this item">Files as “' + esc(t.docType) + '”</span>' : '') + '</div>' +
     (t.help && !done ? '<div class="help">' + help + '</div>' : '') + (t.status === 'Rejected' && t.note ? '<div class="note"><b>HR:</b> ' + esc(t.note) + '</div>' : '') +
-    (t.response && done ? '<div class="resp">' + esc(t.response) + '</div>' : '') + '</div><div class="act">' + act + '</div></div>';
+    (t.response && (done || t.status === 'Submitted') ? '<div class="resp">' + esc(t.response) + '</div>' : '') + '</div><div class="act">' + act + '</div></div>';
 }
 function findTask(id) {
   const lists = [S.cache.portal && S.cache.portal.checklist, S.cache.emp && S.cache.emp.checklist].filter(Boolean);
@@ -995,7 +996,7 @@ PAGES['my-documents'] = async () => {
   const P = await call('getMyPortal'); S.cache.portal = P;
   if (!P.employee) return head('Documents') + '<div class="card"><p>No employee record is linked to your account.</p></div>';
   return head('My documents', 'Private to you and HR. Payroll sees only tax and bank forms.', (D().org.hasHandbook ? '<button class="btn ghost" data-action="handbook-open">' + ic('book') + 'Employee handbook</button>' : '') + '<button class="btn" data-action="intake" data-emp="' + P.employee.id + '">' + ic('upload') + 'Add documents</button>') +
-    '<div class="card">' + docsTable(P.documents || [], false) + '</div>';
+    '<div class="card">' + docsTable(P.documents || [], false, P.checklist) + '</div>';
 };
 PAGES['my-cases'] = async () => {
   if (!D().who.immigration) return go('#app');
@@ -1075,10 +1076,11 @@ function empOnboarding(E) {
     (hr ? '<button class="btn ghost sm" data-action="task-add">' + ic('plus') + 'Add item</button><button class="btn ghost sm" data-action="checklist-reset" title="Add any items the current work authorization needs">Refresh checklist</button>' : '') + '</div></div>' + bar(pr.pct) +
     '<p class="hint">Checklist for <b>' + esc(E.employee.workAuth || '') + '</b>. Changing the work authorization adds the items it needs.</p></div><div class="card">' + checklistHtml(E.checklist || [], { self: D().who.employeeId === E.employee.id, signs: E.signs }) + '</div>';
 }
-function docsTable(docs, hr) {
+function docsTable(docs, hr, tasks) {
+  const forDoc = d => (tasks || []).filter(t => t.docId === d.id).map(t => chip((t.status === 'Approved' ? '✓ ' : 'For: ') + t.title.replace(/\s*\((if you have one|front and back|photo page)\)/i, ''), t.status === 'Approved' ? 'ok' : 'info')).join(' ');
   if (!docs.length) return '<div class="empty">No documents yet.</div>';
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Expires</th><th>Status</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' +
-    docs.slice().sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt))).map(d => '<tr><td><b>' + esc(d.type) + '</b> ' + aiChip(d) + '<br><small class="muted">' + esc(d.fileName) + '</small></td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td>' +
+    docs.slice().sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt))).map(d => '<tr><td><b>' + esc(d.type) + '</b> ' + aiChip(d) + '<br><small class="muted">' + esc(d.fileName) + '</small>' + (forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td>' +
       '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' + (d.type === 'Form I-9' && d.source !== 'Official USCIS PDF' && d.source !== 'Portal form' && can('onboarding.manage') ? '<button class="btn xs" data-action="i9-paper" data-id="' + d.id + '" title="Read this paper Form I-9 and fill the official USCIS form">' + ic('doc') + 'Convert to official form</button>' : '') + fileBtns('doc', d.id) +
       (hr && AI().on && d.aiStatus !== 'Skipped' ? '<button class="btn xs ghost" data-action="ai-doc" data-id="' + d.id + '" title="What AI read">' + ic('spark') + 'AI</button>' : '') +
       (hr ? (d.status !== 'Verified' ? '<button class="btn xs ghost" data-action="doc-verify" data-id="' + d.id + '">Verify</button>' : '') + '<button class="btn xs ghost" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + '</button><button class="btn xs danger" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + '</button>' : '') +
@@ -1089,7 +1091,7 @@ function empDocuments(E) {
   const i9done = (E.checklist || []).some(t => t.key === 'i9s1' && t.status === 'Approved' && t.docId);
   return '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Documents</h3><div class="btns">' + (i9done && (can('onboarding.manage') || D().who.employeeId === E.employee.id) ? '<button class="btn sm ghost" data-action="i9-official" data-emp="' + E.employee.id + '" title="Fill the official USCIS Form I-9 PDF with the signed answers">' + ic('doc') + 'Official Form I-9 (USCIS PDF)</button>' : '') +
     (hr || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="intake" data-emp="' + E.employee.id + '">' + ic('upload') + 'Add documents</button>' : '') + '</div></div>' +
-    docsTable(E.documents || [], hr) + '<p class="hint">Files are private: only the employee and HR can open them; payroll sees W-4, state withholding and direct-deposit forms. Every download is recorded in the audit log.</p></div>';
+    docsTable(E.documents || [], hr, E.checklist) + '<p class="hint">Files are private: only the employee and HR can open them; payroll sees W-4, state withholding and direct-deposit forms. Every download is recorded in the audit log.</p></div>';
 }
 function empTimesheets(E) {
   const ts = E.timesheets || [];
