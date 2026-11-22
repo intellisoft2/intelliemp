@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.35"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.37"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -217,6 +217,7 @@ pre.viewer.text{overflow:auto;padding:14px;white-space:pre-wrap;font-size:13px;m
 .ctable th{text-align:left;background:rgba(255,255,255,.06);color:#fff;padding:10px 12px;font-weight:600;white-space:nowrap}.ctable td{padding:10px 12px;border-top:1px solid rgba(255,255,255,.08);vertical-align:top}
 .ctable td b{color:#fff}.soon{display:inline-block;font-size:11px;font-weight:700;color:#0b1f35;background:#f5c26b;border-radius:999px;padding:1px 8px;margin-right:4px}
 .ctable.light{border-color:var(--line,#e2e8f0)}.ctable.light table{color:var(--ink,#0f172a)}.ctable.light th{background:#f1f5f9;color:var(--ink,#0f172a)}.ctable.light td{border-top-color:var(--line,#e2e8f0)}.ctable.light td b{color:var(--ink,#0f172a)}
+.locked-row td{background:#f8fafc}.chip svg{width:12px;height:12px;vertical-align:-2px;margin-right:3px}
 </style>
 
 </head>
@@ -388,13 +389,23 @@ async function call(fn, ...args) {
   dropCaches();
   return out;
 }
+function reportIssue(fn, message, args, ms) {
+  if (!S.token || fn === 'reportClientIssue' || READ_FN.test(fn)) return;
+  const files = []; (args || []).forEach(a => { if (a && typeof a === 'object') { if (a.file && a.file.name) files.push(a.file.name); (a.files || []).forEach(f => f && f.name && files.push(f.name)); } });
+  rpc('reportClientIssue', [{ fn: fn, message: String(message || '').slice(0, 200), files: files.slice(0, 10), secs: Math.round(ms / 1000) }]).catch(() => {});
+}
 async function callNet(fn, args) {
   netBar(1, fn);
-  let r;
+  let r; const t0 = Date.now();
   try {
     r = await rpc(fn, args);
     for (let i = 0; i < 2 && r && !r.ok && r.code === 'BUSY'; i++) { await new Promise(ok => setTimeout(ok, 1500 * (i + 1))); r = await rpc(fn, args); }
-  } catch (e) { throw new Error('We could not reach IntelliEmp. Check your connection and try again.'); }
+  } catch (e) {
+    const slow = Date.now() - t0 > 300000;
+    reportIssue(fn, slow ? 'stopped after about 6 minutes' : (e && e.message) || 'network error', args, Date.now() - t0);
+    const err = new Error(slow ? 'This took too long and was stopped. Try again — or try fewer or smaller files.' : 'We could not reach IntelliEmp. Check your connection and try again.');
+    err.code = 'NETWORK'; throw err;
+  }
   finally { netBar(-1); }
   if (r && r.ok) return r.data;
   const e = new Error((r && r.error) || 'Something went wrong.'); e.code = r && r.code;
@@ -867,7 +878,8 @@ let pfTimer = null;
 PAGES[''] = async () => isStaff() ? staffHome() : employeeHome();
 async function staffHome() {
   const db = D(), s = db.stats || {};
-  const [alerts, ts] = await Promise.all([can('immigration.manage') ? call('getAlerts').catch(() => []) : Promise.resolve([]), call('listTimesheets', { status: 'Submitted' })]);
+  const [alerts, ts, accReq] = await Promise.all([can('immigration.manage') ? call('getAlerts').catch(() => []) : Promise.resolve([]), call('listTimesheets', { status: 'Submitted' }),
+    can('docs.unlock') ? call('listDocAccessRequests').catch(() => []) : Promise.resolve([])]);
   const stat = (n, label, cls, href) => '<div class="stat ' + (cls || '') + '"' + (href ? ' data-action="nav" data-href="' + href + '"' : '') + '><b>' + (n || 0) + '</b><span>' + esc(label) + '</span></div>';
   const mine = ts.timesheets.filter(t => t.mine);
   return head('Good ' + (new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening') + ', ' + esc(String(db.who.name || '').split(' ')[0] || 'there'), esc(db.org.name) + ' · week of ' + esc(weekLabel(db.thisWeek)),
@@ -879,6 +891,10 @@ async function staffHome() {
     stat(s.myApprovals, 'Timesheets for me to approve', s.myApprovals ? 'warn' : '', '#app/timesheets?status=Submitted') +
     stat(s.missingLastWeek, 'Missing for last week', s.missingLastWeek ? 'bad' : 'ok', '#app/timesheets?week=' + db.lastWeek) +
     (can('immigration.manage') ? stat(s.openCases, 'Open immigration cases', '', '#app/immigration') : '') + '</div>' +
+    (accReq.length ? '<div class="card"><div class="card-h"><h3>' + ic('key') + 'Requests to see locked documents</h3><span class="muted">' + accReq.length + '</span></div>' +
+      accReq.map(r => '<div class="alert"><span class="lv warn"></span><div><b>' + esc(r.requester) + '</b> asks to ' + (r.mode === 'update' ? 'see and update' : 'see') + ' the ' + esc(r.type) + ' of <a href="#app/employee/' + esc(r.employeeId) + '/documents">' + esc(r.employeeName) + '</a>' +
+        '<br><small class="muted">“' + esc(r.reason) + '” · ' + esc(fmtWhen(r.createdAt)) + '</small><div class="btns" style="margin-top:6px">' + sel('hours_' + r.id, ACCESS_HOURS, '4', 'style="width:auto"') +
+        '<button class="btn xs" data-action="acc-decide" data-d="approve" data-id="' + esc(r.id) + '">Approve</button><button class="btn xs ghost" data-action="acc-decide" data-d="deny" data-id="' + esc(r.id) + '">Decline</button></div></div></div>').join('') + '</div>' : '') +
     '<div class="grid g2"><div class="card"><div class="card-h"><h3>' + ic('clock') + 'Waiting for your approval</h3><a href="#app/timesheets?status=Submitted">All submitted</a></div>' +
     (mine.length ? '<table class="tbl"><tbody>' + mine.slice(0, 8).map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + t.employeeId + '/' + t.weekStart + '"><td><b>' + esc(t.employeeName) + '</b><br><small class="muted">' + esc(weekLabel(t.weekStart)) + '</small></td><td class="num">' + esc(t.totalHours) + ' h</td><td>' + statusChip(t.status) + '</td></tr>').join('') + '</tbody></table>'
       : '<div class="empty">Nothing is waiting for you.</div>') + '</div>' +
@@ -943,7 +959,7 @@ function taskHtml(t, hr, opts) {
   else if (canDo) act += '<button class="btn sm" data-action="task-do" data-id="' + t.id + '">' + ({ upload: 'Upload', form: 'Fill in', ack: 'Review and sign', info: 'Mark as read', hr: 'Complete' }[t.category] || 'Open') + '</button>';
   if (done && isSignTask(t) && sg && sg.status === 'Signed') act += '<button class="btn sm ghost" data-action="task-do" data-id="' + t.id + '" title="View the signed text">View</button>';
   if (hr && t.status === 'Submitted') act += '<button class="btn sm" data-action="task-review" data-id="' + t.id + '" data-d="approve">' + ic('check') + 'Approve</button><button class="btn sm danger" data-action="task-review" data-id="' + t.id + '" data-d="reject">Reject</button>';
-  if (t.docId && (hr || opts.self)) act += fileBtns('doc', t.docId, { size: 'sm', iconOnly: true });
+  if (t.docId && (hr || opts.self)) act += t.docLocked ? '<span class="chip teal" title="Locked after verification — open it from the Documents tab">' + ic('lock') + 'Locked</span>' : fileBtns('doc', t.docId, { size: 'sm', iconOnly: true });
   if (hr && !done && t.status !== 'Submitted') act += '<button class="btn sm ghost" data-action="task-review" data-id="' + t.id + '" data-d="waive" title="Not needed for this person">Waive</button>';
   if (hr && done) act += '<button class="btn sm ghost" data-action="task-review" data-id="' + t.id + '" data-d="reopen">Reopen</button>';
   return '<div class="task"><span class="dot ' + dot + '">' + ic(done ? 'check' : CAT_ICON[t.category] || 'doc') + '</span><div class="body"><b>' + esc(t.title) + '</b>' +
@@ -1116,18 +1132,43 @@ function docsTable(docs, hr, tasks) {
   const forDoc = d => (tasks || []).filter(t => t.docId === d.id).map(t => chip((t.status === 'Approved' ? '✓ ' : 'For: ') + t.title.replace(/\s*\((if you have one|front and back|photo page)\)/i, ''), t.status === 'Approved' ? 'ok' : 'info')).join(' ');
   if (!docs.length) return '<div class="empty">No documents yet.</div>';
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Expires</th><th>Status</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' +
-    docs.slice().sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt))).map(d => '<tr><td><b>' + esc(d.type) + '</b> ' + aiChip(d) + '<br><small class="muted">' + esc(d.fileName) + '</small>' + (forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td>' +
+    docs.slice().sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt))).map(d => d.locked && !d.unlockedUntil ? lockedRow(d, forDoc) : '<tr><td><b>' + esc(d.type) + '</b> ' + (d.locked ? chip('Unlocked until ' + fmtTime(d.unlockedUntil), 'warn') + ' ' : '') + aiChip(d) + '<br><small class="muted">' + esc(d.fileName) + '</small>' + (forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td>' +
       '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' + (d.type === 'Form I-9' && d.source !== 'Official USCIS PDF' && d.source !== 'Portal form' && can('onboarding.manage') ? '<button class="btn xs" data-action="i9-paper" data-id="' + d.id + '" title="Read this paper Form I-9 and fill the official USCIS form">' + ic('doc') + 'Convert to official form</button>' : '') + fileBtns('doc', d.id) +
       (hr && AI().on && d.aiStatus !== 'Skipped' ? '<button class="btn xs ghost" data-action="ai-doc" data-id="' + d.id + '" title="What AI read">' + ic('spark') + 'AI</button>' : '') +
-      (hr ? (d.status !== 'Verified' ? '<button class="btn xs ghost" data-action="doc-verify" data-id="' + d.id + '">Verify</button>' : '') + '<button class="btn xs ghost" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + '</button><button class="btn xs danger" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + '</button>' : '') +
+      (hr && (!d.locked || d.unlockMode === 'update') ? (d.status !== 'Verified' ? '<button class="btn xs ghost" data-action="doc-verify" data-id="' + d.id + '">Verify</button>' : '') + '<button class="btn xs ghost" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + '</button><button class="btn xs danger" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + '</button>' : '') +
+      (d.locked ? '<button class="btn xs ghost" data-action="doc-relock" data-id="' + d.id + '" title="End the access now">' + ic('lock') + 'Lock again</button>' : '') +
       '</div></td></tr>').join('') + '</tbody></table></div>';
 }
+const fmtTime = iso => { const t = new Date(iso); return isNaN(t) ? '' : t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + (t.toDateString() === new Date().toDateString() ? '' : ' ' + t.toLocaleDateString([], { month: 'short', day: 'numeric' })); };
+function lockedRow(d, forDoc) {
+  return '<tr class="locked-row"><td><b>' + esc(d.type) + '</b> ' + '<span class="chip teal">' + ic('lock') + 'Locked</span>' + '<br><small class="muted">' + esc(d.fileName) + '</small>' + (forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td>' +
+    '<td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td><td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td>' +
+    '<td class="num"><div class="btns" style="justify-content:flex-end">' + (d.canUnlock ? '<button class="btn xs" data-action="doc-unlock" data-id="' + d.id + '" data-type="' + esc(d.type) + '">' + ic('key') + 'Unlock</button>'
+      : d.requested ? chip('Access requested', 'info') : '<button class="btn xs ghost" data-action="doc-request" data-id="' + d.id + '" data-type="' + esc(d.type) + '">' + ic('key') + 'Request access</button>') + '</div></td></tr>';
+}
+const ACCESS_HOURS = [['1', '1 hour'], ['4', '4 hours'], ['24', '1 day'], ['72', '3 days']];
+Object.assign(ACTIONS, {
+  'doc-unlock': el => openModal('Unlock ' + el.dataset.type, '<form data-form="doc-unlock"><input type="hidden" name="docId" value="' + esc(el.dataset.id) + '">' +
+    '<p class="muted">The ' + esc(el.dataset.type) + ' is locked after verification. Unlocking is recorded in the audit log with your reason, and it locks again on its own.</p><div class="grid g2">' +
+    field('Why do you need it?', inp('reason', '', 'required maxlength="300" placeholder="e.g. client background check, renewal update"'), 'span2') +
+    field('To', sel('mode', [['view', 'See it'], ['update', 'See and update it']], 'view')) + field('For', sel('hours', ACCESS_HOURS, '1')) + '</div>' +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + ic('key') + 'Unlock</button></div></form>'),
+  'doc-request': el => openModal('Request access: ' + el.dataset.type, '<form data-form="doc-request"><input type="hidden" name="docId" value="' + esc(el.dataset.id) + '">' +
+    '<p class="muted">Locked documents are hidden after verification. An administrator approves access for a few hours; your request and the decision are recorded.</p><div class="grid">' +
+    field('Why do you need it?', inp('reason', '', 'required maxlength="300" placeholder="e.g. my passport was renewed — I need to update it"')) +
+    field('To', sel('mode', [['view', 'See it'], ['update', 'See and update it']], 'view')) + '</div>' +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Send request</button></div></form>'),
+  'doc-relock': async el => { await busy(el, call('relockDocument', { docId: el.dataset.id })); toast('Locked again', 'ok'); await reloadCurrent(); },
+  'acc-decide': async el => { const hrs = el.closest('.alert') && el.closest('.alert').querySelector('select'); await busy(el, call('decideDocAccess', { id: el.dataset.id, decision: el.dataset.d, hours: hrs ? hrs.value : 4 })); toast(el.dataset.d === 'approve' ? 'Access approved' : 'Request declined', 'ok'); await reloadCurrent(); }
+});
+FORMS['doc-unlock'] = async v => { const r = await call('unlockDocument', v); closeModal(); toast('Unlocked until ' + fmtTime(r.until), 'ok'); await reloadCurrent(); };
+FORMS['doc-request'] = async v => { await call('requestDocAccess', v); closeModal(); toast('Request sent — you will get an email when it is decided', 'ok'); await reloadCurrent(); };
 function empDocuments(E) {
   const hr = can('docs.manage');
   const i9done = (E.checklist || []).some(t => t.key === 'i9s1' && t.status === 'Approved' && t.docId);
   return '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Documents</h3><div class="btns">' + (i9done && (can('onboarding.manage') || D().who.employeeId === E.employee.id) ? '<button class="btn sm ghost" data-action="i9-official" data-emp="' + E.employee.id + '" title="Fill the official USCIS Form I-9 PDF with the signed answers">' + ic('doc') + 'Official Form I-9 (USCIS PDF)</button>' : '') +
     (hr || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="intake" data-emp="' + E.employee.id + '">' + ic('upload') + 'Add documents</button>' : '') + '</div></div>' +
-    docsTable(E.documents || [], hr, E.checklist) + '<p class="hint">Files are private: only the employee and HR can open them; payroll sees W-4, state withholding and direct-deposit forms. Every download is recorded in the audit log.</p></div>';
+    docsTable(E.documents || [], hr, E.checklist) + '<p class="hint">Files are private: only the employee and HR can open them; payroll sees W-4, state withholding and direct-deposit forms. Identity, immigration and bank documents lock once verified. Every view, download and unlock is recorded in the audit log.</p></div>';
 }
 function empTimesheets(E) {
   const ts = E.timesheets || [];
@@ -1673,7 +1714,7 @@ PAGES.settings = async () => {
   S.cache.profile = prof; S.cache.corp = corp; S.cache.templates = tpls;
   const rv = S.route.params.review; if (rv) setTimeout(() => { const d = corp.find(x => x.id === rv); if (d && d.ai) corpReview([storedRead(d)]); history.replaceState(null, '', '#app/settings'); }, 60);
   return head('Settings', esc(o.legalName || o.name)) + profileForm(prof) + corpDocsCard(corp, prof) + templatesCard(tpls, prof) +
-    complianceCard(o) +
+    complianceCard(o) + docLockCard(o) +
     '<form class="card" data-form="org-save">' +
     '<h3>' + ic('clock') + 'Timesheets</h3><div class="grid g3">' + field('Week starts on', sel('weekStart', ['Monday', 'Sunday'], o.weekStart)) + field('Default approval for new employees', sel('defaultApproval', L('approvalFlows'), o.defaultApproval)) +
     field('Reminder day', sel('reminderDay', ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday'], o.reminderDay), '', 'Employees who have not submitted get a reminder that morning; another on Monday for last week.') + '</div>' +
@@ -1691,6 +1732,14 @@ PAGES.settings = async () => {
     (o.integration.connected ? '<p>' + chip('Connected', 'ok') + ' Key <code>' + esc(o.integration.hint) + '</code></p>' : '<p>' + chip('Not connected') + '</p>') +
     '<button class="btn ghost" data-action="int-key">' + ic('key') + (o.integration.connected ? 'Replace the company key' : 'Create a company key') + '</button><p class="hint">Paste the key into IntelliHire → Settings → IntelliEmp. A new key stops the old one.</p></div>';
 };
+function docLockCard(o) {
+  const L0 = o.docLock || { on: true, types: [], all: [] };
+  return '<form class="card" data-form="doc-lock"><h3>' + ic('lock') + 'Locked identity documents</h3>' +
+    '<label class="check"><input type="checkbox" name="on"' + (L0.on ? ' checked' : '') + '> Lock these documents once they are verified or accepted — hide the file and its details from everyone until an administrator approves access</label>' +
+    '<div class="checks" style="columns:3;margin:10px 0">' + L0.all.map(t => '<label class="check"><input type="checkbox" name="lt" value="' + esc(t) + '"' + (L0.types.indexOf(t) >= 0 ? ' checked' : '') + '> ' + esc(t) + '</label>').join('') + '</div>' +
+    '<p class="hint">Requests come to administrators (and anyone given the "Unlock locked identity documents" power) on the dashboard and by email; access lasts 1 hour to 3 days and ends on its own. HR can still examine identity documents while Form I-9 Section 2 is open. Every request, unlock and view is in the audit log.</p><button class="btn">Save</button></form>';
+}
+FORMS['doc-lock'] = async (v, form) => { await call('saveDocLock', { on: !!v.on, types: Array.from(form.querySelectorAll('[name=lt]:checked')).map(x => x.value) }); toast('Saved', 'ok'); await loadDb(); await reloadCurrent(); };
 function complianceCard(o) {
   const t = o.employerType || 'Commercial', fed = t !== 'Commercial', seg = t === 'Federal contractor' ? 'fed' : t === 'Both' ? 'both' : 'com';
   return '<form class="card" data-form="org-compliance"><h3>' + ic('shield') + 'Compliance profile</h3>' +
@@ -1718,9 +1767,10 @@ Object.assign(ACTIONS, {
 PAGES.audit = async (parts, p) => {
   const list = await call('getAuditLogs', { q: p.q || '' });
   return head('Audit log', 'Sign-ins, document downloads, approvals and changes — newest first (last 400).') +
-    '<div class="card"><form class="filters" data-form="audit-q">' + inp('q', p.q || '', 'type="search" placeholder="Search person, action, employee ID…"') + '<button class="btn ghost sm">Search</button></form>' +
+    '<div class="card"><form class="filters" data-form="audit-q">' + inp('q', p.q || '', 'type="search" placeholder="Search person, action, employee ID…"') + '<button class="btn ghost sm">Search</button>' +
+    '<a class="btn ghost sm" href="#app/audit?q=failed">' + ic('alert') + 'Failures</a>' + (p.q ? '<a class="btn ghost sm" href="#app/audit">Show all</a>' : '') + '</form>' +
     '<div class="tblwrap"><table class="tbl"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Details</th></tr></thead><tbody>' +
-    list.map(a => '<tr><td><small>' + esc(fmtWhen(a.createdAt)) + '</small></td><td><small>' + esc(a.actor) + '</small></td><td>' + chip(String(a.action).replace(/_/g, ' ').toLowerCase()) + '</td><td><small>' + esc(a.entity) + ' · ' + esc(a.entityId) + '</small></td></tr>').join('') + '</tbody></table></div></div>';
+    list.map(a => '<tr><td><small>' + esc(fmtWhen(a.createdAt)) + '</small></td><td><small>' + esc(a.actor) + '</small></td><td>' + chip(String(a.action).replace(/_/g, ' ').toLowerCase(), /^(FAILED|ACCESS_DENIED)$/.test(a.action) ? 'bad' : '') + '</td><td><small>' + esc(a.entity) + ' · ' + esc(a.entityId) + '</small></td></tr>').join('') + '</tbody></table></div></div>';
 };
 FORMS['audit-q'] = v => go('#app/audit?q=' + encodeURIComponent(v.q || ''));
 
@@ -2065,16 +2115,29 @@ FORMS['intake'] = async (v, form) => {
   const out = [], errs = [], hashAt = location.hash, picked = [];
   for (const f of files) picked.push({ name: f.name, data: await readFile(f) });   // the files are taken now; the reading carries on in the background
   closeModal(); askNotify(); toast('Reading ' + files.length + ' document' + (files.length === 1 ? '' : 's') + ' in the background — keep working; the check opens when ready.', 'ok', 5000);
-  try {
-    for (let i = 0; i < picked.length; i++) {
-      longTask('Reading and sorting ' + picked[i].name + (picked.length > 1 ? ' (' + (i + 1) + ' of ' + picked.length + ')' : ''), picked.length > 1 ? i / picked.length * 100 : undefined);
-      try { out.push(await call('classifyDocument', { employeeId: v.employeeId || '', file: picked[i].data })); } catch (e) { errs.push(picked[i].name + ': ' + (e.message || e)); }
-    }
-  } finally { longTask(''); }
-  if (!out.length) return doneAlert('Could not read: ' + (errs.join(' · ') || 'nothing could be read'), null, true);
-  if (location.hash === hashAt && !S.modal && !document.hidden) return intakeReview(out, errs, v.employeeId || '');
-  doneAlert('Sorted ' + out.length + ' document' + (out.length === 1 ? '' : 's') + ' — check and file', async () => { if (location.hash !== hashAt) { location.hash = hashAt; await waitPainted(hashAt); } intakeReview(out, errs, v.employeeId || ''); });
+  await runIntake(picked, v.employeeId || '', hashAt, []);
 };
+async function runIntake(picked, empId, hashAt, prior) {
+  const out = (prior || []).slice(), failed = [];
+  let next = 0, done = 0;
+  const show = () => longTask('Reading and sorting ' + picked.length + ' document' + (picked.length === 1 ? '' : 's') + ' — ' + done + ' of ' + picked.length + ' done', picked.length > 1 ? done / picked.length * 100 : undefined);
+  const one = async p => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try { return await call('classifyDocument', { employeeId: empId, file: p.data }); }
+      catch (e) { if (attempt === 1 || !(e.code === 'NETWORK' || e.code === 'BUSY')) throw e; await new Promise(ok => setTimeout(ok, 3000)); }
+    }
+  };
+  const worker = async () => { while (next < picked.length) { const p = picked[next++]; try { out.push(await one(p)); } catch (e) { failed.push({ p: p, why: e.message || String(e) }); } done++; show(); } };
+  show();
+  try { await Promise.all([worker(), worker()]); } finally { longTask(''); }
+  S.intakeFailed = { picked: failed.map(f => f.p), empId: empId, hashAt: hashAt, out: out };
+  const errs = failed.map(f => f.p.name + ': ' + f.why);
+  if (!out.length) return doneAlert('Could not read ' + failed.length + ' document' + (failed.length === 1 ? '' : 's') + ' — click to try again. (' + errs.join(' · ') + ')', () => runIntake(S.intakeFailed.picked, empId, hashAt, []), true);
+  const open = () => intakeReview(out, errs, empId);
+  if (location.hash === hashAt && !S.modal && !document.hidden) return open();
+  doneAlert('Sorted ' + out.length + ' document' + (out.length === 1 ? '' : 's') + (failed.length ? ' (' + failed.length + ' could not be read)' : '') + ' — check and file', async () => { if (location.hash !== hashAt) { location.hash = hashAt; await waitPainted(hashAt); } open(); });
+}
+ACTIONS['intake-retry'] = async () => { const F = S.intakeFailed; if (!F || !F.picked.length) return; closeModal(); await runIntake(F.picked, F.empId, F.hashAt, F.out); };
 async function intakeReview(items, errs, fixedEmp) {
   const staff = isStaff() && (can('docs.manage') || can('settings.manage')), emps = staff && !fixedEmp ? await empChoices() : [];
   const corpTypes = (D().lists.corpDocTypes || []), empTypes = L('docTypes') || [];
@@ -2084,21 +2147,23 @@ async function intakeReview(items, errs, fixedEmp) {
     (can('settings.manage') ? '<optgroup label="Company documents">' + corpTypes.map(t => '<option value="c|' + esc(t) + '"' + (x.category === 'company' && x.documentType === t ? ' selected' : '') + '>' + esc(t) + '</option>').join('') + '</optgroup>' : '') + '</select>';
   const whoSel = (i, x) => fixedEmp ? '' : '<select name="e_' + i + '"><option value="">' + (x.category === 'company' ? 'The company' : '— choose —') + '</option>' + emps.map(e => '<option value="' + e.id + '"' + (x.employeeId === e.id ? ' selected' : '') + '>' + esc(e.name) + '</option>').join('') + '</select>' +
     (x.personName && !x.employeeId ? '<br><small class="muted">Name on it: ' + esc(x.personName) + '</small>' : '');
-  openModal('What the documents are', '<form data-form="intake-file">' + (errs.length ? '<div class="banner bad">' + ic('alert') + '<div>Could not read: ' + errs.map(esc).join('<br>') + '</div></div>' : '') +
+  openModal('What the documents are', '<form data-form="intake-file">' + (errs.length ? '<div class="banner bad">' + ic('alert') + '<div>Could not read: ' + errs.map(esc).join('<br>') + '<br><button type="button" class="btn sm" data-action="intake-retry" style="margin-top:6px">Try these again</button> <small class="muted">The failures are in the audit log.</small></div></div>' : '') +
     '<div class="tblwrap"><table class="tbl"><thead><tr><th>File</th><th>What it is</th>' + (fixedEmp ? '' : '<th>For</th>') + '</tr></thead><tbody>' +
     items.map((x, i) => '<tr><td><b>' + esc(x.fileName) + '</b><br><small class="muted">' + esc(x.summary || '') + ' · ' + esc(x.readBy) + '</small></td><td>' + typeSel(i, x) + '</td>' + (fixedEmp ? '' : '<td>' + whoSel(i, x) + '</td>') + '</tr>').join('') +
     '</tbody></table></div><p class="hint">Change anything that is wrong. Employee documents are then read for dates and details; timesheets show their weeks to record; company documents go to Settings → Corporate documents.</p>' +
     '<div class="foot-btns"><button class="btn">' + ic('check') + 'File ' + (items.length === 1 ? 'it' : 'them') + '</button></div></form>', true);
 }
 FORMS['intake-file'] = async v => {
-  const I = S.cache.intake, done = [], later = [];
+  const I = S.cache.intake, done = [], later = [], bad = [];
+  I.items.forEach((x, i) => { const [k] = String(v['t_' + i] || '').split('|'), category = { e: 'employee', t: 'timesheet', c: 'company' }[k] || x.category;
+    if (category !== 'company' && !(I.fixedEmp || v['e_' + i])) throw new Error('Choose who ' + x.fileName + ' is for.'); });
   for (let i = 0; i < I.items.length; i++) {
-    const x = I.items[i], [k, type] = String(v['t_' + i] || '').split('|'), category = { e: 'employee', t: 'timesheet', c: 'company' }[k] || x.category;
-    const emp = I.fixedEmp || v['e_' + i] || '';
-    if (category !== 'company' && !emp) throw new Error('Choose who ' + x.fileName + ' is for.');
-    const r = await call('fileDocument', { token: x.token, category: category, documentType: type, employeeId: emp });
-    done.push(r); if (r.kind === 'timesheet') later.push(r);
+    const x = I.items[i]; if (x.filed) continue;
+    const [k, type] = String(v['t_' + i] || '').split('|'), category = { e: 'employee', t: 'timesheet', c: 'company' }[k] || x.category;
+    try { const r = await call('fileDocument', { token: x.token, category: category, documentType: type, employeeId: I.fixedEmp || v['e_' + i] || '' }); x.filed = true; done.push(r); if (r.kind === 'timesheet') later.push(r); }
+    catch (e) { bad.push(x.fileName + ': ' + (e.message || e)); }   // the others are still filed
   }
+  if (bad.length) { if (done.length) reloadCurrent(); throw new Error((done.length ? done.length + ' filed. ' : '') + 'Not filed: ' + bad.join(' · ') + ' — press File again to retry these.'); }
   closeModal();
   const emps = done.filter(r => r.kind === 'employee').length, corp = done.filter(r => r.kind === 'company').length;
   toast('Filed: ' + [emps ? emps + ' employee document' + (emps === 1 ? '' : 's') : '', corp ? corp + ' company document' + (corp === 1 ? '' : 's') : '', later.length ? later.length + ' timesheet file' + (later.length === 1 ? '' : 's') + ' — check the weeks' : ''].filter(Boolean).join(', '), 'ok', 7000);
