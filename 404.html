@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.30"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.31"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -203,6 +203,11 @@ form .grid{margin-bottom:14px}
 @keyframes nudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .banner.draft-note{margin-bottom:12px}.banner.draft-note .btn{margin-left:8px}
 [hidden]{display:none!important}
+.modal.view{max-width:1100px;width:96vw}.viewer{width:100%;height:72vh;border:1px solid var(--line,#e2e8f0);border-radius:10px;background:#f8fafc}
+.viewer.img{display:flex;align-items:center;justify-content:center;overflow:auto;padding:10px}.viewer.img img{max-width:100%;max-height:100%;object-fit:contain}
+pre.viewer.text{overflow:auto;padding:14px;white-space:pre-wrap;font-size:13px;margin:0}
+.bulkbar{position:sticky;bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--navy,#0f2742);color:#fff;padding:10px 14px;border-radius:12px;margin-top:12px;box-shadow:0 8px 24px rgba(15,39,66,.25)}
+.bulkbar .btn.ghost{background:transparent;color:#fff;border-color:#4a6a8c}.tbl td.sel,.tbl th.sel{width:34px;padding-right:0}
 </style>
 
 </head>
@@ -219,6 +224,7 @@ const IC_PATHS = {
   user: '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-3.8 3.7-6 7.5-6s6.7 2.2 7.5 6"/>',
   check: '<path d="M5 12.5l4.2 4.2L19 7"/>',
   list: '<path d="M9 6.5h11M9 12h11M9 17.5h11"/><path d="M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01" stroke-width="2.6"/>',
+  eye: '<path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   doc: '<path d="M6.5 3.5h7l4 4v13h-11z"/><path d="M13.5 3.5v4h4M9 12.5h6M9 16h6"/>',
   passport: '<rect x="5" y="3" width="14" height="18" rx="2.5"/><circle cx="12" cy="10" r="3.2"/><path d="M9 17h6"/>',
@@ -370,7 +376,7 @@ function openModal(title, body, wide) {
   document.querySelectorAll('.modal form').forEach(f => { if (typeof payRateSync === 'function') payRateSync(f); });
   const f = document.querySelector('.modal input:not([type=hidden]),.modal select,.modal textarea'); if (f) setTimeout(() => f.focus(), 30);
 }
-function closeModal() { S.modal = null; paintModal(); }
+function closeModal() { S.modal = null; paintModal(); freeViewUrl(); }
 const DRAFT_SKIP_ = /ssn|password|passcode|account|routing|aadhaar|nric|\bfin\b|iban|swift|uan|\bpan\b|card|pin\b|otp|^code$|mfa|token|signature/i;
 function draftKey(form) {
   const id = (form.querySelector('[name=id],[name=employeeId]') || {}).value || form.dataset.id || '';
@@ -447,6 +453,30 @@ async function readFile(file) {
   } finally { longTask(''); }
   return { name: file.name, uploadId: id };
 }
+const FILE_FNS = { doc: 'getDocumentFile', corp: 'getCorpDocFile', ts: 'getTimesheetFile', handbook: 'getHandbookFile' };
+function docMode() { return ((D().org || {}).docAccess || {}).mine || 'both'; }
+function fileBtns(kind, id, opt) {
+  opt = opt || {}; const m = docMode(), sm = opt.size || 'xs', out = [];
+  if (m !== 'download') out.push('<button type="button" class="btn ' + sm + (opt.primary ? '' : ' ghost') + '" data-action="file-view" data-kind="' + kind + '" data-id="' + esc(id) + '" title="View in the portal">' + ic('eye') + (opt.iconOnly ? '' : esc(opt.viewLabel || 'View')) + '</button>');
+  if (m !== 'view') out.push('<button type="button" class="btn ' + sm + ' ghost" data-action="file-get" data-kind="' + kind + '" data-id="' + esc(id) + '" title="Download">' + ic('download') + (opt.iconOnly ? '' : esc(opt.getLabel || 'Download')) + '</button>');
+  return out.join('');
+}
+let viewUrl = '';
+function freeViewUrl() { if (viewUrl) { try { URL.revokeObjectURL(viewUrl); } catch (e) { /* ignore */ } viewUrl = ''; } }
+function blobOf(f) { const bin = atob(f.data), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Blob([u], { type: f.mime || 'application/octet-stream' }); }
+async function viewFile(kind, id, btn) {
+  const f = await busy(btn, call(FILE_FNS[kind], { id: id, mode: 'view' }));
+  freeViewUrl();
+  const name = f.name || 'file', ext = (name.match(/\.([a-z0-9]+)$/i) || [])[1] || '', mime = f.mime || '', blob = blobOf(f);
+  let body;
+  if (/pdf/i.test(mime) || /^pdf$/i.test(ext)) { viewUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' })); body = '<iframe class="viewer" src="' + viewUrl + (docMode() === 'view' ? '#toolbar=0&navpanes=0' : '') + '" title="' + esc(name) + '"></iframe>'; }
+  else if (/^image\//.test(mime) && !/heic|tiff/i.test(mime)) { viewUrl = URL.createObjectURL(blob); body = '<div class="viewer img"><img src="' + viewUrl + '" alt="' + esc(name) + '"></div>'; }
+  else if (/^text\/|csv|json/i.test(mime) || /^(txt|csv|json|md)$/i.test(ext)) { body = '<pre class="viewer text">' + esc(await blob.text()) + '</pre>'; }
+  else body = '<div class="empty">' + ic('doc') + '<p>This kind of file (' + esc(ext.toUpperCase() || mime) + ') can\'t be shown in the browser.' + (docMode() === 'view' ? ' Ask HR for a PDF copy.' : ' Download it to open it.') + '</p></div>';
+  openModal(name, body + (docMode() !== 'view' ? '<div class="foot-btns"><button type="button" class="btn ghost" data-action="file-get" data-kind="' + kind + '" data-id="' + esc(id) + '">' + ic('download') + 'Download</button></div>' : ''), true);
+  const m = document.querySelector('.modal'); if (m) m.classList.add('view');
+}
+async function getFile(kind, id, btn) { saveB64(await busy(btn, call(FILE_FNS[kind], { id: id, mode: 'download' }))); }
 function saveB64(f) {
   const bin = atob(f.data), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
   download(f.name || 'file', new Blob([u], { type: f.mime || 'application/octet-stream' }));
@@ -788,7 +818,7 @@ function taskHtml(t, hr, opts) {
   else if (canDo) act += '<button class="btn sm" data-action="task-do" data-id="' + t.id + '">' + ({ upload: 'Upload', form: 'Fill in', ack: 'Review and sign', info: 'Mark as read', hr: 'Complete' }[t.category] || 'Open') + '</button>';
   if (done && isSignTask(t) && sg && sg.status === 'Signed') act += '<button class="btn sm ghost" data-action="task-do" data-id="' + t.id + '" title="View the signed text">View</button>';
   if (hr && t.status === 'Submitted') act += '<button class="btn sm" data-action="task-review" data-id="' + t.id + '" data-d="approve">' + ic('check') + 'Approve</button><button class="btn sm danger" data-action="task-review" data-id="' + t.id + '" data-d="reject">Reject</button>';
-  if (t.docId && (hr || opts.self)) act += '<button class="btn sm ghost" data-action="doc-open" data-id="' + t.docId + '" title="Open the file">' + ic('download') + '</button>';
+  if (t.docId && (hr || opts.self)) act += fileBtns('doc', t.docId, { size: 'sm', iconOnly: true });
   if (hr && !done && t.status !== 'Submitted') act += '<button class="btn sm ghost" data-action="task-review" data-id="' + t.id + '" data-d="waive" title="Not needed for this person">Waive</button>';
   if (hr && done) act += '<button class="btn sm ghost" data-action="task-review" data-id="' + t.id + '" data-d="reopen">Reopen</button>';
   return '<div class="task"><span class="dot ' + dot + '">' + ic(done ? 'check' : CAT_ICON[t.category] || 'doc') + '</span><div class="body"><b>' + esc(t.title) + '</b>' +
@@ -838,7 +868,7 @@ Object.assign(ACTIONS, {
     await busy(el, call('reviewTask', { taskId: id, decision: d }));
     toast(d === 'approve' ? 'Approved' : 'Reopened', 'ok'); await reloadCurrent();
   },
-  'doc-open': async el => saveB64(await busy(el, call('getDocumentFile', el.dataset.id)))
+  'doc-open': el => docMode() === 'view' ? viewFile('doc', el.dataset.id, el) : getFile('doc', el.dataset.id, el)
 });
 Object.assign(FORMS, {
   'task-submit': async (v, form) => {
@@ -960,7 +990,7 @@ function docsTable(docs, hr) {
   if (!docs.length) return '<div class="empty">No documents yet.</div>';
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Expires</th><th>Status</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' +
     docs.slice().sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt))).map(d => '<tr><td><b>' + esc(d.type) + '</b> ' + aiChip(d) + '<br><small class="muted">' + esc(d.fileName) + '</small></td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td>' + statusChip(d.status) + '</td>' +
-      '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' + (d.type === 'Form I-9' && d.source !== 'Official USCIS PDF' && d.source !== 'Portal form' && can('onboarding.manage') ? '<button class="btn xs" data-action="i9-paper" data-id="' + d.id + '" title="Read this paper Form I-9 and fill the official USCIS form">' + ic('doc') + 'Convert to official form</button>' : '') + '<button class="btn xs ghost" data-action="doc-open" data-id="' + d.id + '">' + ic('download') + 'Open</button>' +
+      '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' + (d.type === 'Form I-9' && d.source !== 'Official USCIS PDF' && d.source !== 'Portal form' && can('onboarding.manage') ? '<button class="btn xs" data-action="i9-paper" data-id="' + d.id + '" title="Read this paper Form I-9 and fill the official USCIS form">' + ic('doc') + 'Convert to official form</button>' : '') + fileBtns('doc', d.id) +
       (hr && AI().on && d.aiStatus !== 'Skipped' ? '<button class="btn xs ghost" data-action="ai-doc" data-id="' + d.id + '" title="What AI read">' + ic('spark') + 'AI</button>' : '') +
       (hr ? (d.status !== 'Verified' ? '<button class="btn xs ghost" data-action="doc-verify" data-id="' + d.id + '">Verify</button>' : '') + '<button class="btn xs ghost" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + '</button><button class="btn xs danger" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + '</button>' : '') +
       '</div></td></tr>').join('') + '</tbody></table></div>';
@@ -975,7 +1005,7 @@ function empDocuments(E) {
 function empTimesheets(E) {
   const ts = E.timesheets || [];
   return '<div class="card"><div class="card-h"><h3>' + ic('clock') + 'Recent weeks</h3><div class="btns">' + (can('timesheets.all') || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="ts-upload" data-emp="' + E.employee.id + '">' + ic('upload') + 'Add from a timesheet file</button>' : '') + '<a class="btn sm ghost" href="#app/timesheet/' + E.employee.id + '/' + D().thisWeek + '">Open this week</a></div></div>' +
-    (ts.length ? '<table class="tbl"><thead><tr><th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Source</th></tr></thead><tbody>' + ts.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + E.employee.id + '/' + t.weekStart + '"><td>' + esc(weekLabel(t.weekStart)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + '</td><td class="hide-m">' + esc(t.source || '') + (t.hasFile ? ' · file' : '') + '</td></tr>').join('') + '</tbody></table>'
+    (ts.length ? '<table class="tbl"><thead><tr>' + selHead(ts) + '<th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Source</th></tr></thead><tbody>' + ts.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + E.employee.id + '/' + t.weekStart + '">' + selCell(ts, t) + '<td>' + esc(weekLabel(t.weekStart)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + '</td><td class="hide-m">' + esc(t.source || '') + (t.hasFile ? ' · file' : '') + '</td></tr>').join('') + '</tbody></table>' + bulkBar(ts)
       : '<div class="empty">No timesheets yet.</div>') + '</div>';
 }
 function empImmigration(E) {
@@ -1194,6 +1224,35 @@ CHANGES['hire-type'] = el => {
 
 CHANGES['inv-to'] = el => { const b = $('inv-signin'); if (b) b.hidden = el.value !== 'both'; };
 FORMS['emp-invite'] = async v => ACTIONS['emp-invite-go']({ dataset: { id: v.employeeId } }, { to: v.to, signIn: v.to === 'both' ? v.signIn : v.to });
+const selHead = rows => rows.some(t => t.canDecide) ? '<th class="sel"><input type="checkbox" data-bulk-all title="Select all weeks you can approve" aria-label="Select all"></th>' : '';
+const selCell = (rows, t) => rows.some(x => x.canDecide) ? '<td class="sel">' + (t.canDecide ? '<input type="checkbox" name="tsSel" value="' + esc(t.id) + '" aria-label="Select ' + esc(weekLabel(t.weekStart)) + '">' : '') + '</td>' : '';
+const bulkBar = rows => rows.some(t => t.canDecide) ? '<div class="bulkbar" id="bulkbar" hidden><b id="bulkn">0</b><span>selected</span><button type="button" class="btn sm" data-action="ts-bulk" data-d="approve">' + ic('check') + 'Approve selected</button><button type="button" class="btn sm ghost" data-action="ts-bulk" data-d="reject">Send back selected</button><button type="button" class="btn sm ghost" data-action="ts-bulk-clear">Clear</button></div>' : '';
+function bulkSync() {
+  const all = Array.from(document.querySelectorAll('input[name=tsSel]')), on = all.filter(x => x.checked), bar = $('bulkbar');
+  if (bar) { bar.hidden = !on.length; $('bulkn').textContent = on.length; }
+  const h = document.querySelector('[data-bulk-all]'); if (h) { h.checked = !!all.length && on.length === all.length; h.indeterminate = !!on.length && on.length < all.length; }
+}
+document.addEventListener('change', ev => {
+  if (ev.target.matches && ev.target.matches('[data-bulk-all]')) document.querySelectorAll('input[name=tsSel]').forEach(x => { x.checked = ev.target.checked; });
+  if (ev.target.matches && (ev.target.matches('[data-bulk-all]') || ev.target.name === 'tsSel')) bulkSync();
+});
+const bulkIds = () => Array.from(document.querySelectorAll('input[name=tsSel]:checked')).map(x => x.value);
+function bulkDone(r, verb) {
+  const sk = r.skipped || [];
+  toast(r.done.length + ' week(s) ' + verb + (sk.length ? ' · ' + sk.length + ' skipped' : ''), sk.length ? '' : 'ok', 5000);
+  if (sk.length) openModal('Some weeks were skipped', '<p>' + r.done.length + ' week(s) ' + verb + '. These were not changed:</p><ul>' + sk.map(x => '<li><b>' + esc(x.weekStart ? weekLabel(x.weekStart) : x.id) + '</b> — ' + esc(x.reason) + '</li>').join('') + '</ul><div class="foot-btns"><button type="button" class="btn" data-action="close-modal">OK</button></div>');
+}
+Object.assign(ACTIONS, {
+  'ts-bulk': async el => {
+    const ids = bulkIds(); if (!ids.length) return toast('Select weeks first.');
+    if (el.dataset.d === 'reject') return openModal('Send back ' + ids.length + ' week(s)', '<form data-form="ts-bulk-reject"><input type="hidden" name="ids" value="' + esc(ids.join(',')) + '">' + field('What needs to change? (sent to each employee)', '<textarea name="note" rows="3" required maxlength="500"></textarea>') + '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn danger">Send back</button></div></form>');
+    if (!confirm('Approve ' + ids.length + ' timesheet week(s)?')) return;
+    const r = await busy(el, call('approveTimesheets', { ids: ids, decision: 'approve' }));
+    await reloadCurrent(); bulkDone(r, 'approved');
+  },
+  'ts-bulk-clear': () => { document.querySelectorAll('input[name=tsSel],[data-bulk-all]').forEach(x => { x.checked = false; }); bulkSync(); }
+});
+FORMS['ts-bulk-reject'] = async v => { const r = await call('approveTimesheets', { ids: String(v.ids).split(','), decision: 'reject', note: v.note }); closeModal(); await reloadCurrent(); bulkDone(r, 'sent back'); };
 PAGES.timesheets = async (parts, p) => {
   if (!isStaff()) return go('#app/my-timesheet');
   const wk = p.week || '', st = p.status || (wk ? '' : 'Submitted');
@@ -1206,10 +1265,10 @@ PAGES.timesheets = async (parts, p) => {
     (inbox ? '<div class="banner">' + ic('mail') + '<div>Employees can also email signed timesheets to <b>' + esc(inbox) + '</b> — IntelliEmp files them on the right week and sends them for approval.</div></div>' : '') +
     '<div class="card"><form class="filters" data-form="ts-filter"><select name="week"><option value="">Any week</option>' + opts(weeks.map(w => [w, weekLabel(w)]), wk) + '</select>' +
     '<select name="status"><option value="">Any status</option>' + opts(['Draft', 'Submitted', 'Approved', 'Rejected'], st) + '</select><button class="btn ghost sm">Show</button></form>' +
-    (rows.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Employee</th><th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Waiting for</th><th></th></tr></thead><tbody>' +
-      rows.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + t.employeeId + '/' + t.weekStart + '"><td><b>' + esc(t.employeeName) + '</b>' + (t.clientName ? '<br><small class="muted">' + esc(t.clientName) + '</small>' : '') + '</td>' +
+    (rows.length ? '<div class="tblwrap"><table class="tbl"><thead><tr>' + selHead(rows) + '<th>Employee</th><th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Waiting for</th><th></th></tr></thead><tbody>' +
+      rows.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + t.employeeId + '/' + t.weekStart + '">' + selCell(rows, t) + '<td><b>' + esc(t.employeeName) + '</b>' + (t.clientName ? '<br><small class="muted">' + esc(t.clientName) + '</small>' : '') + '</td>' +
         '<td>' + esc(weekLabel(t.weekStart)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + (t.source === 'Email' ? ' ' + chip('Emailed') : '') + (t.hasFile ? ' ' + chip('File') : '') + '</td>' +
-        '<td class="hide-m"><small>' + esc(t.waitingFor || '') + '</small></td><td class="num">' + (t.mine ? '<div class="btns" style="justify-content:flex-end"><button class="btn xs" data-action="ts-approve" data-id="' + t.id + '">' + ic('check') + 'Approve</button><button class="btn xs danger" data-action="ts-reject" data-id="' + t.id + '">Reject</button></div>' : '') + '</td></tr>').join('') + '</tbody></table></div>'
+        '<td class="hide-m"><small>' + esc(t.waitingFor || '') + '</small></td><td class="num">' + (t.mine ? '<div class="btns" style="justify-content:flex-end"><button class="btn xs" data-action="ts-approve" data-id="' + t.id + '">' + ic('check') + 'Approve</button><button class="btn xs danger" data-action="ts-reject" data-id="' + t.id + '">Reject</button></div>' : '') + '</td></tr>').join('') + '</tbody></table></div>' + bulkBar(rows)
       : '<div class="empty">No timesheets here.</div>') + '</div>' +
     (r.missing && r.missing.length ? '<div class="card"><div class="card-h"><h3>' + ic('alert') + 'Not submitted for ' + esc(weekLabel(wk)) + '</h3><span class="muted">' + r.missing.length + '</span></div>' +
       r.missing.map(m => '<div class="alert"><span class="lv warn"></span><div><a href="#app/timesheet/' + m.employeeId + '/' + wk + '"><b>' + esc(m.employeeName) + '</b></a> ' + (m.clientName ? '<small class="muted">' + esc(m.clientName) + '</small> ' : '') + chip('Not submitted', 'bad') + '</div></div>').join('') + '</div>' : '');
@@ -1253,7 +1312,7 @@ async function timesheetPage(empId, week, mine) {
     (edit ? field(G.source === 'client' ? 'Client-approved timesheet (required)' : 'Attach the signed timesheet (optional)', '<input type="file" name="file" data-change="ts-file-pick" accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.xlsx,.xls,.csv,.txt,.doc,.docx">' +
       '<div class="btns" style="margin-top:6px"><button type="button" class="btn ghost sm" data-action="ts-ai-read">' + ic('spark') + 'Read hours from the file</button>' + (G.readerAi ? '<button type="button" class="btn ghost sm" data-action="ts-ai-read" data-offline="1" title="Uses IntelliEmp\'s own reader — nothing is sent to an AI provider">Read without AI</button>' : '') + '</div>', '',
       t && t.hasFile ? 'Current file: ' + t.fileName : (G.readerAi ? 'AI reads signed sheets, scans, photos and spreadsheets; the built-in reader takes over if AI is unavailable.' : 'The built-in reader handles client-system PDFs, spreadsheets and CSV; scans are read with Google\'s text recognition.')) : '') + '</div><div id="ts-ai"></div>' +
-    (t && t.hasFile ? '<p><button type="button" class="btn ghost sm" data-action="ts-file" data-id="' + t.id + '">' + ic('download') + esc(t.fileName) + '</button></p>' : '') +
+    (t && t.hasFile ? '<p class="btns">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) + '</p>' : '') +
     (t && (t.steps || []).length ? '<div class="steps">' + t.steps.map((s, i) => '<span class="step">' + (s.status === 'Approved' ? ic('check') : s.status === 'Rejected' ? ic('x') : ic('clock')) + (i + 1) + '. ' + esc(s.name || s.email) + ' <small class="muted">(' + esc(s.role) + ')</small> ' + statusChip(s.status) + '</span>').join('') + '</div>' : '') +
     (edit ? '<p class="hint">' + esc(flowNote) + '</p><div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button>' + (future ? '<span class="muted">You can submit once the week starts.</span>' : '<button class="btn" name="mode" value="submit">' + ic('send') + 'Submit for approval</button>') + '</div>' : '') +
     '</form>' + tsAiPanel(t, !mine && isStaff()) +
@@ -1297,7 +1356,7 @@ Object.assign(ACTIONS, {
   'ts-reject': el => openModal('Send the timesheet back', '<form data-form="ts-reject"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '"><div class="grid">' + field('What needs to change? (emailed to the employee)', area('note', '', 'required')) + '</div><div class="foot-btns"><button class="btn danger">Send back</button></div></form>'),
   'ts-reopen': el => openModal('Reopen this week', '<form data-form="ts-reopen"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '"><p class="muted">The week goes back to draft so hours can be changed and resubmitted. The employee is told.</p><div class="grid">' + field('Reason', area('note', '', 'required')) + '</div><div class="foot-btns"><button class="btn">Reopen</button></div></form>'),
   'ts-resend': async el => { await busy(el, call('resendApproval', { id: el.dataset.id })); toast('Approval email sent again', 'ok'); },
-  'ts-file': async el => saveB64(await busy(el, call('getTimesheetFile', el.dataset.id))),
+  'ts-file': el => docMode() === 'view' ? viewFile('ts', el.dataset.id, el) : getFile('ts', el.dataset.id, el),
   'ts-export': () => { const to = D().thisWeek, from = addDays(to, -28);
     openModal('Export approved timesheets', '<form data-form="ts-export"><p class="muted">One row per employee and week with regular, overtime, paid time off and holiday hours — ready for your payroll system.</p><div class="grid g2">' +
       field('Weeks starting from', inp('from', from, 'type="date" required')) + field('to', inp('to', to, 'type="date" required')) + '</div><label class="check"><input type="checkbox" name="all"> Include weeks that are not approved yet</label><div class="foot-btns"><button class="btn">' + ic('download') + 'Download CSV</button></div></form>'); }
@@ -1490,7 +1549,10 @@ PAGES.settings = async () => {
     '<h3>' + ic('clock') + 'Timesheets</h3><div class="grid g3">' + field('Week starts on', sel('weekStart', ['Monday', 'Sunday'], o.weekStart)) + field('Default approval for new employees', sel('defaultApproval', L('approvalFlows'), o.defaultApproval)) +
     field('Reminder day', sel('reminderDay', ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday'], o.reminderDay), '', 'Employees who have not submitted get a reminder that morning; another on Monday for last week.') + '</div>' +
     '<label class="check"><input type="checkbox" name="clientTimesheetRequired"' + (o.clientTimesheetRequired ? ' checked' : '') + '> For people placed at a client, the client-approved timesheet is the record of hours (it must be attached to submit)</label>' +
-    '<label class="check"><input type="checkbox" name="acceptClientApproval"' + (o.acceptClientApproval ? ' checked' : '') + '> When the attached client timesheet shows it was approved in the client\'s system and the hours match, count that as the client manager\'s approval</label><button class="btn">Save</button></form>' +
+    '<label class="check"><input type="checkbox" name="acceptClientApproval"' + (o.acceptClientApproval ? ' checked' : '') + '> When the attached client timesheet shows it was approved in the client\'s system and the hours match, count that as the client manager\'s approval</label><h3 style="margin-top:18px">' + ic('doc') + 'Documents</h3><div class="grid g2">' +
+    field('Document buttons for HR and staff', sel('docAccessStaff', DOC_ACCESS_OPTS, (o.docAccess || {}).staff || 'both')) +
+    field('Document buttons for employees', sel('docAccessEmployee', DOC_ACCESS_OPTS, (o.docAccess || {}).employee || 'both'), '', 'Applies to their own documents, timesheet files and the handbook.') + '</div>' +
+    '<p class="hint">"View only" shows files inside the portal without a Download button, and the server refuses downloads. Anyone who can see a file can still take a screenshot or print it. Every view and download is recorded in the audit log.</p><button class="btn">Save</button></form>' +
     '<div class="card"><h3>' + ic('mail') + 'Emailed timesheets</h3>' + (o.timesheetInbox ? '<p>Employees can email signed timesheets to <b>' + esc(o.timesheetInbox) + '</b> from the email on their profile. IntelliEmp reads the week and hours, files the attachment and sends it for approval — every 10 minutes.</p>'
       : '<p class="muted">The Intellisoft administrator has not turned on the timesheet inbox yet.</p>') + '</div>' +
     aiSettingsCard() +
@@ -1500,6 +1562,7 @@ PAGES.settings = async () => {
     (o.integration.connected ? '<p>' + chip('Connected', 'ok') + ' Key <code>' + esc(o.integration.hint) + '</code></p>' : '<p>' + chip('Not connected') + '</p>') +
     '<button class="btn ghost" data-action="int-key">' + ic('key') + (o.integration.connected ? 'Replace the company key' : 'Create a company key') + '</button><p class="hint">Paste the key into IntelliHire → Settings → IntelliEmp. A new key stops the old one.</p></div>';
 };
+const DOC_ACCESS_OPTS = [['both', 'View and Download'], ['view', 'View only (no downloads)'], ['download', 'Download only']];
 FORMS['org-save'] = async v => { v.clientTimesheetRequired = !!v.clientTimesheetRequired; v.acceptClientApproval = !!v.acceptClientApproval; await call('updateOrgSettings', v); toast('Saved', 'ok'); await refresh(); };
 Object.assign(ACTIONS, {
   'mfa-policy': async el => { await busy(el, call('updateMfaPolicy', { require: !!el.dataset.on })); toast('Saved', 'ok'); await refresh(); },
@@ -1990,7 +2053,7 @@ function corpDocsCard(list, p) {
     (list.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Issued</th><th>Expires</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' + list.map(d =>
       '<tr><td><b>' + esc(d.type) + '</b>' + (d.employeeVisible === 'Yes' ? ' ' + chip('Employees can open', 'teal') : '') + '<br><small class="muted">' + esc(d.fileName) + '</small>' + (d.ai && d.ai.summary ? '<br><small class="muted">' + esc(d.ai.summary) + '</small>' : '') + '</td>' +
       '<td>' + esc(fmtDate(d.issuedOn) || '—') + '</td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '</small></td>' +
-      '<td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="corp-open" data-id="' + d.id + '">' + ic('download') + 'Open</button>' +
+      '<td class="num"><div class="btns" style="justify-content:flex-end">' + fileBtns('corp', d.id) +
       (p.canEdit && CORP_NO_READ.indexOf(d.type) < 0 ? ((S.reading || {})[d.id] ? '<span class="chip info"><span class="spin"></span>Reading…</span>' :
         (d.aiStatus === 'Read' && d.ai ? '<button class="btn xs" data-action="corp-review" data-id="' + d.id + '" title="See what was found and copy it into the profile">' + ic('check') + 'Review</button>' : '') +
         '<button class="btn xs ghost" data-action="corp-ai" data-id="' + d.id + '" title="Read this document and fill the company profile and state registrations">' + ic('spark') + (d.aiStatus === 'Read' ? 'Read again' : 'Read') + '</button>') : '') +
@@ -2004,7 +2067,7 @@ Object.assign(ACTIONS, {
   'corp-add': () => openModal('Add a corporate document', '<form data-form="corp-upload">' + corpForm({}, S.cache.profile.lists.corpDocTypes) + '<div class="foot-btns"><button class="btn">Upload</button></div></form>'),
   'corp-edit': el => { const d = S.cache.corp.find(x => x.id === el.dataset.id); openModal('Edit document', '<form data-form="corp-update"><input type="hidden" name="id" value="' + d.id + '">' + corpForm(d, S.cache.profile.lists.corpDocTypes) + '<div class="foot-btns"><button class="btn">Save</button></div></form>'); },
   'corp-del': async el => { if (!confirm('Delete this document? The file is moved to the trash.')) return; await busy(el, call('deleteCorpDoc', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); },
-  'corp-open': async el => saveB64(await busy(el, call('getCorpDocFile', el.dataset.id))),
+  'corp-open': el => docMode() === 'view' ? viewFile('corp', el.dataset.id, el) : getFile('corp', el.dataset.id, el),
   'corp-ai': async el => { S.reading = Object.assign(S.reading || {}, { [el.dataset.id]: 1 }); const d = (S.cache.corp || []).find(x => x.id === el.dataset.id); await reloadCurrent(); readInBackground(el.dataset.id, d ? d.fileName : 'the document'); },
   'corp-review': el => { const d = (S.cache.corp || []).find(x => x.id === el.dataset.id); if (d && d.ai) corpReview([storedRead(d)]); },
   'corp-read-all': async el => corpReadAll(el)
@@ -2073,7 +2136,7 @@ async function openSignTask(t, btn) {
   openModal(a.title, docBox(a.html) + '<div style="margin-top:14px">' + foot + '</div>', true);
 }
 Object.assign(ACTIONS, {
-  'handbook-open': async el => saveB64(await busy(el, call('getHandbookFile'))),
+  'handbook-open': el => docMode() === 'download' ? getFile('handbook', '', el) : viewFile('handbook', '', el),
   'offer-decline': el => openModal('Decline the offer', '<form data-form="offer-decline"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '"><div class="grid">' + field('Reason (sent to HR)', area('reason', '', 'required')) + '</div><div class="foot-btns"><button class="btn danger">Decline</button></div></form>'),
   'agreement-void': async el => { const why = prompt('Reason for withdrawing (kept in the record):'); if (why === null) return; await busy(el, call('voidAgreement', { id: el.dataset.id, reason: why })); closeModal(); toast('Withdrawn', 'ok'); await reloadCurrent(); },
   'offer-prep': el => offerModal(el.dataset.emp),
@@ -2749,6 +2812,8 @@ Object.assign(ACTIONS, {
   'close-modal': el => userClose(el.classList.contains('x') ? 'x' : 'cancel'),
   'modal-bg': (el, ev) => { if (ev.target === el) userClose('outside'); },
   'draft-clear': el => { const form = el.closest('form'); if (!form) return; dropDraft(form); const t = S.modal.title, body = S.modal.body, wide = S.modal.wide; S.modal = null; openModal(t, body, wide); },
+  'file-view': el => viewFile(el.dataset.kind, el.dataset.id, el),
+  'file-get': el => getFile(el.dataset.kind, el.dataset.id, el),
   logout: async () => { try { await call('logout'); } catch (e) { /* already signed out */ } sessionEnded(''); }
 });
 CHANGES['switch-org'] = async el => { await call('switchOrg', el.value); S.db = null; S.cache = {}; go('#app'); };
@@ -2760,7 +2825,7 @@ document.addEventListener('click', async ev => {
   if (!el) { if (ev.target.closest('.nav a') && S.ui.open) { S.ui.open = false; if (shell) shell.classList.remove('open'); } return; }
   const fn = ACTIONS[el.dataset.action]; if (!fn) return;
   if (el.dataset.action === 'modal-bg' && ev.target !== el) return;
-  if (el.tagName === 'TR' && ev.target.closest('button,a,input,select') && ev.target.closest('[data-action]') !== el) return;
+  if (el.tagName === 'TR' && (ev.target.closest('input,select,label,td.sel') || (ev.target.closest('button,a') && ev.target.closest('[data-action]') !== el))) return;
   ev.preventDefault();
   try { await fn(el, ev); } catch (e) { fail(e); }
 });
