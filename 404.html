@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.9"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.11"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -261,7 +261,7 @@ const store = {
 const S = { token: store.get('ie-token'), pub: null, db: null, modal: null, route: { name: '', parts: [], params: {} }, cache: {}, ui: { q: '', status: '', open: false } };
 
 let pending = 0, workTimer = null;
-const WORK_MSG = { aiReadTimesheet: 'Reading the timesheet', submitTimesheet: 'Submitting — checking the client timesheet', saveTimesheet: 'Saving the week', analyzeEmployeeDocs: 'Reading the documents',
+const WORK_MSG = { readCorpDoc: 'Reading the document', aiReadTimesheet: 'Reading the timesheet', submitTimesheet: 'Submitting — checking the client timesheet', saveTimesheet: 'Saving the week', analyzeEmployeeDocs: 'Reading the documents',
   createEmployeeFromDocs: 'Creating the employee and filing documents', uploadDocument: 'Uploading and reading the document', submitTask: 'Uploading', sendAgreementFor: 'Sending for signature',
   sendOffer: 'Sending the offer', previewOffer: 'Preparing the preview', previewTemplate: 'Preparing the preview', templatePdf: 'Building the PDF', signAgreement: 'Signing and filing your signed copy',
   submitForm: 'Signing and filing the form', completeI9Section2: 'Completing Form I-9', generateHandbook: 'Building the handbook PDF', getTimesheetCalendar: 'Loading the calendar',
@@ -812,7 +812,7 @@ function empProfile(E) {
   const e = E.employee, kv = (k, v) => v === undefined || v === '' || v === null ? '' : '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>';
   const flowSteps = { Manager: [e.managerName || e.managerEmail], 'Client manager': [e.clientManagerName || e.clientManagerEmail], 'Manager, then client manager': [e.managerName || e.managerEmail, e.clientManagerName || e.clientManagerEmail], 'No approval needed': [] }[e.approvalFlow] || [];
   return '<div class="grid g2"><div class="card"><h3>' + ic('briefcase') + 'Job</h3><dl class="kv">' + kv('Job title', esc(e.jobTitle)) + kv('Department', esc(e.department)) + kv('Employment', esc(e.employmentType)) +
-    (e.payRate !== undefined ? kv('Pay', esc(money(e.payRate, e.payType))) : '') + kv('Start date', esc(fmtDate(e.startDate))) + kv('End date', esc(fmtDate(e.endDate))) +
+    (e.payRate !== undefined ? kv('Pay', esc(money(e.payRate, e.payType)) + (e.payFrequency || D().org.payFrequency ? ' <small class="muted">· paid ' + esc(e.payFrequency || D().org.payFrequency) + '</small>' : '')) : '') + kv('Start date', esc(fmtDate(e.startDate))) + kv('End date', esc(fmtDate(e.endDate))) +
     kv('Manager', esc(e.managerName || '') + (e.managerEmail ? ' <small class="muted">' + esc(e.managerEmail) + '</small>' : '')) + kv('Client', esc(e.clientName)) + kv('Project', esc(e.projectName)) +
     kv('Client manager', esc(e.clientManagerName || '') + (e.clientManagerEmail ? ' <small class="muted">' + esc(e.clientManagerEmail) + '</small>' : '')) + kv('Worksite', esc(e.worksite)) + '</dl></div>' +
     '<div class="card"><h3>' + ic('clock') + 'Timesheets</h3><dl class="kv">' + kv('Weekly timesheet', e.timesheetRequired === 'No' ? 'Not required' : 'Required') + kv('Approval', esc(e.approvalFlow)) +
@@ -842,7 +842,9 @@ function docsTable(docs, hr) {
 }
 function empDocuments(E) {
   const hr = can('docs.manage');
-  return '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Documents</h3>' + (hr || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="doc-add" data-emp="' + E.employee.id + '">' + ic('upload') + 'Add document</button>' : '') + '</div>' +
+  const i9done = (E.checklist || []).some(t => t.key === 'i9s1' && t.status === 'Approved' && t.docId);
+  return '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Documents</h3><div class="btns">' + (i9done && (can('onboarding.manage') || D().who.employeeId === E.employee.id) ? '<button class="btn sm ghost" data-action="i9-official" data-emp="' + E.employee.id + '" title="Fill the official USCIS Form I-9 PDF with the signed answers">' + ic('doc') + 'Official Form I-9 (USCIS PDF)</button>' : '') +
+    (hr || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="doc-add" data-emp="' + E.employee.id + '">' + ic('upload') + 'Add document</button>' : '') + '</div></div>' +
     docsTable(E.documents || [], hr) + '<p class="hint">Files are private: only the employee and HR can open them; payroll sees W-4, state withholding and direct-deposit forms. Every download is recorded in the audit log.</p></div>';
 }
 function empTimesheets(E) {
@@ -867,7 +869,8 @@ function empForm(e, mode) {
     field('Work email', inp('email', e.email, 'type="email"'), '', 'Used to sign in to the portal.') + field('Personal email', inp('personalEmail', e.personalEmail, 'type="email"')) +
     field('Job title', inp('jobTitle', e.jobTitle)) + field('Department', inp('department', e.department)) +
     field('Employment type', sel('employmentType', lists.empTypes, e.employmentType || 'W2 Full-time (salary)')) + field('Start date', inp('startDate', e.startDate, 'type="date"')) +
-    (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + field('Pay rate (USD)', inp('payRate', e.payRate, 'type="number" step="0.01" min="0"')) : '') +
+    (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + field('Pay rate (USD)', inp('payRate', e.payRate, 'type="number" step="0.01" min="0"')) +
+      field('Paid', sel('payFrequency', [['', 'Company default (' + (D().org.payFrequency || 'semi-monthly') + ')'], ['weekly', 'Weekly'], ['bi-weekly', 'Every two weeks (bi-weekly)'], ['semi-monthly', 'Twice a month (semi-monthly)'], ['monthly', 'Monthly']], e.payFrequency || '')) : '') +
     (isNew ? '' : field('Status', sel('status', lists.empStatuses, e.status)) + field('End date', inp('endDate', e.endDate, 'type="date"'))) +
     '</div><h4>Work authorization</h4>' + waBlock(e) +
     '<h4>Manager, client and timesheet approval</h4><div class="grid g2">' + field('Manager name', inp('managerName', e.managerName)) + field('Manager email', inp('managerEmail', e.managerEmail, 'type="email"')) +
@@ -1562,29 +1565,69 @@ function profileForm(p) {
     f('Signatory email', 'signatoryEmail', smart('lower', 'type="email"')) + f('HR email', 'hrEmail', smart('lower', 'type="email"'), '', 'Gets review notices; replies go here') +
     field('Pay frequency', sel('payFrequency', [['', '—']].concat(L2.payFrequencies), p.payFrequency, ro)) + '</div>' +
     '<h4>Employer registrations</h4><div class="grid g2">' + f('E-Verify company ID', 'eVerifyCompanyId', 'maxlength="20"') +
-    field('State tax and unemployment (SUI) account numbers', area('stateTaxIds', p.stateTaxIds, 'rows="2" placeholder="VA withholding 30-123456789F-001 · VA SUI 1234567"' + ro), 'span2') + '</div>' +
+'</div>' + stateRegsBlock(p, ro) +
     (p.canEdit ? '<button class="btn">Save company profile</button>' : '<p class="hint">Only admins can change the company profile.</p>') + '</form>';
 }
 CHANGES['legal-suggest'] = el => { const v = el.value.trim(), et = el.form.querySelector('[name=entityType]'); if (!et || et.value) return;
   const m = /\bLLC\b|L\.L\.C\./i.test(v) ? 'Limited liability company (LLC)' : /\bLLP\b/i.test(v) ? 'Limited liability partnership (LLP)' : /\b(P\.?C\.?|Professional Corporation)$/i.test(v) ? 'Professional corporation' : /\b(Inc\.?|Incorporated|Corp\.?|Corporation|Co\.)$/i.test(v) ? 'Corporation (C corporation)' : '';
   if (m) { et.value = m; toast('Entity type set to ' + m + ' — change it if that is wrong', 'ok'); } };
-FORMS['profile-save'] = async v => {
+FORMS['profile-save'] = async (v, form) => {
   const name = v.name; delete v.name;
+  Object.keys(v).forEach(k => { if (/^sr_/.test(k)) delete v[k]; });
+  v.stateRegs = stateRegRows(form);
   if (name && name !== D().org.name) await call('updateOrgSettings', { name: name });
   await call('saveCompanyProfile', v); toast('Company profile saved', 'ok'); await refresh();
 };
 
+const NO_TAX_STATES = ['AK', 'FL', 'NV', 'NH', 'SD', 'TN', 'TX', 'WA', 'WY'];
+function stateRegRow(r, ro) {
+  r = r || {};
+  return '<tr class="sr-row"><td>' + sel('sr_state', [['', '—']].concat(((S.cache.profile || {}).lists || {}).states || []), r.state || '', ro) + '</td>' +
+    '<td><input name="sr_wh" value="' + esc(r.withholdingId || '') + '" placeholder="' + (NO_TAX_STATES.indexOf(r.state) >= 0 ? 'no state income tax' : 'Withholding account') + '"' + ro + '></td>' +
+    '<td><input name="sr_sui" value="' + esc(r.suiId || '') + '" placeholder="Employer UI account"' + ro + '></td>' +
+    '<td><input name="sr_rate" value="' + esc(r.suiRate || '') + '" inputmode="decimal" placeholder="2.5" style="width:70px"' + ro + '></td>' +
+    '<td><input name="sr_year" value="' + esc(r.suiRateYear || '') + '" inputmode="numeric" maxlength="4" placeholder="' + new Date().getFullYear() + '" style="width:70px"' + ro + '></td>' +
+    '<td><input name="sr_sos" value="' + esc(r.sosId || '') + '" placeholder="SOS / SCC ID"' + ro + '></td>' +
+    '<td style="text-align:center"><input type="checkbox" name="sr_fq"' + (r.foreignQualified === 'Yes' ? ' checked' : '') + ro + ' title="Registered (foreign-qualified) to do business in this state"></td>' +
+    '<td>' + (ro ? '' : '<button type="button" class="btn xs ghost danger" data-action="sr-del" title="Remove">' + ic('trash') + '</button>') + '</td></tr>';
+}
+function stateRegsBlock(p, ro) {
+  const gaps = p.stateGaps || [];
+  return '<h4>State registrations <small class="muted" style="font-weight:400">— withholding, unemployment (SUI) and Secretary of State, for every state you operate in</small></h4>' +
+    (gaps.length ? '<div class="banner warn">' + ic('alert') + '<div>' + gaps.map(g => '<div><b>' + esc(g.name) + '</b>: no ' + esc(g.missing.join(', no ')) + ' — ' + esc(g.people.slice(0, 3).join(', ')) + (g.people.length > 3 ? ' +' + (g.people.length - 3) : '') +
+      (ro ? '' : ' <button type="button" class="btn xs" data-action="sr-add" data-st="' + g.state + '">Add ' + g.state + '</button>') + '</div>').join('') + '</div></div>' : '') +
+    (!p.stateRegsSaved && (p.stateRegs || []).length ? '<p class="hint">Filled from the account numbers you typed earlier — check them and save.</p>' : '') +
+    '<div class="tblwrap"><table class="tbl sr-tbl"><thead><tr><th>State</th><th>Withholding account</th><th>Unemployment (SUI) account</th><th>SUI rate %</th><th>Rate year</th><th>Secretary of State ID</th><th title="Registered to do business there">Foreign-qualified</th><th></th></tr></thead><tbody id="sr-body">' +
+    ((p.stateRegs || []).length ? p.stateRegs.map(r => stateRegRow(r, ro)).join('') : '') + '</tbody></table></div>' +
+    ((p.stateRegs || []).length ? '' : '<p class="muted" id="sr-empty">No states yet. Add each state where you have employees or are registered — or upload the state registration letters below and click "Read all documents".</p>') +
+    (ro ? '' : '<div class="btns" style="margin:6px 0 14px"><button type="button" class="btn sm ghost" data-action="sr-add">' + ic('plus') + 'Add a state</button></div>') +
+    (p.stateTaxIds ? field('Other notes on registrations', area('stateTaxIds', p.stateTaxIds, 'rows="2"' + ro), 'span2') : '');
+}
+function stateRegRows(form) {
+  return [...form.querySelectorAll('.sr-row')].map(tr => { const g = n => { const x = tr.querySelector('[name=' + n + ']'); return x ? (x.type === 'checkbox' ? x.checked : x.value.trim()) : ''; };
+    return { state: g('sr_state'), withholdingId: g('sr_wh'), suiId: g('sr_sui'), suiRate: g('sr_rate'), suiRateYear: g('sr_year'), sosId: g('sr_sos'), foreignQualified: g('sr_fq') ? 'Yes' : '' }; })
+    .filter(r => r.state || r.withholdingId || r.suiId || r.sosId);
+}
+ACTIONS['sr-add'] = el => { const b = $('sr-body'); if (!b) return; const e = $('sr-empty'); if (e) e.remove();
+  if (el.dataset.st && [...b.querySelectorAll('[name=sr_state]')].some(x => x.value === el.dataset.st)) return toast(el.dataset.st + ' is already in the list', 'error');
+  b.insertAdjacentHTML('beforeend', stateRegRow({ state: el.dataset.st || '' }, '')); const last = b.lastElementChild; (last.querySelector(el.dataset.st ? '[name=sr_wh]' : '[name=sr_state]') || {}).focus && last.querySelector(el.dataset.st ? '[name=sr_wh]' : '[name=sr_state]').focus();
+  toast('Fill in the numbers, then "Save company profile"', 'ok'); };
+ACTIONS['sr-del'] = el => { el.closest('tr').remove(); toast('Removed — "Save company profile" to keep the change', 'ok'); };
+
 function corpDocsCard(list, p) {
   const ai = AI().on;
-  return '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Corporate documents</h3>' + (p.canEdit ? '<button class="btn sm" data-action="corp-add">' + ic('upload') + 'Add document</button>' : '') + '</div>' +
+  const toRead = (p.toRead || []).length, unread = (p.toRead || []).filter(x => !x.read).length;
+  return '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Corporate documents</h3><div class="btns">' + (p.canEdit && toRead ? '<button class="btn sm ghost" data-action="corp-read-all" title="Read every document and fill the company profile and state registrations">' + ic('spark') + 'Read all documents' + (unread ? ' (' + unread + ' new)' : '') + '</button>' : '') +
+    (p.canEdit ? '<button class="btn sm" data-action="corp-add">' + ic('upload') + 'Add document</button>' : '') + '</div></div>' +
     '<p class="muted">Articles or certificate of incorporation, IRS EIN letter, bylaws or operating agreement, good standing, registrations, licenses, insurance, E-Verify MOU and the employee handbook. ' +
-    'Private to staff — except the handbook, which employees can open.' + (ai ? ' AI can fill the company profile from these.' : '') + '</p>' +
+    'Private to staff — except the handbook, which employees can open. Each document is read when you add it' + (ai ? ' (by AI)' : ' (built-in reader; turn on AI in Settings → AI to read scans)') + ': legal name, EIN, state of incorporation, address, state withholding and unemployment accounts and rates, Secretary of State IDs, insurance policies and expiry dates go to the profile after you check them.</p>' +
+    (!list.some(d => d.type === 'Official blank form: Form I-9') && p.canEdit ? '<div class="banner">' + ic('doc') + '<div>Add the official blank Form I-9 so IntelliEmp can fill the USCIS PDF with each employee\'s signed answers. <button class="btn sm" data-action="i9-fetch-blank">Get Form I-9 from USCIS</button> — or download it at <a href="https://www.uscis.gov/i-9" target="_blank" rel="noopener">uscis.gov/i-9</a> (edition 01/20/25, expires 05/31/2027) and add it as "Official blank form: Form I-9".</div></div>' : '') +
     (!list.some(d => d.type === 'Employee handbook') && p.canEdit ? '<div class="banner">' + ic('book') + '<div>No employee handbook yet. <button class="btn sm" data-action="tpl-preview" data-k="handbookDoc">Create the standard handbook</button> — timesheets and hours, holidays, conduct, competition and non-solicitation, violations, onboarding and exit (30-day notice). Review and edit it before you publish.</div></div>' : '') +
     (list.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Issued</th><th>Expires</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' + list.map(d =>
       '<tr><td><b>' + esc(d.type) + '</b>' + (d.employeeVisible === 'Yes' ? ' ' + chip('Employees can open', 'teal') : '') + '<br><small class="muted">' + esc(d.fileName) + '</small>' + (d.ai && d.ai.summary ? '<br><small class="muted">' + esc(d.ai.summary) + '</small>' : '') + '</td>' +
       '<td>' + esc(fmtDate(d.issuedOn) || '—') + '</td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '</small></td>' +
       '<td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="corp-open" data-id="' + d.id + '">' + ic('download') + 'Open</button>' +
-      (p.canEdit && ai ? '<button class="btn xs ghost" data-action="corp-ai" data-id="' + d.id + '" title="Fill the company profile from this document">' + ic('spark') + 'Fill profile</button>' : '') +
+      (p.canEdit && ['Official blank form: Form I-9', 'Employee handbook', 'Policy document'].indexOf(d.type) < 0 ? '<button class="btn xs ghost" data-action="corp-ai" data-id="' + d.id + '" title="Read this document and fill the company profile and state registrations">' + ic('spark') + (d.aiStatus === 'Read' ? 'Read again' : 'Read') + '</button>' : '') +
       (p.canEdit ? '<button class="btn xs ghost" data-action="corp-edit" data-id="' + d.id + '">' + ic('edit') + '</button><button class="btn xs danger" data-action="corp-del" data-id="' + d.id + '">' + ic('trash') + '</button>' : '') +
       '</div></td></tr>').join('') + '</tbody></table></div>' : '<div class="empty">No corporate documents yet. Start with the certificate of incorporation, the IRS EIN letter and the employee handbook.</div>') + '</div>';
 }
@@ -1596,25 +1639,23 @@ Object.assign(ACTIONS, {
   'corp-edit': el => { const d = S.cache.corp.find(x => x.id === el.dataset.id); openModal('Edit document', '<form data-form="corp-update"><input type="hidden" name="id" value="' + d.id + '">' + corpForm(d, S.cache.profile.lists.corpDocTypes) + '<div class="foot-btns"><button class="btn">Save</button></div></form>'); },
   'corp-del': async el => { if (!confirm('Delete this document? The file is moved to the trash.')) return; await busy(el, call('deleteCorpDoc', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); },
   'corp-open': async el => saveB64(await busy(el, call('getCorpDocFile', el.dataset.id))),
-  'corp-ai': async el => {
-    const r = await busy(el, call('readCorpDoc', { id: el.dataset.id })), p = r.profile, keys = Object.keys(p);
-    S.cache.corpAi = p;
-    const label = { legalName: 'Legal name', dba: 'DBA', entityType: 'Entity type', stateOfIncorporation: 'State of incorporation', incorporatedOn: 'Date of incorporation', ein: 'EIN',
-      addrStreet: 'Street', addrSuite: 'Suite', addrCity: 'City', addrState: 'State', addrZip: 'ZIP' };
-    openModal('What AI read', (r.document.summary ? '<p>' + esc(r.document.summary) + '</p>' : '') + (keys.length ? '<form data-form="corp-ai-apply"><table class="tbl"><thead><tr><th></th><th>Field</th><th>On the document</th><th>In the profile now</th></tr></thead><tbody>' +
-      keys.map(k => '<tr><td><input type="checkbox" name="use_' + k + '"' + (S.cache.profile[k] && S.cache.profile[k] !== p[k] ? '' : ' checked') + '></td><td>' + esc(label[k] || k) + '</td><td><b>' + esc(p[k]) + '</b></td><td>' + esc(S.cache.profile[k] || '—') + '</td></tr>').join('') +
-      '</tbody></table><p class="hint">Read by ' + esc(r.provider) + '. Tick what to copy into the company profile.</p><div class="foot-btns"><button class="btn">Copy into the profile</button></div></form>'
-      : '<p class="muted">No company details were found on this document.</p>'));
-    await reloadCurrent();
-  }
+  'corp-ai': async el => { const r = await busy(el, call('readCorpDoc', { id: el.dataset.id })); corpReview([r]); },
+  'corp-read-all': async el => corpReadAll(el)
 });
 Object.assign(FORMS, {
-  'corp-upload': async (v, form) => { v.file = await readFile(form.querySelector('[name=file]').files[0]); await call('uploadCorpDoc', v); closeModal(); toast('Uploaded', 'ok'); await refresh(); },
+  'corp-upload': async (v, form) => {
+    v.file = await readFile(form.querySelector('[name=file]').files[0]); const up = await call('uploadCorpDoc', v); closeModal(); toast('Uploaded — reading it…', 'ok');
+    if (['Official blank form: Form I-9', 'Employee handbook', 'Policy document'].indexOf(v.type) < 0) { try { const r = await call('readCorpDoc', { id: up.id }); await refresh(); return corpReview([r]); } catch (e) { toast('Uploaded. ' + (e.message || 'It could not be read automatically.'), 'error', 7000); } }
+    await refresh();
+  },
   'corp-update': async v => { await call('updateCorpDoc', v); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); },
-  'corp-ai-apply': async v => {
-    const p = {}; Object.keys(S.cache.corpAi || {}).forEach(k => { if (v['use_' + k]) p[k] = S.cache.corpAi[k]; });
-    if (!Object.keys(p).length) return closeModal();
-    await call('saveCompanyProfile', p); closeModal(); toast('Company profile updated', 'ok'); await refresh();
+  'corp-ai-apply': async (v, form) => {
+    const R = S.cache.corpReview || { profile: {}, regs: [] }, p = {};
+    Object.keys(R.profile).forEach(k => { if (v['use_' + k]) p[k] = R.profile[k].value; });
+    const regs = R.regs.filter((r, i) => v['reg_' + i]);
+    if (!Object.keys(p).length && !regs.length) return closeModal();
+    if (regs.length) { p.stateRegsMerge = regs; p.overwrite = !!v.overwrite; }
+    await call('saveCompanyProfile', p); closeModal(); toast('Company profile updated' + (regs.length ? ' — ' + regs.length + ' state registration(s)' : ''), 'ok'); S.db = null; await refresh();
   }
 });
 
@@ -1623,9 +1664,10 @@ function templatesCard(list, p) {
     'These are starting points — have your employment counsel review them for your states before use.</p>' +
     list.map(t => '<div class="res"><span class="ri">' + ic(t.kind === 'handbookDoc' ? 'book' : 'doc') + '</span><div style="flex:1"><b>' + esc(t.title) + '</b> ' + (t.kind === 'handbookDoc' ? chip('The handbook itself') + ' ' : '') + (t.custom ? chip('Customized', 'teal') : chip('Standard')) +
       (t.custom ? '<div class="muted"><small>Changed ' + esc(fmtWhen(t.updatedAt)) + ' by ' + esc(t.updatedBy || '') + '</small></div>' : '') +
+      ((t.versions || []).length ? '<div style="margin-top:4px;font-size:12.5px">' + t.versions.slice(0, 4).map(v => '<span style="margin-right:10px;white-space:nowrap">' + esc((String(v.notes || '').match(/Version \d+/) || ['Uploaded'])[0]) + ' · ' + esc(fmtDate(v.at)) + ' ' + (v.current ? chip('Current', 'ok') : chip('Earlier')) + '</span>').join('') + '</div>' : '') +
       ((t.recent || []).length ? '<div style="margin-top:4px">' + t.recent.map(r => '<a href="#app/employee/' + r.employeeId + '/onboarding" style="margin-right:10px;font-size:12.5px;white-space:nowrap">' + esc(r.name) + ' ' + chip(r.status === 'Sent' ? 'Waiting' : r.status, r.status === 'Signed' ? 'ok' : r.status === 'Declined' ? 'bad' : 'info') + '</a>').join('') + '</div>' : '') + '</div>' +
       '<div class="btns"><button class="btn xs ghost" data-action="tpl-preview" data-k="' + t.kind + '">Preview</button><button class="btn xs ghost" data-action="tpl-pdf" data-k="' + t.kind + '">' + ic('download') + 'PDF</button>' +
-      (t.kind === 'handbookDoc' ? (p.canEdit ? '<button class="btn xs" data-action="hb-publish">' + ic('upload') + 'Publish as the handbook</button>' : '') :
+      (t.kind === 'handbookDoc' ? (p.canEdit ? '<button class="btn xs" data-action="hb-publish">' + ic('upload') + ((t.versions || []).length ? 'Update the handbook' : 'Publish as the handbook') + '</button>' : '') :
         can('employees.edit') ? '<button class="btn xs" data-action="tpl-create" data-k="' + t.kind + '">' + ic('send') + (t.kind === 'offer' ? 'Create offer…' : 'Send to employee…') + '</button>' : '') +
       (p.canEdit ? '<button class="btn xs ghost" data-action="tpl-edit" data-k="' + t.kind + '">' + ic('edit') + 'Edit</button>' : '') + '</div></div>').join('') + '</div>';
 }
@@ -1676,7 +1718,7 @@ Object.assign(FORMS, {
 
 async function offerModal(empId) {
   const r = await call('getOfferDraft', { employeeId: empId }), d = r.draft;
-  S.cache.offerEmp = empId;
+  S.cache.offerEmp = empId; S.cache.offerCustom = '';
   const t = (S.cache.emp && (S.cache.emp.checklist || []).find(x => x.key === 'offer')) || null;
   openModal('Offer letter for ' + r.employee.name, (r.missing.length ? '<div class="banner warn">' + ic('alert') + '<div>Finish the company profile first: ' + esc(r.missing.join(', ')) + '. <a href="#app/settings" data-action="close-modal">Open Settings</a></div></div>' : '') +
     (r.current && r.current.status === 'Sent' ? '<div class="banner">' + ic('mail') + '<div>An offer was sent ' + esc(fmtWhen(r.current.sentAt)) + ' and is waiting for a signature. Sending again replaces it.</div></div>' : '') +
@@ -1684,29 +1726,43 @@ async function offerModal(empId) {
     field('Reports to', inp('manager', d.manager, 'placeholder="Name, title"')) + field('Start date', inp('startDate', d.startDate, 'type="date" required')) +
     field('Employment type', sel('employmentType', r.lists.empTypes, d.employmentType)) + field('FLSA classification', sel('classification', [['exempt', 'Exempt (salaried, no overtime)'], ['non-exempt', 'Non-exempt (overtime eligible)']], d.classification)) +
     field('Pay type', sel('payType', ['Salary', 'Hourly'], d.payType)) + field('Pay (USD per year or per hour)', inp('payRate', d.payRate, 'type="number" step="0.01" min="1" required')) +
-    field('Pay frequency', sel('payFrequency', r.lists.payFrequencies, d.payFrequency)) + field('Respond by', inp('respondBy', d.respondBy, 'type="date" required')) +
+    field('Paid', sel('payFrequency', [['weekly', 'Weekly'], ['bi-weekly', 'Every two weeks (bi-weekly)'], ['semi-monthly', 'Twice a month (semi-monthly)'], ['monthly', 'Monthly']], d.payFrequency)) + field('Respond by', inp('respondBy', d.respondBy, 'type="date" required')) +
     field('Primary work location', inp('workLocation', d.workLocation, 'required'), 'span2') + field('Client assignment (optional)', inp('client', d.client), 'span2') +
     field('Benefits (leave blank for the standard sentence)', area('benefits', d.benefits, 'rows="2" placeholder="Health, dental and vision insurance from the first of the month after your start date; 10 days of paid time off; 401(k)…"'), 'span2') +
     field('Conditions of the offer (one per line)', area('contingencies', d.contingencies, 'rows="5" required'), 'span2') + field('Additional terms (optional)', area('extra', d.extra, 'rows="2"'), 'span2') + '</div>' +
     '<p class="hint">' + esc(r.employee.workAuth) + ': the conditions above include what this status needs. Text comes from the offer template in Settings.</p>' +
+    '<div style="margin:10px 0"><button type="button" class="btn ghost sm" data-action="offer-customize">' + ic('edit') + 'Edit the letter wording for this person</button></div><div id="offer-custom" class="grid"></div>' +
     '<div class="foot-btns">' + (t ? '<button type="button" class="btn ghost" data-action="offer-paper" data-task="' + t.id + '">Upload a paper-signed offer instead</button>' : '') +
     '<button class="btn ghost" name="mode" value="preview">Preview</button><button class="btn" name="mode" value="send">' + ic('send') + 'Send for signature</button></div></form>', true);
 }
 FORMS['offer-send'] = async (v, form, submitter) => {
   const mode = submitter && submitter.value || 'send';
-  const offer = Object.assign({}, v); delete offer.mode; offer.payRate = Number(offer.payRate);
+  const offer = Object.assign({}, v); delete offer.mode; delete offer.customBody; offer.payRate = Number(offer.payRate);
+  const customBody = v.customBody || '';
   if (mode === 'preview') {
-    S.cache.offerDraft = offer;
-    const p = await call('previewOffer', { employeeId: S.cache.offerEmp, offer: offer });
+    S.cache.offerDraft = offer; S.cache.offerCustom = customBody;
+    const p = await call('previewOffer', { employeeId: S.cache.offerEmp, offer: offer, customBody: customBody });
     return openModal('Preview: ' + p.title, docBox(p.html) + '<div class="foot-btns"><button class="btn ghost" data-action="offer-back">Back to edit</button><button class="btn" data-action="offer-send-now">' + ic('send') + 'Send for signature</button></div>', true);
   }
+  S.cache.offerCustom = customBody;
   await sendOfferNow(offer);
 };
 async function sendOfferNow(offer) {
-  const r = await call('sendOffer', { employeeId: S.cache.offerEmp, offer: offer });
+  const r = await call('sendOffer', { employeeId: S.cache.offerEmp, offer: offer, customBody: S.cache.offerCustom || '' });
   closeModal(); toast('Offer sent' + (r.invited ? ' — the employee was invited to the portal' : ''), 'ok'); await reloadCurrent();
 }
 ACTIONS['offer-send-now'] = async el => busy(el, sendOfferNow(S.cache.offerDraft));
+ACTIONS['offer-customize'] = async el => {
+  const f = el.closest('form'), box = $('offer-custom'); if (!f || !box) return;
+  if (box.innerHTML) { box.innerHTML = ''; el.innerHTML = ic('edit') + 'Edit the letter wording for this person'; return; }
+  const v = formValues(f), offer = Object.assign({}, v); delete offer.mode; delete offer.customBody; offer.payRate = Number(offer.payRate);
+  const p = await busy(el, call('previewOffer', { employeeId: S.cache.offerEmp, offer: offer }));
+  box.innerHTML = field('The letter for this person — edit freely; it is sent exactly as written ("# " starts a heading)', area('customBody', p.text, 'rows="16" style="font-family:Georgia,serif;font-size:14px;line-height:1.5"'), 'span2',
+    'Changes here apply to this offer only. The template in Settings is not changed. If you change the fields above, click "Rebuild from the fields".') +
+    '<button type="button" class="btn ghost sm" data-action="offer-rebuild">Rebuild from the fields</button>';
+  el.innerHTML = 'Use the standard wording';
+};
+ACTIONS['offer-rebuild'] = async el => { const box = $('offer-custom'); box.innerHTML = ''; const b = document.querySelector('[data-action="offer-customize"]'); if (b) await ACTIONS['offer-customize'](b); };
 ACTIONS['offer-back'] = async () => { const d = S.cache.offerDraft; await offerModal(S.cache.offerEmp); const f = document.querySelector('[data-form="offer-send"]'); if (f && d) Object.keys(d).forEach(k => { const el = f.querySelector('[name=' + k + ']'); if (el) el.value = d[k]; }); };
 
 async function empChoices() { if (!S.cache.emps) S.cache.emps = await call('listEmployees'); return S.cache.emps.filter(e => e.status !== 'Terminated'); }
@@ -1745,10 +1801,53 @@ FORMS['tpl-create'] = async v => {
     '<div class="foot-btns"><button class="btn ghost" data-action="tpl-create" data-k="' + v.kind + '">Send to someone else</button><a class="btn" href="#app/employee/' + v.employeeId + '/onboarding" data-action="close-modal">Open their checklist</a></div>');
   if (S.route.parts[0] === 'settings') renderApp().catch(() => {});
 };
-ACTIONS['hb-publish'] = async el => {
-  if (!confirm('Publish this as the employee handbook? Employees will be able to open it, and new handbook acknowledgments will refer to it.')) return;
-  const r = await busy(el, call('generateHandbook', {})); closeModal(); toast('Published: ' + r.name, 'ok', 6000); S.db = null; await refresh();
+ACTIONS['hb-publish'] = el => openModal(D().org.hasHandbook ? 'Update the employee handbook' : 'Publish the employee handbook', '<form data-form="hb-publish"><p>The handbook is built from the current template text and your company profile, and becomes the version employees open. Earlier versions stay on file.</p>' +
+  (D().org.hasHandbook ? '<label class="check"><input type="checkbox" name="reacknowledge" checked> Ask everyone who acknowledged an earlier version to acknowledge this one (they get an email and a "Ready to sign" item)</label>' : '') +
+  '<p class="hint">Change the wording first with Edit (Settings → Agreement templates → Employee Handbook) — you can update and republish any time.</p><div class="foot-btns"><button type="button" class="btn ghost" data-action="tpl-edit" data-k="handbookDoc">' + ic('edit') + 'Edit the text</button><button class="btn">' + ic('upload') + 'Publish</button></div></form>');
+FORMS['hb-publish'] = async v => {
+  const r = await call('generateHandbook', { reacknowledge: !!v.reacknowledge }); closeModal();
+  toast('Published version ' + r.version + (r.reacknowledge ? ' — ' + r.reacknowledge + ' employee(s) asked to acknowledge it' : ''), 'ok', 7000); S.db = null; await refresh();
 };
+
+const CORP_LABELS = { legalName: 'Legal name', dba: 'DBA', entityType: 'Entity type', stateOfIncorporation: 'State of incorporation', incorporatedOn: 'Date of incorporation', ein: 'Federal EIN',
+  addrStreet: 'Street', addrSuite: 'Suite', addrCity: 'City', addrState: 'State', addrZip: 'ZIP', naics: 'NAICS code', eVerifyCompanyId: 'E-Verify company ID', signatoryName: 'Authorized signatory', signatoryTitle: 'Signatory title' };
+async function corpReadAll(el) {
+  const list = (S.cache.profile.toRead || []), out = [], errs = [];
+  if (!list.length) return toast('No documents to read yet', 'error');
+  const label = el.innerHTML;
+  for (let i = 0; i < list.length; i++) {
+    el.disabled = true; el.innerHTML = '<span class="spin"></span>Reading ' + (i + 1) + ' of ' + list.length + '…'; workPill('Reading ' + list[i].type + ' (' + (i + 1) + '/' + list.length + ')');
+    try { out.push(await call('readCorpDoc', { id: list[i].id })); } catch (e) { errs.push(list[i].type + ' (' + list[i].name + '): ' + (e.message || e)); }
+  }
+  el.disabled = false; el.innerHTML = label; workPill('');
+  corpReview(out, errs); refresh();
+}
+function corpReview(results, errs) {
+  const prof = S.cache.profile || {}, P = {}, regsBy = {};
+  results.forEach(r => {
+    Object.keys(r.profile || {}).forEach(k => { if (!P[k]) P[k] = { value: r.profile[k], from: r.type }; else if (P[k].value !== r.profile[k]) (P[k].others = P[k].others || []).push(r.profile[k] + ' (' + r.type + ')'); });
+    (r.stateRegs || []).forEach(x => { const c = regsBy[x.state] || (regsBy[x.state] = { state: x.state, from: [] }); Object.keys(x).forEach(k => { if (x[k] && !c[k]) c[k] = x[k]; }); if (c.from.indexOf(r.type) < 0) c.from.push(r.type); });
+  });
+  const regs = Object.keys(regsBy).sort().map(k => regsBy[k]);
+  S.cache.corpReview = { profile: P, regs: regs };
+  const have = (prof.stateRegs || []).reduce((m, r) => (m[r.state] = r, m), {});
+  const regText = r => [r.withholdingId && 'Withholding ' + r.withholdingId, r.suiId && 'SUI ' + r.suiId, r.suiRate && 'SUI rate ' + r.suiRate + '%' + (r.suiRateYear ? ' (' + r.suiRateYear + ')' : ''), r.sosId && 'SOS ID ' + r.sosId, r.foreignQualified && 'Registered to do business'].filter(Boolean).join(' · ');
+  const sameKeys = Object.keys(P).filter(k => (prof[k] || '') === P[k].value), keys = Object.keys(P).filter(k => sameKeys.indexOf(k) < 0);
+  const body = results.map(r => '<div class="res"><span class="ri">' + ic('doc') + '</span><div><b>' + esc(r.type) + '</b> <small class="muted">' + esc(r.name) + ' · ' + esc(r.provider) + '</small><div class="muted" style="font-size:13px">' + esc(r.document.summary || '') +
+      (r.facts && r.facts.officers ? '<br>Officers: ' + esc(r.facts.officers.map(o => o.name + (o.title ? ' (' + o.title + ')' : '')).join(', ')) : '') + '</div></div></div>').join('') +
+    ((errs || []).length ? '<div class="banner bad">' + ic('alert') + '<div>Could not read: ' + errs.map(esc).join('<br>') + '</div></div>' : '') +
+    (!keys.length && !regs.length && sameKeys.length ? '<p class="muted">' + ic('check') + ' Everything found already matches the company profile (' + esc(sameKeys.map(k => CORP_LABELS[k] || k).join(', ')) + ').</p>' : '') +
+    (keys.length || regs.length ? '<form data-form="corp-ai-apply">' +
+      (keys.length ? '<h4>Company profile</h4><div class="tblwrap"><table class="tbl"><thead><tr><th></th><th>Field</th><th>Found</th><th>In the profile now</th></tr></thead><tbody>' +
+        keys.map(k => { const cur = prof[k] || '', same = cur === P[k].value; return '<tr><td><input type="checkbox" name="use_' + k + '"' + (!same && !cur ? ' checked' : '') + (same ? ' disabled' : '') + '></td><td>' + esc(CORP_LABELS[k] || k) + '</td><td><b>' + esc(P[k].value) + '</b><br><small class="muted">' + esc(P[k].from) + (P[k].others ? ' · also: ' + esc(P[k].others.join('; ')) : '') + '</small></td><td>' + (same ? chip('Same', 'ok') : esc(cur || '—')) + '</td></tr>'; }).join('') + '</tbody></table></div>' : '') +
+      (regs.length ? '<h4>State registrations</h4><div class="tblwrap"><table class="tbl"><thead><tr><th></th><th>State</th><th>Found</th><th>On file now</th></tr></thead><tbody>' +
+        regs.map((r, i) => '<tr><td><input type="checkbox" name="reg_' + i + '" checked></td><td><b>' + esc(r.state) + '</b></td><td>' + esc(regText(r)) + '<br><small class="muted">' + esc(r.from.join(', ')) + '</small></td><td>' + esc(have[r.state] ? regText(have[r.state]) || '—' : 'Not listed') + '</td></tr>').join('') + '</tbody></table></div>' +
+        '<label class="check"><input type="checkbox" name="overwrite"> Replace numbers already on file when the document shows a different one (otherwise only empty fields are filled)</label>' : '') +
+      (sameKeys.length ? '<p class="muted" style="font-size:13px">' + ic('check') + ' Already matches the profile: ' + esc(sameKeys.map(k => CORP_LABELS[k] || k).join(', ')) + '</p>' : '') +
+      '<p class="hint">Tick what to copy. Fields already filled are unticked so nothing you typed is overwritten by mistake.</p><div class="foot-btns"><button class="btn">Copy into the company profile</button></div></form>'
+      : sameKeys.length ? '' : '<p class="muted">Nothing for the company profile was found. Dates and document types were filled in where found.</p>');
+  openModal(results.length > 1 ? 'What the documents say (' + results.length + ')' : 'What the document says', body, true);
+}
 const FILL_KEYS = { i9s1: 'i9', w4: 'w4', dd: 'dd' };
 const isFillTask = t => !!FILL_KEYS[t.key] && (t.category === 'fill' || t.category === 'upload');
 
@@ -1872,6 +1971,7 @@ async function submitFormNow(data, v) {
   const t = S.cache.form.task;
   const r = await call('submitForm', { taskId: t.id, data: data, signature: v.signature, consent: !!v.consent, agent: navigator.userAgent });
   closeModal(); toast('Signed — the completed form is in your documents', 'ok', 6000); if (r.activated) toast('Onboarding complete!', 'ok'); await reloadCurrent();
+  if (t.key === 'i9s1') { try { await makeOfficialI9(t.employeeId, null, true); } catch (e) { /* HR can make it later */ } }
 }
 
 function stateModal(t, d) {
@@ -1926,6 +2026,7 @@ FORMS.i9s2 = async v => {
   const docs = []; for (let i = 0; i < (S.cache.i9rows || 1); i++) docs.push({ list: v['list' + i], title: v['title' + i], authority: v['authority' + i], number: v['number' + i], expiresOn: v['expiresOn' + i], noExpiry: !!v['noExpiry' + i] });
   const r = await call('completeI9Section2', { employeeId: S.cache.i9s2.employee.id, documents: docs, firstDay: v.firstDay, additional: v.additional, alternative: !!v.alternative, signature: v.signature, title: v.title, consent: !!v.consent });
   closeModal(); toast('Form I-9 complete' + (r.late ? ' — note: after the 3-business-day deadline' : ''), r.late ? 'error' : 'ok', 6000); await reloadCurrent();
+  try { await makeOfficialI9(S.cache.i9s2.employee.id, null, true); } catch (e) { fail(e); }
 };
 const CAL_CLS = { Approved: 'ok', Submitted: 'info', Draft: 'warn', Rejected: 'bad', Missing: 'bad' };
 async function calendarModal(empId, month, mine, btn) {
@@ -1952,6 +2053,135 @@ Object.assign(ACTIONS, {
   'cal-week': el => { closeModal(); go((S.cache.cal.mine ? '#app/my-timesheet/' : '#app/timesheet/' + S.cache.cal.empId + '/') + el.dataset.wk); }
 });
 CHANGES['cal-pick'] = el => { if (/^\d{4}-\d{2}$/.test(el.value)) calendarModal(S.cache.cal.empId, el.value, S.cache.cal.mine, null); };
+const I9_KEYS = [
+  ['s2LastName', 'Section 2 header: last name', [/lastname.*section1/]], ['s2FirstName', 'Section 2 header: first name', [/firstname.*section1/]],
+  ['s2Mi', 'Section 2 header: middle initial', [/middle.*section1/]], ['s2Status', 'Section 2 header: citizenship status', [/citizenship.*(status|immigration)|immigrationstatus/]],
+  ['lastName', 'Last name (family name)', [/^(employee)?lastname/]], ['firstName', 'First name (given name)', [/^(employee)?firstname/]],
+  ['middleInitial', 'Middle initial', [/^(employee)?middleinitial/]], ['otherLastNames', 'Other last names used', [/otherlastname/]],
+  ['address', 'Address (street number and name)', [/^address|streetnumber/]], ['apt', 'Apt. number', [/^apt/]], ['city', 'City or town', [/^city/]],
+  ['state', 'State', [/^state$/]], ['zip', 'ZIP code', [/^zip/]], ['dob', 'Date of birth', [/dateofbirth/]], ['ssn', 'U.S. Social Security number', [/socialsecurity|^ssn/]],
+  ['email', 'Email address', [/e?mail/]], ['phone', 'Telephone number', [/telephone|phone/]],
+  ['cb1', 'Box 1 — citizen', [/^cb_?1$|citizenoftheunitedstates/]], ['cb2', 'Box 2 — noncitizen national', [/^cb_?2$|noncitizennational/]],
+  ['cb3', 'Box 3 — lawful permanent resident', [/^cb_?3$|^(3)?alawfulpermanentresident$/]], ['cb4', 'Box 4 — alien / noncitizen authorized to work', [/^cb_?4$|(alien|noncitizen)authorizedtowork$/]],
+  ['lprNumber', 'Box 3: USCIS or A-Number', [/lawfulpermanentresident.*(uscis|anumber)/]], ['workUntil', 'Box 4: expiration date', [/^expdate|^expirationdate(mm)?$|authorizedtowork.*(until|exp)/]],
+  ['aNumber', 'Box 4: USCIS A-Number', [/^uscisanumber|^anumber/]], ['i94', 'Box 4: Form I-94 admission number', [/i94/]], ['passport', 'Box 4: foreign passport and country', [/foreignpassport/]],
+  ['empSignature', 'Signature of employee', [/signatureofemployee/]], ['empDate', "Employee's date", [/^todaysdate|^date.*employee|^s1.*date/]],
+  ['a1Title', 'List A document 1: title', [/^documenttitle1|lista.*title.*1|^doctitle1/]], ['a1Authority', 'List A document 1: issuing authority', [/^issuingauthority1|lista.*authority.*1/]],
+  ['a1Number', 'List A document 1: number', [/^documentnumber0|^documentnumber1|lista.*number.*1/]], ['a1Exp', 'List A document 1: expiration', [/^expirationdateifany$|^expirationdate1|lista.*exp.*1/]],
+  ['bTitle', 'List B: document title', [/listb.*title/]], ['bAuthority', 'List B: issuing authority', [/listb.*authority/]], ['bNumber', 'List B: document number', [/listb.*number/]], ['bExp', 'List B: expiration', [/listb.*exp/]],
+  ['cTitle', 'List C: document title', [/listc.*title/]], ['cAuthority', 'List C: issuing authority', [/listc.*authority/]], ['cNumber', 'List C: document number', [/listc.*number/]], ['cExp', 'List C: expiration', [/listc.*exp/]],
+  ['additional', 'Additional information', [/additionalinformation/]], ['altProcedure', 'Alternative procedure box', [/^cb_?alt|alternativeprocedure/]],
+  ['firstDay', "Employee's first day of employment", [/firstday/]], ['erNameTitle', 'Employer: name and title', [/(lastname)?firstname.*title.*(employer|authorized)|nameandtitle|employer.*title/]],
+  ['erSignature', 'Signature of employer', [/signatureofemployer/]], ['erDate', "Employer's date", [/^s2todaysdate|^s2.*date|employer.*todaysdate/]],
+  ['bizName', "Employer's business name", [/business.*name|orgname/]], ['bizAddress', "Employer's business address", [/business.*address|orgaddress/]],
+  ['prepName', 'Supplement A: preparer name', [/preparer.*(lastname|name)/]], ['prepAddress', 'Supplement A: preparer address', [/preparer.*address/]]
+];
+const normField = n => String(n || '').toLowerCase().replace(/\[\d+\]/g, '').replace(/^.*\./, '').replace(/[^a-z0-9]/g, '');
+const mdy = iso => /^\d{4}-\d{2}-\d{2}$/.test(String(iso || '')) ? iso.slice(5, 7) + '/' + iso.slice(8, 10) + '/' + iso.slice(0, 4) : (iso || '');
+
+function i9Values(d) {
+  const a = d.answers || {}, s2 = d.section2, v = {};
+  Object.assign(v, { lastName: a.lastName, firstName: a.firstName, middleInitial: a.middleInitial || '', otherLastNames: a.otherLastNames || 'N/A', address: a.address, apt: a.apt || 'N/A',
+    city: a.city, state: String(a.state || '').toUpperCase().slice(0, 2), zip: a.zip, dob: mdy(a.dob), ssn: String(a.ssn || '').replace(/\D/g, ''), email: a.email || '', phone: a.phone || '',
+    cb1: a.status === 1, cb2: a.status === 2, cb3: a.status === 3, cb4: a.status === 4, lprNumber: a.status === 3 ? a.lprNumber : '', workUntil: a.status === 4 ? (a.workUntil === 'N/A' ? 'N/A' : mdy(a.workUntil)) : '',
+    aNumber: a.status === 4 ? a.aNumber || '' : '', i94: a.status === 4 ? a.i94 || '' : '', passport: a.status === 4 && a.passport ? a.passport + ' ' + a.passportCountry : '',
+    empSignature: (d.signedBy || '') + ' (signed electronically)', empDate: mdy(String(d.signedAt || '').slice(0, 10)) });
+  if (a.preparer) Object.assign(v, { prepName: a.preparer.name, prepAddress: a.preparer.address });
+  if (s2) {
+    const A = s2.documents.filter(x => x.list === 'A'), B = s2.documents.find(x => x.list === 'B'), C = s2.documents.find(x => x.list === 'C');
+    const ex = x => x.expiresOn === 'N/A' ? 'N/A' : mdy(x.expiresOn);
+    Object.assign(v, { s2LastName: a.lastName, s2FirstName: a.firstName, s2Mi: a.middleInitial || '', s2Status: String(a.status) });
+    if (A[0]) Object.assign(v, { a1Title: A[0].title, a1Authority: A[0].authority, a1Number: A[0].number, a1Exp: ex(A[0]) });
+    if (B) Object.assign(v, { bTitle: B.title, bAuthority: B.authority, bNumber: B.number, bExp: ex(B) });
+    if (C) Object.assign(v, { cTitle: C.title, cAuthority: C.authority, cNumber: C.number, cExp: ex(C) });
+    Object.assign(v, { additional: s2.additional || '', altProcedure: !!s2.alternative, firstDay: mdy(s2.firstDay), erNameTitle: s2.signer + ', ' + s2.signerTitle,
+      erSignature: s2.signer + ' (signed electronically)', erDate: mdy(String(s2.signedAt || '').slice(0, 10)), bizName: d.company.name, bizAddress: d.company.address });
+  }
+  Object.keys(v).forEach(k => { if (v[k] === '' || v[k] === undefined || v[k] === null) delete v[k]; });
+  return v;
+}
+
+async function fillI9Pdf(PDFLib, pdfBytes, values, mapping, opts) {
+  opts = opts || {};
+  const doc = await PDFLib.PDFDocument.load(pdfBytes, { ignoreEncryption: true, updateMetadata: false });
+  const form = doc.getForm();
+  try { form.acroForm.dict.delete(PDFLib.PDFName.of('XFA')); } catch (e) { /* no XFA */ }
+  const fields = form.getFields(), byName = {}, used = {};
+  fields.forEach(f => { byName[f.getName()] = f; });
+  const filled = [], missing = [];
+  const setField = (f, val) => {
+    const kind = f.constructor && f.constructor.name;
+    if (typeof val === 'boolean' || kind === 'PDFCheckBox') { if (kind === 'PDFCheckBox') { if (val) f.check(); else f.uncheck(); return true; } return false; }
+    if (kind === 'PDFDropdown' || kind === 'PDFOptionList') { const optsL = f.getOptions(); const hit = optsL.find(o => o.toUpperCase() === String(val).toUpperCase()) || optsL.find(o => o.toUpperCase().indexOf(String(val).toUpperCase()) === 0); if (hit) { f.select(hit); return true; } try { f.select(String(val)); return true; } catch (e) { return false; } }
+    if (kind === 'PDFRadioGroup') { const o = f.getOptions().find(x => String(x).toLowerCase() === String(val).toLowerCase()); if (o) { f.select(o); return true; } return false; }
+    if (kind === 'PDFTextField') { let s = String(val); const max = f.getMaxLength(); if (max && s.length > max) s = s.slice(0, max); f.setText(s); return true; }
+    return false;
+  };
+  I9_KEYS.forEach(([key, , pats]) => {
+    if (!(key in values)) return;
+    let name = mapping && mapping[key] && byName[mapping[key]] ? mapping[key] : '';
+    if (!name) { const f = fields.find(x => !used[x.getName()] && pats.some(p => p.test(normField(x.getName())))); if (f) name = f.getName(); }
+    if (!name) { if (values[key] !== false) missing.push(key); return; }
+    try { if (setField(byName[name], values[key])) { used[name] = 1; filled.push({ key: key, field: name }); } else if (values[key] !== false) missing.push(key); }
+    catch (e) { missing.push(key); }
+  });
+  try { form.updateFieldAppearances(); } catch (e) { /* keep going */ }
+  if (opts.flatten) { try { form.flatten(); } catch (e) { /* some forms refuse; leave fillable */ } }
+  const bytes = await doc.save();
+  return { bytes: bytes, filled: filled, missing: missing, fields: fields.map(f => f.getName()) };
+}
+
+async function loadPdfLib() {
+  if (window.PDFLib) return window.PDFLib;
+  const srcs = ['https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js', 'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js'];
+  for (const src of srcs) {
+    try { await new Promise((ok, no) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); if (window.PDFLib) return window.PDFLib; } catch (e) { /* next */ }
+  }
+  throw new Error('Could not load the PDF tools. Check your internet connection and try again.');
+}
+const b64ToBytes = b64 => { const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
+const bytesToB64 = u => { let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+
+async function makeOfficialI9(empId, btn, quiet) {
+  workPill('Filling the official Form I-9');
+  try {
+    const d = await busy(btn, call('getI9OfficialData', { employeeId: empId }));
+    const PDFLib = await loadPdfLib();
+    const r = await fillI9Pdf(PDFLib, b64ToBytes(d.blank.data), i9Values(d), d.mapping || {}, { flatten: false });
+    S.cache.i9fill = { empId: empId, data: d, result: r };
+    const name = 'Form I-9 - ' + d.employee.name + ' (official USCIS form' + (d.section2 ? ', Sections 1 and 2' : ', Section 1') + ').pdf';
+    await call('saveOfficialI9', { employeeId: empId, file: { name: name, data: bytesToB64(r.bytes) }, sections: d.section2 ? 'Sections 1 and 2' : 'Section 1' });
+    workPill('');
+    if (quiet && !r.missing.length) { toast('Official Form I-9 filled and saved to documents', 'ok', 5000); return r; }
+    i9Report(r, d, name);
+    return r;
+  } catch (e) { workPill(''); if (e.code === 'NO_BLANK' && quiet) return null; throw e; }
+}
+function i9Report(r, d, name) {
+  const label = {}; I9_KEYS.forEach(k => { label[k[0]] = k[1]; });
+  openModal('Official Form I-9', '<div class="banner ' + (r.missing.length ? 'warn' : 'ok') + '">' + ic(r.missing.length ? 'alert' : 'check') + '<div>' + r.filled.length + ' fields filled on the official USCIS form' +
+    (r.missing.length ? ' — ' + r.missing.length + ' could not be matched to a field on this edition: <b>' + r.missing.map(k => esc(label[k] || k)).join(', ') + '</b>.' : '.') + ' Saved to ' + esc(d.employee.name) + '\'s documents.</div></div>' +
+    '<p class="muted">Source: ' + esc(d.blank.name) + '. Open it to check every page before relying on it.</p>' +
+    '<div class="foot-btns">' + (can('onboarding.manage') ? '<button class="btn ghost" data-action="i9-map">Match fields by hand</button>' : '') + '<button class="btn" data-action="i9-download">' + ic('download') + 'Download the filled form</button></div>', true);
+  S.cache.i9fill.name = name;
+}
+Object.assign(ACTIONS, {
+  'i9-official': el => makeOfficialI9(el.dataset.emp, el, false),
+  'i9-download': () => { const f = S.cache.i9fill; download(f.name, new Blob([f.result.bytes], { type: 'application/pdf' })); },
+  'i9-fetch-blank': async el => { const r = await busy(el, call('fetchOfficialI9')); toast('Saved ' + r.name, 'ok'); await reloadCurrent(); },
+  'i9-map': () => {
+    const f = S.cache.i9fill, label = {}, cur = {}; I9_KEYS.forEach(k => { label[k[0]] = k[1]; }); f.result.filled.forEach(x => { cur[x.key] = x.field; });
+    const keys = Object.keys(i9Values(f.data)).filter(k => typeof i9Values(f.data)[k] !== 'boolean' || i9Values(f.data)[k]);
+    const options = [['', '— not on this form —']].concat(f.result.fields.map(n => [n, n]));
+    openModal('Match the Form I-9 fields', '<form data-form="i9-map"><p class="muted">Pick the PDF field for each answer. This is saved for your company, so the next forms fill by themselves.</p><div class="tblwrap"><table class="tbl"><tbody>' +
+      keys.map(k => '<tr><td style="width:40%"><b>' + esc(label[k] || k) + '</b>' + (f.result.missing.indexOf(k) >= 0 ? ' ' + chip('not found', 'warn') : '') + '</td><td>' + sel('m_' + k, options, cur[k] || '') + '</td></tr>').join('') +
+      '</tbody></table></div><div class="foot-btns"><button class="btn">Save and fill again</button></div></form>', true);
+  }
+});
+FORMS['i9-map'] = async v => {
+  const m = {}; Object.keys(v).forEach(k => { if (k.indexOf('m_') === 0 && v[k]) m[k.slice(2)] = v[k]; });
+  await call('saveI9Mapping', { mapping: m }); closeModal(); await makeOfficialI9(S.cache.i9fill.empId, null, false);
+};
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
   copy: el => copy(el.dataset.text || ''),
