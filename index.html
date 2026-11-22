@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.14"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.15"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -40,6 +40,7 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 @keyframes wpulse{0%{box-shadow:0 0 0 0 rgba(31,181,163,.55)}100%{box-shadow:0 0 0 9px rgba(31,181,163,0)}}
 #workpill .wp-bar{height:6px;border-radius:6px;background:#e9f7f5;overflow:hidden;position:relative}
 #workpill .wp-bar i{position:absolute;top:0;bottom:0;width:38%;border-radius:6px;background:linear-gradient(90deg,var(--teal,#1fb5a3),var(--blue,#2563eb));animation:wpslide 1.25s ease-in-out infinite}
+#toast.show.click{pointer-events:auto;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 #workpill .wp-bar.det i{animation:none;left:0;transition:width .5s ease}
 @keyframes wpslide{0%{left:-40%}100%{left:102%}}
 .spin{display:inline-block;width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;margin-right:7px;vertical-align:-2px;animation:spin .7s linear infinite}
@@ -277,6 +278,37 @@ function workPill(msg, pct) {
   w.innerHTML = '<div class="wp-t"><span class="wp-dot"></span>' + esc(msg) + (det ? ' — ' + Math.round(pct) + '%' : '…') + '</div><div class="wp-bar' + (det ? ' det' : '') + '"><i' + (det ? ' style="width:' + Math.max(3, Math.min(100, pct)) + '%"' : '') + '></i></div>';
   w.className = 'show';
 }
+const SLOW_UI_MS = 20000;
+let titleBase = '', doneCount = 0;
+function flagTitle(on) {
+  if (!titleBase) titleBase = document.title.replace(/^\(\d+\) ✓ /, '');
+  doneCount = on ? doneCount + 1 : 0; document.title = doneCount ? '(' + doneCount + ') ✓ ' + titleBase : titleBase;
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && doneCount) setTimeout(() => flagTitle(false), 1500); });
+function askNotify() { try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch (e) { /* not supported */ } }
+function doneAlert(msg, open, isErr) {
+  toast(msg + (open ? ' — click to open' : ''), isErr ? 'error' : 'ok', 30000, open || null);
+  if (document.hidden) {
+    flagTitle(true);
+    try { if ('Notification' in window && Notification.permission === 'granted') { const n = new Notification('IntelliEmp', { body: msg, tag: 'ie-' + Date.now() }); n.onclick = () => { window.focus(); n.close(); if (open) open(); }; } } catch (e) { /* not supported */ }
+  }
+}
+function waitPainted(hash) { return new Promise(res => { const t0 = Date.now(); (function tick() { if ((location.hash === hash && !pending) || Date.now() - t0 > 8000) return setTimeout(res, 150); setTimeout(tick, 120); })(); }); }
+async function docJob(label, promise, show, where) {
+  const modalAt = S.modal, hashAt = location.hash; let slow = false;
+  askNotify();
+  longTask(label);
+  const timer = setTimeout(() => { slow = true; toast(label + ' is taking a while. You can close this and keep working — you\'ll get an alert here when it\'s done (and an email if it takes over a minute).', 'ok', 12000); }, SLOW_UI_MS);
+  let r;
+  try { r = await promise; }
+  catch (e) { clearTimeout(timer); longTask(''); if (slow && (S.modal !== modalAt || location.hash !== hashAt || document.hidden)) { doneAlert(label + ' failed: ' + (e.message || e), null, true); return; } throw e; }
+  clearTimeout(timer); longTask('');
+  const stillHere = S.modal === modalAt && location.hash === hashAt;
+  if (stillHere && !document.hidden) return show(r, true);
+  const open = async () => { const back = where || hashAt; if (back && location.hash !== back) { location.hash = back; await waitPainted(back); } await show(r, false); };
+  if (stillHere) { await show(r, true); doneAlert(label + ' — done'); return; }
+  doneAlert(label + ' — done', open);
+}
 function longTask(msg, pct) { workSticky = msg ? { msg: msg, pct: pct } : null; workPill(msg || '', pct); }
 function netBar(d, fn) {
   pending = Math.max(0, pending + d); const b = $('net'); if (b) b.className = pending ? 'on' : '';
@@ -309,7 +341,7 @@ async function call(fn, ...args) {
 }
 
 let toastT = null;
-function toast(msg, kind, ms) { const t = $('toast'); if (!t) return; t.textContent = msg; t.className = 'show ' + (kind || ''); clearTimeout(toastT); toastT = setTimeout(() => { t.className = ''; }, ms || 3800); }
+function toast(msg, kind, ms, onClick) { const t = $('toast'); if (!t) return; t.textContent = msg; t.className = 'show ' + (kind || '') + (onClick ? ' click' : ''); t.onclick = onClick ? () => { t.className = ''; t.onclick = null; onClick(); } : null; clearTimeout(toastT); toastT = setTimeout(() => { t.className = ''; }, ms || 3800); }
 function fail(e) { toast(e && e.message ? e.message : String(e), 'error', 6500); }
 function openModal(title, body, wide) { S.modal = { title: title, body: body, wide: !!wide }; paintModal(); const f = document.querySelector('.modal input:not([type=hidden]),.modal select,.modal textarea'); if (f) setTimeout(() => f.focus(), 30); }
 function closeModal() { S.modal = null; paintModal(); }
@@ -626,7 +658,7 @@ async function staffHome() {
 }
 function alertList(alerts) {
   return (alerts || []).map(a => '<div class="alert"><span class="lv ' + esc(a.level) + '"></span><div><b>' + esc(a.employeeName || '') + '</b> ' + esc(a.text) +
-    (a.employeeId ? ' <a href="' + esc(a.link || ('#app/employee/' + a.employeeId)) + '">Open</a>' : '') + '</div></div>').join('');
+    (a.employeeId || a.link ? ' <a href="' + esc(a.link || ('#app/employee/' + a.employeeId)) + '">' + (/review=/.test(a.link || '') ? 'Review' : 'Open') + '</a>' : '') + '</div></div>').join('');
 }
 async function employeeHome() {
   const P = await call('getMyPortal');
@@ -741,8 +773,9 @@ Object.assign(FORMS, {
     if (t.category === 'form') input.form = v;
     if (t.category === 'ack') { input.signature = v.signature; input.agree = v.agree; }
     if (t.category === 'hr') { input.eVerifyCase = v.eVerifyCase; input.receiptNumber = v.receiptNumber; }
-    const r = await call('submitTask', input); closeModal();
-    toast(t.category === 'upload' && !can('onboarding.manage') ? 'Uploaded — HR will review it.' : 'Saved', 'ok'); await reloadCurrent(); aiNotice(r && r.ai);
+    const job = call('submitTask', input), msg = t.category === 'upload' && !can('onboarding.manage') ? 'Uploaded — HR will review it.' : 'Saved';
+    const after = async (r, here) => { if (here) closeModal(); toast(msg, 'ok'); await reloadCurrent(); aiNotice(r && r.ai); };
+    if (input.file) await docJob('Uploading and reading ' + input.file.name, job, after); else await after(await job, true);
   },
   'task-decide': async v => { await call('reviewTask', v); closeModal(); toast(v.decision === 'reject' ? 'Sent back with your note' : 'Waived', 'ok'); await reloadCurrent(); }
 });
@@ -936,7 +969,8 @@ Object.assign(FORMS, {
   'emp-update': async v => { const o = Object.assign({}, v); ['payRate'].forEach(k => { if (o[k] !== '' && o[k] !== undefined) o[k] = Number(o[k]); });
     const r = await call('updateEmployee', o); closeModal(); toast(r && r.checklistUpdated ? 'Saved — checklist updated for the new work authorization' : 'Saved', 'ok'); await reloadCurrent(); },
   'task-add': async v => { v.required = v.required !== 'no'; await call('addTask', v); closeModal(); toast('Added', 'ok'); await reloadCurrent(); },
-  'doc-upload': async (v, form) => { v.file = await readFile(form.querySelector('[name=file]').files[0]); const r = await call('uploadDocument', v); closeModal(); toast('Uploaded', 'ok'); await reloadCurrent(); aiNotice(r.ai); },
+  'doc-upload': async (v, form) => { v.file = await readFile(form.querySelector('[name=file]').files[0]);
+    await docJob('Reading ' + v.file.name, call('uploadDocument', v), async (r, here) => { if (here) closeModal(); toast('Uploaded', 'ok'); await reloadCurrent(); aiNotice(r.ai); }, '#app/employee/' + v.employeeId + '/documents'); },
   'doc-update': async v => { await call('updateDocument', v); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); }
 });
 
@@ -964,7 +998,9 @@ FORMS['docs-analyze'] = async (v, form) => {
   const list = Array.from(form.querySelector('[name=files]').files || []);
   if (!list.length) throw new Error('Choose at least one document.');
   const files = []; for (const f of list.slice(0, 12)) files.push(await readFile(f));
-  const r = await call('analyzeEmployeeDocs', { files: files });
+  await docJob('Reading ' + files.length + ' document' + (files.length === 1 ? '' : 's'), call('analyzeEmployeeDocs', { files: files }), r => showDocRead(r, files), location.hash);
+};
+function showDocRead(r, files) {
   S.cache.docFiles = files; S.cache.docRead = r;
   const p = r.proposed || {};
   const readerNote = { on: '', 'company-off': 'AI is off for this company, so the built-in text reader was used. ' + (can('settings.manage') ? 'Turn it on in Settings → AI document processing for much better results.' : 'Ask an admin to turn it on in Settings.'),
@@ -979,13 +1015,13 @@ FORMS['docs-analyze'] = async (v, form) => {
       ((d.issues || []).length ? '<br><small style="color:var(--warn,#b45309)">' + d.issues.map(esc).join('<br>') + '</small>' : '') + '</td></tr>').join('') + '</tbody></table>' +
     empForm(p, 'new') + '<label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal</label>' +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Create employee and file documents</button></div></form>', true);
-};
+}
 FORMS['docs-create'] = async v => {
   const files = S.cache.docFiles.map((f, i) => Object.assign({}, f, { type: v['type_' + i], expiresOn: v['exp_' + i] }));
   const emp = {}; Object.keys(v).filter(k => !/^(type|exp)_\d+$/.test(k) && k !== 'invite').forEach(k => { emp[k] = v[k]; });
-  const r = await call('createEmployeeFromDocs', { employee: cleanEmp(emp), files: files, invite: !!v.invite });
-  closeModal(); toast('Employee added · ' + r.filed + ' document(s) filed' + (r.invite && r.invite.sent ? ' · invited' : ''), 'ok');
-  S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding');
+  await docJob('Creating ' + (emp.firstName || 'the employee') + ' and filing ' + files.length + ' document(s)', call('createEmployeeFromDocs', { employee: cleanEmp(emp), files: files, invite: !!v.invite }), async (r, here) => {
+    if (here) closeModal(); toast('Employee added · ' + r.filed + ' document(s) filed' + (r.invite && r.invite.sent ? ' · invited' : ''), 'ok');
+    S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); });
 };
 PAGES.timesheets = async (parts, p) => {
   if (!isStaff()) return go('#app/my-timesheet');
@@ -1075,7 +1111,7 @@ FORMS['ts-save'] = async (v, form, submitter) => {
   if (mode === 'submit' && G.source === 'client' && !input.file && !(G.timesheet && G.timesheet.hasFile)) throw new Error('Attach the timesheet approved in ' + (G.employee.clientName || 'the client') + '\'s system — it is the record of hours.');
   if (mode === 'submit' && !total && !input.file && !(G.timesheet && G.timesheet.hasFile)) throw new Error('Enter your hours or attach the signed timesheet.');
   if (mode === 'submit' && !total && (input.file || (G.timesheet && G.timesheet.hasFile)) && !S.cache.tsAi) {
-    try { const a = await tsAiRead(form, submitter); if (a.rows) { toast('Hours filled from the file — check them and press Submit again.', 'ok', 6000); return; } if (a.totalOnly) input.totalOnly = a.totalOnly; } catch (e) { fail(e); }
+    try { const a = await tsAiRead(form, submitter); if (!a) return; if (a.rows) { toast('Hours filled from the file — check them and press Submit again.', 'ok', 6000); return; } if (a.totalOnly) input.totalOnly = a.totalOnly; } catch (e) { fail(e); }
   }
   if (mode === 'submit' && !total && !input.totalOnly && S.cache.tsAi && S.cache.tsAi.totalOnly) input.totalOnly = S.cache.tsAi.totalOnly;
   if (mode === 'submit' && !total && input.file && !input.totalOnly) { const n = prompt('Total hours on the attached timesheet?'); if (n === null) return; input.totalOnly = Number(n); }
@@ -1225,6 +1261,7 @@ PAGES.settings = async () => {
   const o = D().org;
   const [prof, corp, tpls] = await Promise.all([call('getCompanyProfile'), call('listCorpDocs'), call('listTemplates')]);
   S.cache.profile = prof; S.cache.corp = corp; S.cache.templates = tpls;
+  const rv = S.route.params.review; if (rv) setTimeout(() => { const d = corp.find(x => x.id === rv); if (d && d.ai) corpReview([storedRead(d)]); history.replaceState(null, '', '#app/settings'); }, 60);
   return head('Settings', esc(o.legalName || o.name)) + profileForm(prof) + corpDocsCard(corp, prof) + templatesCard(tpls, prof) +
     '<form class="card" data-form="org-save">' +
     '<h3>' + ic('clock') + 'Timesheets</h3><div class="grid g3">' + field('Week starts on', sel('weekStart', ['Monday', 'Sunday'], o.weekStart)) + field('Default approval for new employees', sel('defaultApproval', L('approvalFlows'), o.defaultApproval)) +
@@ -1442,9 +1479,10 @@ function aiDocModal(d) {
 Object.assign(ACTIONS, {
   'ai-doc': el => { const d = (S.cache.emp.documents || []).find(x => x.id === el.dataset.id); if (d) aiDocModal(d); },
   'ai-doc-read': async el => {
-    const r = await busy(el, call('aiReadDocument', { id: el.dataset.id }));
-    toast('Read by ' + (r.provider || 'AI') + (r.filled && r.filled.length ? ' · filled ' + r.filled.join(', ') : ''), 'ok');
-    await reloadCurrent(); const d = (S.cache.emp.documents || []).find(x => x.id === el.dataset.id); if (d) aiDocModal(d);
+    const id = el.dataset.id, empId = S.cache.emp && S.cache.emp.employee.id;
+    await busy(el, docJob('Reading the document with AI', call('aiReadDocument', { id: id }), async r => {
+      toast('Read by ' + (r.provider || 'AI') + (r.filled && r.filled.length ? ' · filled ' + r.filled.join(', ') : ''), 'ok');
+      await reloadCurrent(); const d = ((S.cache.emp || {}).documents || []).find(x => x.id === id); if (d) aiDocModal(d); }, empId ? '#app/employee/' + empId + '/documents' : ''));
   }
 });
 Object.assign(FORMS, {
@@ -1482,7 +1520,12 @@ async function tsAiRead(form, btn) {
   if (f && f.files[0]) input.file = await readFile(f.files[0]);
   else if (!(G.timesheet && G.timesheet.hasFile)) throw new Error('Choose the timesheet file first.');
   if (btn && btn.dataset && btn.dataset.offline) input.offline = true;
-  const r = await busy(btn, call('aiReadTimesheet', input));
+  let r = null;
+  await busy(btn, docJob('Reading the timesheet', call('aiReadTimesheet', input), x => { r = x; showTsRead(form, x); }, location.hash));
+  return r;   // null when the person moved on (the result opens from the alert)
+}
+function showTsRead(form, r) {
+  if (!form.isConnected) form = document.querySelector('form[data-form="' + form.dataset.form + '"]') || form;
   S.cache.tsAi = r;
   if (r.rows) fillTsRows(form, r.rows);
   const box = $('ts-ai'); if (box) box.innerHTML = '<div class="banner ' + (r.issues.length ? 'warn' : 'ok') + '">' + ic('spark') + '<div>' +
@@ -1494,7 +1537,7 @@ async function tsAiRead(form, btn) {
 }
 Object.assign(ACTIONS, {
   'ts-ai-read': async el => { await tsAiRead(el.form || el.closest('form'), el); },
-  'ai-ts-check': async el => { const c = await busy(el, call('aiCheckTimesheet', { id: el.dataset.id })); toast(c.match ? 'The file matches the entered hours' : 'Checked — see the notes', c.match ? 'ok' : 'error'); await reloadCurrent(); }
+  'ai-ts-check': async el => busy(el, docJob('Checking the timesheet', call('aiCheckTimesheet', { id: el.dataset.id }), async c => { toast(c.match ? 'The file matches the entered hours' : 'Checked — see the notes', c.match ? 'ok' : 'error'); await reloadCurrent(); }, location.hash))
 });
 
 function aiSettingsCard() {
@@ -1835,14 +1878,9 @@ const CORP_NO_READ = ['Official blank form: Form I-9', 'Employee handbook', 'Pol
 const storedRead = d => ({ id: d.id, name: d.fileName, type: d.type, profile: d.ai.profile || {}, stateRegs: d.ai.stateRegs || [], facts: d.ai.facts || {},
   document: { summary: d.ai.summary || '', documentType: d.ai.documentType || '' }, provider: d.ai.provider || 'Read earlier' });
 async function readInBackground(id, name) {
-  let done = false, slow = false;
-  const t = setTimeout(() => { if (!done) { slow = true; longTask(''); toast('Still reading ' + name + ' — large or scanned files can take a few minutes. Keep working; it shows "Review" on the document when done.', 'ok', 9000); } }, 75000);
-  longTask('Reading ' + name);
-  try {
-    const r = await call('readCorpDoc', { id: id }); done = true;
-    if (slow) toast('Finished reading ' + name + ' — click "Review" on it', 'ok', 8000); else corpReview([r]);
-  } catch (e) { done = true; toast('Could not read ' + name + ': ' + (e.message || e), 'error', 9000); }
-  finally { clearTimeout(t); if (!slow) longTask(''); if (S.reading) delete S.reading[id]; if (location.hash.indexOf('settings') >= 0) { S.db = null; refresh(); } }
+  try { await docJob('Reading ' + name, call('readCorpDoc', { id: id }), r => corpReview([r]), '#app/settings'); }
+  catch (e) { toast('Could not read ' + name + ': ' + (e.message || e), 'error', 9000); }
+  finally { if (S.reading) delete S.reading[id]; if (location.hash.indexOf('settings') >= 0 && !S.modal) { S.db = null; refresh(); } }
 }
 async function corpReadAll(el) {
   const list = (S.cache.profile.toRead || []), out = [], errs = [];
@@ -1854,7 +1892,10 @@ async function corpReadAll(el) {
       try { out.push(await call('readCorpDoc', { id: list[i].id })); } catch (e) { errs.push(list[i].type + ' (' + list[i].name + '): ' + (e.message || e)); }
     }
   } finally { el.disabled = false; el.innerHTML = label; longTask(''); }
-  corpReview(out, errs); refresh();
+  const show = () => corpReview(out, errs);
+  if (location.hash.indexOf('settings') >= 0 && !document.hidden && !S.modal) show();
+  else doneAlert('Finished reading ' + list.length + ' documents', async () => { if (location.hash.indexOf('settings') < 0) { location.hash = '#app/settings'; await waitPainted('#app/settings'); } show(); });
+  if (location.hash.indexOf('settings') >= 0 && !S.modal) refresh();
 }
 function corpReview(results, errs) {
   const prof = S.cache.profile || {}, P = {}, regsBy = {};
@@ -1864,6 +1905,7 @@ function corpReview(results, errs) {
   });
   const regs = Object.keys(regsBy).sort().map(k => regsBy[k]);
   S.cache.corpReview = { profile: P, regs: regs };
+  const ids = results.map(r => r.id).filter(Boolean); if (ids.length) call('markCorpReviewed', { ids: ids }).catch(() => {});
   const have = (prof.stateRegs || []).reduce((m, r) => (m[r.state] = r, m), {});
   const regText = r => [r.withholdingId && 'Withholding ' + r.withholdingId, r.suiId && 'SUI ' + r.suiId, r.suiRate && 'SUI rate ' + r.suiRate + '%' + (r.suiRateYear ? ' (' + r.suiRateYear + ')' : ''), r.sosId && 'SOS ID ' + r.sosId, r.foreignQualified && 'Registered to do business'].filter(Boolean).join(' · ');
   const sameKeys = Object.keys(P).filter(k => (prof[k] || '') === P[k].value), keys = Object.keys(P).filter(k => sameKeys.indexOf(k) < 0);
