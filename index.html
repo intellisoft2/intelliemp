@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.31"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.32"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -208,6 +208,9 @@ form .grid{margin-bottom:14px}
 pre.viewer.text{overflow:auto;padding:14px;white-space:pre-wrap;font-size:13px;margin:0}
 .bulkbar{position:sticky;bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--navy,#0f2742);color:#fff;padding:10px 14px;border-radius:12px;margin-top:12px;box-shadow:0 8px 24px rgba(15,39,66,.25)}
 .bulkbar .btn.ghost{background:transparent;color:#fff;border-color:#4a6a8c}.tbl td.sel,.tbl th.sel{width:34px;padding-right:0}
+.skel{padding:4px 0}.sk{background:linear-gradient(90deg,#e9eef4 0%,#f4f7fa 40%,#e9eef4 80%);background-size:300% 100%;animation:sk 1.2s ease-in-out infinite;border-radius:10px;margin-bottom:14px}
+.sk.h{height:30px;width:280px}.sk.s{height:14px;width:200px;margin-bottom:26px}.sk.card{height:220px}.sk.card.short{height:120px}
+@keyframes sk{0%{background-position:100% 0}100%{background-position:0 0}}
 </style>
 
 </head>
@@ -352,7 +355,34 @@ async function callQuiet(fn, ...args) {
   if (r && r.ok) return r.data;
   const e = new Error((r && r.error) || 'Something went wrong.'); e.code = r && r.code; throw e;
 }
+const READ_FN = /^(get|list)/, NO_CACHE_FN = /^(getBootstrap|getDocumentFile|getCorpDocFile|getTimesheetFile|getHandbookFile|getApproval|getApprovalFile|getI9DocDetails|getI9OfficialData)$/;
+const inflight = {}, prefetched = {}, pageCache = new Map(), pageCalls = new Map();
+let recording = null, prefetchBusy = 0;
+const rpcKey = (fn, args) => fn + '|' + JSON.stringify(args || []);
+function dropCaches() { pageCache.clear(); Object.keys(prefetched).forEach(k => delete prefetched[k]); }
+function prefetchCall(fn, args) {
+  const key = rpcKey(fn, args), pf = prefetched[key];
+  if ((pf && Date.now() - pf.at < 30000) || inflight[key] || prefetchBusy >= 4) return;
+  prefetchBusy++;
+  const p = rpc(fn, args || []).then(r => { if (r && r.ok) return r.data; throw new Error('prefetch'); });
+  prefetched[key] = { p: p, at: Date.now() };
+  p.catch(() => { delete prefetched[key]; }).finally(() => { prefetchBusy--; });
+}
 async function call(fn, ...args) {
+  if (READ_FN.test(fn) && !NO_CACHE_FN.test(fn)) {
+    const key = rpcKey(fn, args);
+    if (recording) recording.push([fn, args]);
+    const pf = prefetched[key];
+    if (pf && Date.now() - pf.at < 30000) { delete prefetched[key]; try { return await pf.p; } catch (e) { /* fall back to a normal request */ } }
+    if (inflight[key]) return inflight[key];
+    const p = callNet(fn, args); inflight[key] = p;
+    try { return await p; } finally { delete inflight[key]; }
+  }
+  const out = await callNet(fn, args);
+  dropCaches();
+  return out;
+}
+async function callNet(fn, args) {
   netBar(1, fn);
   let r;
   try {
@@ -529,6 +559,7 @@ const isStaff = () => can('reports.view');
 const L = k => (D().lists || {})[k] || [];
 function sessionEnded(msg) {
   dropAllDrafts();
+  dropCaches(); pageCalls.clear();
   S.token = ''; store.set('ie-token', ''); S.db = null; S.cache = {}; S.modal = null; paintModal();
   if (msg) toast(msg, 'error', 6000);
   go('#login');
@@ -539,8 +570,9 @@ function setSession(res) {
   go(res.hasOrg ? '#app' : '#new-company');
 }
 
-function parseRoute() {
-  const raw = decodeURIComponent(String(location.hash || '').replace(/^#\/?/, ''));
+function parseRoute() { return parseHash(location.hash); }
+function parseHash(hash) {
+  const raw = decodeURIComponent(String(hash || '').replace(/^#\/?/, ''));
   const [path, query] = raw.split('?');
   const params = {}; String(query || '').split('&').forEach(kv => { const p = kv.split('='); if (p[0]) params[p[0]] = (p[1] || '').replace(/\+/g, ' '); });
   const parts = path.split('/').filter(Boolean);
@@ -566,7 +598,7 @@ async function route() {
     if (e.code !== 'AUTH') paint('<div class="auth"><div class="card"><h3>Something went wrong</h3><p class="muted">' + esc(e.message) + '</p><div class="btns"><button class="btn" data-action="reload">Try again</button> <button class="btn ghost" data-action="logout">Sign out</button></div></div></div>');
   }
 }
-async function refresh() { S.cache = {}; await loadDb(); await renderApp(); }
+async function refresh() { S.cache = {}; dropCaches(); await loadDb(); await renderApp(); }
 
 const ACTIONS = {}, FORMS = {}, CHANGES = {};
 function pubShell(inner) {
@@ -733,11 +765,68 @@ async function renderApp() {
   if (db.org.requireMfa && !db.who.mfa && S.route.parts[0] !== 'account') return go('#app/account');
   const page = S.route.parts[0] || '';
   const fn = PAGES[page] || PAGES[''];
-  const key = location.hash;
-  const html = await fn(S.route.parts.slice(1), S.route.params);
-  if (key !== location.hash) return;   // the person moved on while this loaded
-  paint(shell(html));
+  const key = location.hash, parts = S.route.parts.slice(1), params = S.route.params, hit = pageCache.get(key), now = Date.now();
+  if (hit && now - hit.at < 10 * 60000) {
+    S.cache = Object.assign({}, hit.cache); paintApp(hit.html, hit.y); S.painted = key;
+    if (now - hit.at > 15000) revalidate(key, fn, parts, params);
+    return;
+  }
+  if (S.painted !== key) { paintApp(SKELETON, 0); S.painted = key + '#loading'; }
+  const html = await runPage(key, fn, parts, params);
+  if (html === null) return;
+  paintApp(html, S.painted === key ? window.scrollY : 0); S.painted = key;   // after a save the page stays where it was
 }
+const SKELETON = '<div class="skel" aria-busy="true" aria-label="Loading"><div class="sk h"></div><div class="sk s"></div><div class="sk card"></div><div class="sk card short"></div></div>';
+function paintApp(html, y) { paint(shell(html)); if (y) window.scrollTo(0, y); }
+async function runPage(key, fn, parts, params) {
+  const rec = []; recording = rec;
+  let html;
+  try { html = await fn(parts, params); } finally { if (recording === rec) recording = null; }
+  if (key !== location.hash || typeof html !== 'string') {
+    const cur = pageCache.get(location.hash); if (cur) Object.assign(S.cache, cur.cache);   // a slow page must not overwrite the current page's data
+    return null;
+  }
+  pageCache.set(key, { html: html, cache: Object.assign({}, S.cache), at: Date.now(), y: 0 });
+  pageCalls.set(key, rec.slice(0, 6));
+  if (pageCache.size > 40) pageCache.delete(pageCache.keys().next().value);
+  return html;
+}
+async function revalidate(key, fn, parts, params) {
+  let html; try { html = await runPage(key, fn, parts, params); } catch (e) { return; }
+  if (html === null) return;
+  const cur = $('app'), a = document.activeElement;
+  if (cur && a && cur.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;   // don't repaint under someone typing
+  const shown = cur && cur.querySelector('.main');
+  const fresh = document.createElement('div'); fresh.innerHTML = shell(html);
+  const nm = fresh.querySelector('.main');
+  if (shown && nm && shown.innerHTML === nm.innerHTML) return;   // nothing changed
+  paintApp(html, window.scrollY);
+}
+function keepScroll() { const h = S.painted && pageCache.get(S.painted); if (h) h.y = window.scrollY; }
+function guessCalls(hash) {
+  const r = parseHash(hash), [page, a, b] = r.parts;
+  if (r.name !== 'app') return [];
+  if (page === 'employee' && a) return [['getEmployee', [a]]];
+  if (page === 'timesheet' && a) return [['getTimesheet', [{ employeeId: a, weekStart: b || D().thisWeek }]]];
+  if (page === 'case' && a) return [['getCase', [a]]];
+  if (page === 'employees') return [['listEmployees', []]];
+  if (page === 'timesheets' && !r.params.week && !r.params.status) return [['listTimesheets', [{ status: 'Submitted' }]]];
+  if (page === 'me' || page === 'my-documents' || page === 'my-cases') return [['getMyPortal', []]];
+  if (page === 'immigration' && !r.params.status) return [['listCases', [{}]]];
+  return [];
+}
+let pfTimer = null;
+['mouseover', 'touchstart', 'focusin'].forEach(t => document.addEventListener(t, ev => {
+  const el = ev.target && ev.target.closest && ev.target.closest('a[href^="#app"],[data-action="nav"][data-href^="#app"]');
+  if (!el || !S.token || !S.db) return;
+  const h = el.getAttribute('href') || el.dataset.href;
+  if (!h || h === location.hash) return;
+  clearTimeout(pfTimer);
+  pfTimer = setTimeout(() => {
+    const c = pageCache.get(h); if (c && Date.now() - c.at < 15000) return;
+    (pageCalls.get(h) || guessCalls(h)).forEach(x => prefetchCall(x[0], x[1]));
+  }, t === 'touchstart' ? 0 : 90);
+}, { passive: true }));
 
 PAGES[''] = async () => isStaff() ? staffHome() : employeeHome();
 async function staffHome() {
@@ -833,7 +922,7 @@ function findTask(id) {
   for (const l of lists) { const t = l.find(x => x.id === id); if (t) return t; }
   return null;
 }
-async function reloadCurrent() { S.cache = {}; if (S.db && isStaff()) loadDb().catch(() => {}); await renderApp(); }
+async function reloadCurrent() { S.cache = {}; pageCache.delete(location.hash); if (S.db && isStaff()) loadDb().then(() => { const n = document.querySelector('.side .nav'); if (n && S.painted === location.hash) { const f = document.createElement('div'); f.innerHTML = shell(''); const fn = f.querySelector('.side .nav'); if (fn) n.innerHTML = fn.innerHTML; } }).catch(() => {}); await renderApp(); }
 Object.assign(ACTIONS, {
   'task-do': el => {
     const t = findTask(el.dataset.id); if (!t) return;
@@ -2850,7 +2939,7 @@ window.addEventListener('beforeunload', ev => { if (S.modal && S.modal.dirty) { 
   if (t === 'drop' && ev.dataTransfer && ev.dataTransfer.files.length) { const i = z.querySelector('input[type=file]'); if (i) { i.files = ev.dataTransfer.files; z.querySelector('p').textContent = ev.dataTransfer.files.length + ' file(s) ready'; } }
 }));
 document.addEventListener('change', ev => { const z = ev.target.closest && ev.target.closest('.drop'); if (z && ev.target.files) z.querySelector('p').textContent = ev.target.files.length + ' file(s) ready'; });
-window.addEventListener('hashchange', () => { closeModal(); route(); });
+window.addEventListener('hashchange', () => { keepScroll(); closeModal(); route(); });
 route();
 </script>
 
