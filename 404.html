@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IntelliEmp | Employee portal by Intellisoft</title>
-<meta name="description" content="IntelliEmp by Intellisoft — employee portal: onboarding by work authorization (H-1B, green card, OPT/STEM OPT, EAD), private documents, weekly timesheets approved by managers and clients, and H-1B / PERM case tracking.">
+<meta name="description" content="IntelliEmp by Intellisoft — employee portal for federal contractors and staffing firms: Form I-9 and E-Verify on time, audit-ready timesheets approved by managers and clients, controlled access to employee records, onboarding by work authorization, and H-1B / PERM / STEM OPT case tracking.">
 <meta property="og:title" content="IntelliEmp | Employee portal">
-<meta property="og:description" content="IntelliEmp by Intellisoft — employee portal: onboarding by work authorization (H-1B, green card, OPT/STEM OPT, EAD), private documents, weekly timesheets approved by managers and clients, and H-1B / PERM case tracking.">
+<meta property="og:description" content="IntelliEmp by Intellisoft — employee portal for federal contractors and staffing firms: Form I-9 and E-Verify on time, audit-ready timesheets approved by managers and clients, controlled access to employee records, onboarding by work authorization, and H-1B / PERM / STEM OPT case tracking.">
 <meta property="og:url" content="https://employee.intellisoft-tech.com/">
 <meta name="theme-color" content="#0b1b2e">
 <meta name="referrer" content="strict-origin">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.33"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.34"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -211,6 +211,8 @@ pre.viewer.text{overflow:auto;padding:14px;white-space:pre-wrap;font-size:13px;m
 .skel{padding:4px 0}.sk{background:linear-gradient(90deg,#e9eef4 0%,#f4f7fa 40%,#e9eef4 80%);background-size:300% 100%;animation:sk 1.2s ease-in-out infinite;border-radius:10px;margin-bottom:14px}
 .sk.h{height:30px;width:280px}.sk.s{height:14px;width:200px;margin-bottom:26px}.sk.card{height:220px}.sk.card.short{height:120px}
 @keyframes sk{0%{background-position:100% 0}100%{background-position:0 0}}
+.seg{display:inline-flex;gap:4px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:4px;margin-top:18px}
+.segbtn{border:0;background:transparent;color:#c3d2e3;font:inherit;font-size:14px;font-weight:600;padding:8px 16px;border-radius:999px;cursor:pointer}.segbtn.on{background:#5fe0cb;color:#0b1f35}
 </style>
 
 </head>
@@ -618,21 +620,40 @@ async function renderPublic() {
 function viewLanding() {
   const feat = (i, t, d) => '<div class="feat"><h3>' + ic(i) + esc(t) + '</h3><p>' + esc(d) + '</p></div>';
   const row = (a, b) => '<div class="row"><span>' + a + '</span>' + b + '</div>';
-  return '<div class="hero"><div><h1>Onboard, pay and keep every employee <em>compliant</em>.</h1>' +
-    '<p class="lead">IntelliEmp is the employee portal for staffing and consulting companies: document-first onboarding for every work authorization, weekly timesheets approved by managers and clients, and H-1B, PERM and STEM OPT processing tracked stage by stage.</p>' +
-    '<div class="btns"><a class="btn" href="#register">Set up your company</a><a class="btn ghost" href="#login">Employee sign-in</a></div></div>' +
-    '<div class="mock"><h4 style="margin-bottom:6px">This week</h4>' +
+  const seg = S.ui.land || 'fed';
+  const tab = (k, label) => '<button type="button" class="segbtn' + (seg === k ? ' on' : '') + '" data-action="land-seg" data-k="' + k + '" aria-pressed="' + (seg === k) + '">' + esc(label) + '</button>';
+  const fedMock = '<div class="mock"><h4 style="margin-bottom:6px">Contract workforce · this week</h4>' +
+    row('<b>New hire</b> · Day 2 · on a FAR 52.222-54 contract', chip('E-Verify due tomorrow', 'warn')) + row('<b>Form I-9</b> · Section 2 · 3 business days', chip('2 to finish', 'info')) +
+    row('<b>Timesheets</b> · manager → client approval', chip('41 of 44 approved', 'ok')) + row('<b>H-1B</b> · consultant on the contract', chip('Extension: file by Aug 3', 'warn')) +
+    row('<b>Audit log</b> · every approval, view and download', chip('Export', 'teal')) + '</div>';
+  const comMock = '<div class="mock"><h4 style="margin-bottom:6px">This week</h4>' +
     row('<b>Ravi T.</b> · H-1B · Capital One', chip('Waiting for client', 'info')) + row('<b>Sara L.</b> · STEM OPT', chip('Onboarding 70%', 'teal')) +
-    row('<b>Gina C.</b> · EAD ends in 25 days', chip('Renewal', 'bad')) + row('<b>PERM</b> · ETA-9089 due', chip('Jul 31', 'warn')) + row('<b>Timesheets</b> · 42 of 45 approved', chip('Export CSV', 'ok')) + '</div></div>' +
-    '<div class="feats">' +
-    feat('check', 'Onboarding by work authorization', 'U.S. citizen, green card, H-1B new and transfer, H-4 / L-2 / GC EAD, OPT and STEM OPT, TN and E-3 — each gets the right checklist, documents and due dates, including I-9 within three business days.') +
-    feat('doc', 'Documents that read themselves', 'Drop an EAD, I-797, I-94, passport or offer letter: IntelliEmp reads the category, validity and receipt number, files it, and keeps expiry dates current.') +
-    feat('clock', 'Weekly timesheets', 'Employees enter hours, upload the signed sheet or simply email it. Managers and client managers approve from a one-click link — no account needed.') +
+    row('<b>Gina C.</b> · EAD ends in 25 days', chip('Renewal', 'bad')) + row('<b>PERM</b> · ETA-9089 due', chip('Jul 31', 'warn')) + row('<b>Timesheets</b> · 42 of 45 approved', chip('Export CSV', 'ok')) + '</div>';
+  const fed = '<div class="feats">' +
+    feat('shield', 'Form I-9 and E-Verify on time', 'Section 1 on the official USCIS form by day one, Section 2 within three business days, and the E-Verify case tracked by the third business day after the start date — the timing FAR 52.222-54 requires for new hires.') +
+    feat('clock', 'Timesheets that hold up in an audit', 'Weekly hours approved step by step by the manager and the client or government-side approver; the client-approved sheet is attached and checked against the hours entered. Every submission, approval and send-back is logged with who and when.') +
+    feat('lock', 'Access you can defend', 'Two-step sign-in required for staff, role-based powers, confidential records for executives, view-only documents, and an audit log of every document viewed or downloaded.') +
+    feat('users', 'A workforce you can staff on contracts', 'Work authorization and expiry dates for every person — U.S. citizens, green-card holders, H-1B, EAD and TN — with alerts before anything runs out, so no one on a contract lapses.') +
+    feat('briefcase', 'Company records in one place', 'Articles, certificates of good standing, state tax and unemployment registrations and other corporate documents — read, filed and watched for expiry.') +
+    feat('doc', 'Agreements signed and kept', 'Offer letters, confidentiality and IP agreements and the handbook signed electronically, with a dated PDF for each person\'s file.') + '</div>';
+  const com = '<div class="feats">' +
+    feat('check', 'Onboarding by work authorization', 'U.S. citizen, green card, H-1B new and transfer, H-4 / L-2 / GC EAD, OPT and STEM OPT, TN and E-3 — and employees outside the U.S. — each gets the right checklist, documents and due dates.') +
+    feat('doc', 'Documents that read themselves', 'Drop an EAD, I-797, I-94, passport or offer letter: IntelliEmp reads the type, validity and receipt number, files it, completes the matching checklist item and keeps expiry dates current.') +
+    feat('clock', 'Weekly timesheets', 'Employees enter hours, upload the client sheet or simply email it. Managers and client managers approve from a one-click link — no account needed — or in bulk.') +
     feat('flag', 'H-1B, PERM and STEM OPT', 'Stage-by-stage cases with the real deadlines: ETA-9089 within 180 days of recruitment, I-140 within 180 days of certification, STEM OPT reports every six months.') +
     feat('alert', 'Nothing expires by surprise', 'Daily checks warn HR and employees before EADs, I-94s, H-1B validity and documents run out — and remind you to start the extension.') +
-    feat('link', 'Hand-off from IntelliHire', 'Hires and bench consultants move from IntelliHire into onboarding with their documents — or add people by hand, from documents, or from a CSV.') + '</div>' +
-    '<div class="auths"><h3 style="color:#fff">Work authorizations covered</h3>' + ['U.S. Citizen', 'Green Card', 'H-1B', 'H-1B transfer', 'H-4 EAD', 'L-2 EAD', 'GC EAD (I-485)', 'OPT EAD', 'STEM OPT EAD', 'TN', 'E-3'].map(x => chip(x)).join('') + '</div>';
+    feat('link', 'Hand-off from IntelliHire', 'Hires and bench consultants move from IntelliHire into onboarding with their documents — or add people by hand, from documents, or from a CSV.') + '</div>';
+  return '<div class="hero"><div><h1>Keep every employee — and every contract — <em>compliant</em>.</h1>' +
+    '<p class="lead">IntelliEmp is the employee portal for federal contractors and for staffing and consulting firms: Form I-9 and E-Verify on time, audit-ready timesheets approved by managers and clients, controlled access to employee records, and H-1B, PERM and STEM OPT processing tracked stage by stage.</p>' +
+    '<div class="seg" role="group" aria-label="Show features for">' + tab('fed', 'Federal contractors') + tab('com', 'Commercial & staffing') + '</div>' +
+    '<div class="btns"><a class="btn" href="#register">Set up your company</a><a class="btn ghost" href="#login">Employee sign-in</a></div></div>' +
+    (seg === 'fed' ? fedMock : comMock) + '</div>' + (seg === 'fed' ? fed : com) +
+    '<div class="auths"><h3 style="color:#fff">' + (seg === 'fed' ? 'Built around the rules federal contractors work under' : 'Work authorizations covered') + '</h3>' +
+    (seg === 'fed' ? ['Form I-9 (USCIS)', 'E-Verify · FAR 52.222-54', 'Two-step sign-in', 'Role-based access', 'Audit log', 'Client / government approver', 'Payroll export'] :
+      ['U.S. Citizen', 'Green Card', 'H-1B', 'H-1B transfer', 'H-4 EAD', 'L-2 EAD', 'GC EAD (I-485)', 'OPT EAD', 'STEM OPT EAD', 'TN', 'E-3', 'Outside the U.S.']).map(x => chip(x)).join('') +
+    (seg === 'fed' ? '<p style="color:#9fb3c8;font-size:13px;margin-top:10px">IntelliEmp helps you meet these requirements; your contracts, counsel and auditors decide what applies to you.</p>' : '') + '</div>';
 }
+ACTIONS['land-seg'] = async el => { const y = window.scrollY; S.ui.land = el.dataset.k; await renderPublic(); window.scrollTo(0, y); };
 const authCard = (title, sub, body) => '<div class="auth"><div class="card"><h2>' + esc(title) + '</h2>' + (sub ? '<p class="muted">' + sub + '</p>' : '') + body + '</div></div>';
 function viewLogin() {
   return authCard('Sign in', 'Employees, managers and HR use the same sign-in.',
