@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.42"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.43"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -780,6 +780,7 @@ function navItems() {
   if (isStaff()) {
     it('', 'home', 'Dashboard');
     it('employees', 'users', can('employees.view') ? 'Employees' : 'My team');
+    if (can('employees.view')) it('contractors', 'briefcase', 'Contractors');
     if (can('onboarding.manage')) it('onboarding', 'check', 'Onboarding', s.toReview);
     it('timesheets', 'clock', 'Timesheets', s.myApprovals);
     if (can('immigration.manage')) it('immigration', 'flag', 'Immigration', s.openCases);
@@ -827,7 +828,7 @@ async function renderApp() {
 }
 const SKELETON = '<div class="skel" aria-busy="true" aria-label="Loading"><div class="sk h"></div><div class="sk s"></div><div class="sk card"></div><div class="sk card short"></div></div>';
 function paintApp(html, y) { trailNote(location.hash, html); paint(shell(backBar(location.hash) + html)); if (y) window.scrollTo(0, y); }
-const TOP_PAGES = ['', 'home', 'employees', 'onboarding', 'timesheets', 'immigration', 'resources', 'team', 'settings', 'audit', 'me', 'my-timesheet', 'my-documents', 'my-cases', 'account', 'platform'];
+const TOP_PAGES = ['', 'home', 'employees', 'contractors', 'onboarding', 'timesheets', 'immigration', 'resources', 'team', 'settings', 'audit', 'me', 'my-timesheet', 'my-documents', 'my-cases', 'account', 'platform'];
 S.trail = S.trail || [];
 function trailKey(hash) {
   const r = parseHash(hash), [page, a] = r.parts;
@@ -839,7 +840,7 @@ function trailNote(hash, html) {
   if (!/^#app/.test(hash)) return;
   let key = trailKey(hash), title = ((String(html).match(/<h1>([\s\S]*?)<\/h1>/) || [])[1] || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim().slice(0, 60);
   const pg = parseHash(hash).parts[0] || '';
-  const TOP_TITLE = { '': isStaff() ? 'Dashboard' : 'Home', home: 'Home', employees: can('employees.view') ? 'Employees' : 'My team', onboarding: 'Onboarding', timesheets: 'Timesheets', immigration: 'Immigration',
+  const TOP_TITLE = { '': isStaff() ? 'Dashboard' : 'Home', home: 'Home', employees: can('employees.view') ? 'Employees' : 'My team', contractors: 'Contractors', onboarding: 'Onboarding', timesheets: 'Timesheets', immigration: 'Immigration',
     resources: 'Resources', team: 'Team and roles', settings: 'Settings', audit: 'Audit log', me: 'My onboarding', 'my-timesheet': 'My timesheet', 'my-documents': 'My documents', 'my-cases': 'My immigration', account: 'Account', platform: 'Platform' };
   if (TOP_TITLE[pg] !== undefined) title = TOP_TITLE[pg];
   const i = S.trail.findIndex(x => x.key === key);
@@ -849,7 +850,8 @@ function trailNote(hash, html) {
 }
 function parentOf(hash) {
   const r = parseHash(hash), [page, a] = r.parts, me = D().who.employeeId;
-  if (page === 'employee') return { hash: '#app/employees', title: can('employees.view') ? 'Employees' : 'My team' };
+  if (page === 'employee') return S.cache.emp && S.cache.emp.employee && S.cache.emp.employee.id === a && S.cache.emp.employee.employmentType === '1099 Contractor' && can('employees.view')
+    ? { hash: '#app/contractors', title: 'Contractors' } : { hash: '#app/employees', title: can('employees.view') ? 'Employees' : 'My team' };
   if (page === 'timesheet') return a === me && !isStaff() ? { hash: '#app/my-timesheet', title: 'My timesheet' } : can('employees.view') || isStaff() ? { hash: '#app/employee/' + a + '/timesheets', title: (S.cache.ts && S.cache.ts.employee && S.cache.ts.employee.id === a && S.cache.ts.employee.name) || 'the employee' } : { hash: '#app/timesheets', title: 'Timesheets' };
   if (page === 'case') return can('immigration.manage') ? { hash: '#app/immigration', title: 'Immigration' } : { hash: '#app/my-cases', title: 'My immigration' };
   return { hash: '#app', title: isStaff() ? 'Dashboard' : 'Home' };
@@ -1094,12 +1096,13 @@ PAGES['my-cases'] = async () => {
 };
 const empName = e => '<div class="who"><span class="av">' + esc(initials(e.name)) + '</span><div><b>' + esc(e.name) + '</b>' + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '<small class="muted">' + esc(e.jobTitle || e.email || '') + '</small></div></div>';
 PAGES.employees = async (parts, p) => {
-  const list = await call('listEmployees'); S.cache.emps = list;
+  const all = await call('listEmployees'); S.cache.emps = all;
+  const list = can('employees.view') ? all.filter(e => e.employmentType !== '1099 Contractor') : all, nCon = all.length - list.length;
   const q = (p.q || '').toLowerCase(), st = p.status || '', auth = p.auth || '';
   const rows = list.filter(e => (!q || [e.name, e.email, e.code, e.jobTitle, e.clientName].join(' ').toLowerCase().indexOf(q) >= 0) &&
     (!st ? e.status !== 'Terminated' : e.status === st) && (!auth || e.workAuth === auth));
   const showAuth = can('employees.view');
-  return head(can('employees.view') ? 'Employees' : 'My team', rows.length + ' of ' + list.length,
+  return head(can('employees.view') ? 'Employees' : 'My team', rows.length + ' of ' + list.length + (nCon ? ' · <a href="#app/contractors">' + nCon + ' 1099 contractor' + (nCon === 1 ? '</a> is' : 's</a> are') + ' under Contractors' : ''),
     can('employees.edit') ? '<button class="btn ghost" data-action="import-csv">' + ic('upload') + 'Import CSV</button><button class="btn ghost" data-action="add-from-docs">' + ic('spark') + 'From documents</button><button class="btn" data-action="add-employee">' + ic('plus') + 'Add employee</button>' : '') +
     '<div class="card"><form class="filters" data-form="emp-filter">' + inp('q', p.q || '', 'type="search" placeholder="Search name, ID, client…"') +
     '<select name="status"><option value="">Current employees</option>' + opts(L('empStatuses'), st) + '</select>' +
@@ -1111,6 +1114,28 @@ PAGES.employees = async (parts, p) => {
         '<td>' + statusChip(e.lastWeek) + '</td></tr>').join('') + '</tbody></table></div>'
       : '<div class="empty">' + (list.length ? 'No one matches.' : 'No employees yet. Add your first employee, import a CSV, or connect IntelliHire in Settings.') + '</div>') + '</div>';
 };
+const CON_TYPE = '1099 Contractor';
+const paperChip = (st, label) => st === 'Approved' ? chip('✓ ' + label, 'ok') : st === 'Waived' ? chip(label + ' waived') : st === 'Submitted' ? chip(label + ' to review', 'info') : st === 'Rejected' ? chip(label + ' sent back', 'bad') : st ? chip(label + ' pending', 'warn') : '';
+PAGES.contractors = async (parts, p) => {
+  if (!can('employees.view')) return go('#app/employees');
+  const all = await call('listEmployees'); S.cache.emps = all;
+  const list = all.filter(e => e.employmentType === CON_TYPE), q = (p.q || '').toLowerCase(), st = p.status || '';
+  const rows = list.filter(e => (!q || [e.name, e.email, e.code, e.jobTitle, e.clientName, e.businessName].join(' ').toLowerCase().indexOf(q) >= 0) && (!st ? e.status !== 'Terminated' : e.status === st));
+  return head('Contractors', '1099 independent contractors · ' + rows.length + ' of ' + list.length,
+    can('employees.edit') ? '<button class="btn" data-action="add-contractor">' + ic('plus') + 'Add contractor</button>' : '') +
+    '<div class="card"><form class="filters" data-form="con-filter">' + inp('q', p.q || '', 'type="search" placeholder="Search name, business, client…"') +
+    '<select name="status"><option value="">Current contractors</option>' + opts(L('empStatuses'), st) + '</select><button class="btn ghost sm">Filter</button></form>' +
+    (rows.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Contractor</th><th class="hide-m">Business</th><th class="hide-m">Client</th>' + (can('pay.view') ? '<th class="num">Rate</th>' : '') + '<th>W-9 and agreement</th><th>Status</th><th>Last week</th></tr></thead><tbody>' +
+      rows.map(e => '<tr class="click" data-action="nav" data-href="#app/employee/' + e.id + '"><td>' + empName(e) + '</td><td class="hide-m">' + esc(e.businessName || '—') + '</td><td class="hide-m">' + esc(e.clientName || '—') + '</td>' +
+        (can('pay.view') ? '<td class="num">' + esc(money(e.payRate, e.payType, e.currency) || '—') + '</td>' : '') +
+        '<td>' + paperChip((e.contractor || {}).w9, 'W-9') + ' ' + paperChip((e.contractor || {}).agreement, 'Agreement') + '</td><td>' + statusChip(e.status) + '</td><td>' + statusChip(e.lastWeek) + '</td></tr>').join('') + '</tbody></table></div>'
+      : '<div class="empty">' + (list.length ? 'No one matches.' : 'No 1099 contractors yet. Add one — they get a W-9, the independent contractor agreement and payment details to complete, and can submit timesheets like everyone else.') + '</div>') + '</div>' +
+    '<div class="card"><h3>' + ic('book') + 'Before you engage a contractor</h3><p class="muted">A worker is a 1099 contractor only when they control how the work is done. Misclassifying an employee can mean back taxes, wages and penalties. See <a href="#app/resources">Resources → 1099 contractors</a> for the IRS and Department of Labor tests, Form W-9 and Form 1099-NEC.</p></div>';
+};
+FORMS['con-filter'] = v => go('#app/contractors?' + Object.keys(v).filter(k => v[k]).map(k => k + '=' + encodeURIComponent(v[k])).join('&'));
+ACTIONS['add-contractor'] = () => openModal('Add contractor', '<form data-form="emp-create">' + hireTypePicker('') + empForm({ employmentType: CON_TYPE, payType: 'Hourly' }, 'new') +
+  '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal now, to</label>' + sel('inviteTo', [['work', 'their work email'], ['personal', 'their personal email'], ['both', 'both (sign in with work email)']], 'personal', 'style="width:auto"') + '</div>' +
+  '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Add contractor</button></div></form>', true);
 FORMS['emp-filter'] = v => go('#app/employees?' + Object.keys(v).filter(k => v[k]).map(k => k + '=' + encodeURIComponent(v[k])).join('&'));
 
 PAGES.onboarding = async () => {
@@ -1132,7 +1157,7 @@ PAGES.employee = async parts => {
   const tabs = EMP_TABS.filter(t => (t[0] !== 'onboarding' && t[0] !== 'documents') || E.checklist).filter(t => t[0] !== 'immigration' || (E.cases && (E.cases.length || ((L('waFields') || {})[e.workAuth] || {}).cases !== false))).filter(t => t[0] !== 'notes' || E.notes);
   const badge = { onboarding: E.progress && E.progress.toReview ? chip(E.progress.toReview, 'warn') : '', documents: E.documents ? chip(E.documents.length) : '', immigration: E.cases && E.cases.length ? chip(E.cases.length) : '' };
   const body = { '': empProfile, onboarding: empOnboarding, documents: empDocuments, timesheets: empTimesheets, immigration: empImmigration, notes: empNotes }[tab] || empProfile;
-  return '<div class="pagehead"><div class="who"><span class="av lg">' + esc(initials(e.name)) + '</span><div><h1>' + esc(e.name) + '</h1><p>' + esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code) + ' ' + statusChip(e.status) + (e.country && e.country !== 'US' ? ' ' + chip(((L('countries') || []).find(c => c.code === e.country) || { name: e.country }).name, 'info') : '') + (e.hireType === 'Existing' ? ' ' + chip('Moved from another system', 'teal') : '') + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '</p></div></div>' +
+  return '<div class="pagehead"><div class="who"><span class="av lg">' + esc(initials(e.name)) + '</span><div><h1>' + esc(e.name) + '</h1><p>' + esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code) + ' ' + statusChip(e.status) + (e.country && e.country !== 'US' ? ' ' + chip(((L('countries') || []).find(c => c.code === e.country) || { name: e.country }).name, 'info') : '') + (e.employmentType === '1099 Contractor' ? ' ' + chip('1099 contractor' + (e.businessName ? ' · ' + e.businessName : ''), 'info') : '') + (e.hireType === 'Existing' ? ' ' + chip('Moved from another system', 'teal') : '') + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '</p></div></div>' +
     '<div class="btns">' + (hr ? '<button class="btn ghost" data-action="emp-edit">' + ic('edit') + 'Edit</button>' + (E.member ? '' : '<button class="btn" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt ? 'Resend invitation' : 'Invite to portal') + '</button>') : '') + '</div></div>' +
     '<nav class="tabs">' + tabs.map(t => '<a href="#app/employee/' + e.id + (t[0] ? '/' + t[0] : '') + '" class="' + (tab === t[0] ? 'on' : '') + '">' + esc(t[0] === 'onboarding' && e.hireType === 'Existing' ? 'Records refresh' : t[1]) + (badge[t[0]] || '') + '</a>').join('') + '</nav>' + body(E);
 };
@@ -1262,6 +1287,7 @@ function empForm(e, mode) {
     field('Work email', inp('email', e.email, 'type="email"'), '', 'Used to sign in to the portal.') + field('Personal email', inp('personalEmail', e.personalEmail, 'type="email"')) +
     field('Job title', inp('jobTitle', e.jobTitle)) + field('Department', inp('department', e.department)) +
     field('Employment type', sel('employmentType', lists.empTypes, e.employmentType || 'W2 Full-time (salary)', 'data-change="emp-kind"') +
+      '<div data-con-only' + (e.employmentType === '1099 Contractor' ? '' : ' hidden') + ' style="margin-top:8px"><label>Business name (if they work through their own company)</label>' + inp('businessName', e.businessName, 'maxlength="160" placeholder="e.g. Cody Data LLC"') + '</div>' +
       '<div class="hint" id="kindHint"' + (e.employmentType === '1099 Contractor' ? '' : ' hidden') + '>1099 independent contractor: no Form I-9, W-4, state withholding or E-Verify — the checklist asks for a Form W-9, the independent contractor agreement and payment details. Use 1099 only if they control how they do the work (Resources → 1099 contractors). H-1B and STEM OPT workers must be W-2 employees.</div>') + field(e.hireType === 'Existing' ? 'Original hire date' : 'Start date', inp('startDate', e.startDate, 'type="date"')) +
     (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + '<div><label id="payRateLbl">' + esc(payRateLabel(e.payType, e.country && e.country !== 'US' ? (e.currency || (((L('countries') || []).find(c => c.code === e.country) || {}).currency) || '') : 'USD')) + '</label>' +
         inp('payRate', e.payRate, 'type="number" step="0.01" min="0"') + '<div class="hint" id="payRateHint"></div></div>' +
@@ -1328,6 +1354,7 @@ function payRateSync(f) {
   if (['payType', 'payRate', 'payFrequency', 'currency', 'country', 'localStatus'].indexOf(n) >= 0 && ev.target.form) setTimeout(() => payRateSync(ev.target.form), 0);
 }));
 CHANGES['emp-kind'] = el => { const h = el.form.querySelector('#kindHint'); if (h) h.hidden = el.value !== '1099 Contractor';
+  const bn = el.form.querySelector('[data-con-only]'); if (bn) bn.hidden = el.value !== '1099 Contractor';
   const wa = el.form.querySelector('[name=workAuth]'); if (h && !h.hidden && wa && /H-1B|STEM/.test(wa.value)) toast(wa.value + ' workers must be W-2 employees of the sponsoring employer — not 1099 contractors.', 'error', 7000); };
 CHANGES['wa-country'] = el => {
   const f = el.form, wrap = f.querySelector('#wa-wrap'); if (!wrap) return;
@@ -1385,7 +1412,7 @@ Object.assign(ACTIONS, {
 Object.assign(FORMS, {
   'emp-create': async v => { const invite = v.invite, inviteTo = v.inviteTo; delete v.invite; delete v.inviteTo; const o = cleanEmp(v); o.hireType = v.hireType || ''; const r = await call('createEmployee', o); closeModal();
     if (invite) { try { const to = inviteTo === 'work' && !o.email ? 'personal' : inviteTo === 'personal' && !o.personalEmail ? 'work' : inviteTo; await call('inviteEmployee', { employeeId: r.id, to: to, signIn: to === 'both' ? 'work' : to }); } catch (e) { fail(e); } }
-    toast((o.hireType === 'Existing' ? 'Existing employee added — records refresh list ready' : 'Employee added') + (invite ? ' and invited' : ''), 'ok'); S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); },
+    toast((o.employmentType === '1099 Contractor' ? 'Contractor added — W-9, agreement and payment details are on their checklist' : o.hireType === 'Existing' ? 'Existing employee added — records refresh list ready' : 'Employee added') + (invite ? ' and invited' : ''), 'ok'); S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); },
   'emp-update': async v => { const o = Object.assign({}, v); ['payRate'].forEach(k => { if (o[k] !== '' && o[k] !== undefined) o[k] = Number(o[k]); });
     if (can('confidential.view')) o.confidential = !!v.confidential; else delete o.confidential;
     o.hireType = v.hireType || '';
