@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.18"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.19"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -404,7 +404,7 @@ const addDays = (iso, k) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDa
 const daysTo = iso => iso ? Math.round((new Date(iso + 'T00:00:00Z') - new Date(todayIso() + 'T00:00:00Z')) / 86400000) : null;
 const todayIso = () => (S.db && S.db.today) || new Date().toISOString().slice(0, 10);
 const weekLabel = wk => fmtShort(wk).replace(/^\w+, /, '') + ' – ' + fmtDate(addDays(wk, 6));
-const money = (n, type) => (n === '' || n === null || n === undefined) ? '' : '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 }) + (type === 'Hourly' ? '/hr' : type === 'Salary' ? '/yr' : '');
+const money = (n, type, cur) => (n === '' || n === null || n === undefined) ? '' : (!cur || cur === 'USD' ? '$' : cur === 'INR' ? '₹' : cur + ' ') + Number(n).toLocaleString(cur === 'INR' ? 'en-IN' : 'en-US', { maximumFractionDigits: 2 }) + (type === 'Hourly' ? '/hr' : type === 'Salary' ? '/yr' : '');
 const initials = n => String(n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(x => x[0].toUpperCase()).join('');
 const opt = (v, cur, label) => '<option value="' + esc(v) + '"' + (String(v) === String(cur) ? ' selected' : '') + '>' + esc(label === undefined ? v : label) + '</option>';
 const opts = (arr, cur) => arr.map(v => Array.isArray(v) ? opt(v[0], cur, v[1]) : opt(v, cur)).join('');
@@ -851,7 +851,7 @@ PAGES.employee = async parts => {
   const badge = { onboarding: E.progress && E.progress.toReview ? chip(E.progress.toReview, 'warn') : '', documents: E.documents ? chip(E.documents.length) : '', immigration: E.cases && E.cases.length ? chip(E.cases.length) : '' };
   const body = { '': empProfile, onboarding: empOnboarding, documents: empDocuments, timesheets: empTimesheets, immigration: empImmigration, notes: empNotes }[tab] || empProfile;
   return '<p><a href="#app/employees">' + ic('back') + ' ' + (can('employees.view') ? 'Employees' : 'My team') + '</a></p>' +
-    '<div class="pagehead"><div class="who"><span class="av lg">' + esc(initials(e.name)) + '</span><div><h1>' + esc(e.name) + '</h1><p>' + esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code) + ' ' + statusChip(e.status) + (e.hireType === 'Existing' ? ' ' + chip('Moved from another system', 'teal') : '') + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '</p></div></div>' +
+    '<div class="pagehead"><div class="who"><span class="av lg">' + esc(initials(e.name)) + '</span><div><h1>' + esc(e.name) + '</h1><p>' + esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code) + ' ' + statusChip(e.status) + (e.country && e.country !== 'US' ? ' ' + chip(((L('countries') || []).find(c => c.code === e.country) || { name: e.country }).name, 'info') : '') + (e.hireType === 'Existing' ? ' ' + chip('Moved from another system', 'teal') : '') + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '</p></div></div>' +
     '<div class="btns">' + (hr ? '<button class="btn ghost" data-action="emp-edit">' + ic('edit') + 'Edit</button>' + (E.member ? '' : '<button class="btn" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt ? 'Resend invitation' : 'Invite to portal') + '</button>') : '') + '</div></div>' +
     '<nav class="tabs">' + tabs.map(t => '<a href="#app/employee/' + e.id + (t[0] ? '/' + t[0] : '') + '" class="' + (tab === t[0] ? 'on' : '') + '">' + esc(t[0] === 'onboarding' && e.hireType === 'Existing' ? 'Records refresh' : t[1]) + (badge[t[0]] || '') + '</a>').join('') + '</nav>' + body(E);
 };
@@ -862,7 +862,7 @@ function empProfile(E) {
     (e.ssnLast4 || e.ssnStatus === 'Cleared' ? kv('Social Security no.', e.ssnLast4 ? '***-**-' + esc(e.ssnLast4) + ' ' + (e.ssnStatus === 'Verified' ? chip('Verified', 'ok') + ' <small class="muted">' + esc(e.ssnVerifiedBy || '') + '</small>' : chip('Entered by employee', 'warn')) +
       (can('onboarding.manage') ? ' ' + (e.ssnStatus !== 'Verified' ? '<button class="btn xs" data-action="ssn-verify" data-emp="' + e.id + '">Mark verified</button> ' : '') + '<button class="btn xs ghost" data-action="ssn-clear" data-emp="' + e.id + '" title="Removes it so the employee is asked again on the next form">Ask again</button>' : '')
       : '<span class="muted">Will be asked on the next form</span>') : '') +
-    (e.payRate !== undefined ? kv('Pay', esc(money(e.payRate, e.payType)) + (e.payFrequency || D().org.payFrequency ? ' <small class="muted">· paid ' + esc(e.payFrequency || D().org.payFrequency) + '</small>' : '')) : '') + kv('Start date', esc(fmtDate(e.startDate))) + kv('End date', esc(fmtDate(e.endDate))) +
+    (e.payRate !== undefined ? kv('Pay', esc(money(e.payRate, e.payType, e.currency)) + (e.payFrequency || D().org.payFrequency ? ' <small class="muted">· paid ' + esc(e.payFrequency || D().org.payFrequency) + '</small>' : '')) : '') + kv('Start date', esc(fmtDate(e.startDate))) + kv('End date', esc(fmtDate(e.endDate))) +
     kv('Manager', esc(e.managerName || '') + (e.managerEmail ? ' <small class="muted">' + esc(e.managerEmail) + '</small>' : '')) + kv('Client', esc(e.clientName)) + kv('Project', esc(e.projectName)) +
     kv('Client manager', esc(e.clientManagerName || '') + (e.clientManagerEmail ? ' <small class="muted">' + esc(e.clientManagerEmail) + '</small>' : '')) + kv('Worksite', esc(e.worksite)) + '</dl></div>' +
     '<div class="card"><h3>' + ic('clock') + 'Timesheets</h3><dl class="kv">' + kv('Weekly timesheet', e.timesheetRequired === 'No' ? 'Not required' : 'Required') + kv('Approval', esc(e.approvalFlow)) +
@@ -919,7 +919,7 @@ function empForm(e, mode) {
     field('Work email', inp('email', e.email, 'type="email"'), '', 'Used to sign in to the portal.') + field('Personal email', inp('personalEmail', e.personalEmail, 'type="email"')) +
     field('Job title', inp('jobTitle', e.jobTitle)) + field('Department', inp('department', e.department)) +
     field('Employment type', sel('employmentType', lists.empTypes, e.employmentType || 'W2 Full-time (salary)')) + field(e.hireType === 'Existing' ? 'Original hire date' : 'Start date', inp('startDate', e.startDate, 'type="date"')) +
-    (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + field('Pay rate (USD)', inp('payRate', e.payRate, 'type="number" step="0.01" min="0"')) +
+    (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + field('Pay rate' + (e.country && e.country !== 'US' ? ' (' + (e.currency || 'local currency') + ')' : ' (USD — or the pay currency below for people abroad)'), inp('payRate', e.payRate, 'type="number" step="0.01" min="0"')) +
       field('Paid', sel('payFrequency', [['', 'Company default (' + (D().org.payFrequency || 'semi-monthly') + ')'], ['weekly', 'Weekly'], ['bi-weekly', 'Every two weeks (bi-weekly)'], ['semi-monthly', 'Twice a month (semi-monthly)'], ['monthly', 'Monthly']], e.payFrequency || '')) : '') +
     (can('confidential.view') ? field('', '<label class="check"><input type="checkbox" name="confidential"' + (e.confidential === 'Yes' ? ' checked' : '') + '> Confidential (executive) record — hidden from anyone without the "confidential records" power</label>', 'span2') : '') +
     (isNew ? '' : field('Status', sel('status', lists.empStatuses, e.status)) + field('End date', inp('endDate', e.endDate, 'type="date"'))) +
@@ -931,9 +931,28 @@ function empForm(e, mode) {
     field('Record of hours', sel('timesheetSource', [['', 'Automatic — client timesheet when placed at a client'], ['client', 'Client-approved timesheet (required)'], ['portal', 'Hours entered in the portal']], e.timesheetSource || '')) + field('Worksite address', inp('worksite', e.worksite), 'span2') + '</div>';
 }
 function waBlock(e) {
-  const st = e.workAuth || 'U.S. Citizen', f = (L('waFields') || {})[st] || { expiry: 'Valid until', i94: true, receipt: 'Receipt number' };
+  const country = e.country || (e.workAuth === 'Outside the U.S.' ? 'IN' : 'US'), C = (L('countries') || []);
+  const cSel = field('Works in', sel('country', C.map(c => [c.code, c.name]), country, 'data-change="wa-country"'), '', 'Choose another country for someone who works outside the U.S. — no U.S. work authorization is needed');
+  if (country !== 'US') {
+    const cc = C.find(c => c.code === country) || { statuses: [], currency: '' }, ls = e.localStatus || cc.statuses[0] || '';
+    const pass = /pass|permit|visa|foreign|consent/i.test(ls) && !/citizen|permanent/i.test(ls);
+    return '<div id="wa-wrap"><input type="hidden" name="workAuth" value="Outside the U.S."><div class="grid g3">' + cSel +
+      field('Right to work there', sel('localStatus', cc.statuses, ls, 'data-change="wa-country"')) + field('Pay currency', inp('currency', e.currency || cc.currency, smart('upper', 'maxlength="3"'))) +
+      (pass ? field('Work pass / permit valid until', inp('workAuthExpiry', e.workAuthExpiry, 'type="date"'), '', 'Reminders go out before it ends') : '') + '</div>' +
+      '<p class="hint">No Form I-9, W-4, U.S. state forms or E-Verify. The checklist asks for ' + (country === 'IN' ? 'PAN, Aadhaar, UAN and the bank account (IFSC)' : country === 'SG' ? 'NRIC/FIN, CPF residency and the bank account' : 'their tax ID and bank account') + ', ID and education documents. Coming to the U.S. later (L-1, H-1B)? Open a case under Immigration.</p></div>';
+  }
+  return '<div id="wa-wrap"><div class="grid g3">' + cSel + '</div>' + waBlockUs(e) + '</div>';
+}
+CHANGES['wa-country'] = el => {
+  const f = el.form, wrap = f.querySelector('#wa-wrap'); if (!wrap) return;
+  const g = n => { const x = f.querySelector('[name=' + n + ']'); return x ? x.value : ''; };
+  const country = g('country'), e = { country: country, localStatus: el.name === 'localStatus' ? el.value : '', workAuth: country === 'US' ? (g('workAuth') === 'Outside the U.S.' ? 'U.S. Citizen' : g('workAuth')) : 'Outside the U.S.', workAuthExpiry: g('workAuthExpiry'), currency: el.name === 'country' ? '' : g('currency') };
+  const tmp = document.createElement('div'); tmp.innerHTML = waBlock(e); wrap.replaceWith(tmp.firstChild);
+};
+function waBlockUs(e) {
+  const st = e.workAuth && e.workAuth !== 'Outside the U.S.' ? e.workAuth : 'U.S. Citizen', f = (L('waFields') || {})[st] || { expiry: 'Valid until', i94: true, receipt: 'Receipt number' };
   const keep = (k, html) => '<div data-wa="' + k + '"' + (html ? '' : ' hidden') + '>' + (html || '') + '</div>';
-  return '<div class="grid g3" id="wa-grid">' + field('Status', sel('workAuth', L('workAuth'), st, 'data-change="wa-fields"')) +
+  return '<div class="grid g3" id="wa-grid">' + field('Status', sel('workAuth', L('workAuth').filter(x => x !== 'Outside the U.S.'), st, 'data-change="wa-fields"')) +
     keep('workAuthExpiry', f.expiry ? field(f.expiry, inp('workAuthExpiry', e.workAuthExpiry, 'type="date"'), '', f.expiryHint || '') : '') +
     keep('i94Expiry', f.i94 ? field('I-94 admit until', inp('i94Expiry', e.i94Expiry, 'type="date"'), '', 'From the most recent I-94 (i94.cbp.dhs.gov)') : '') +
     keep('receiptNumber', f.receipt ? field(f.receipt, inp('receiptNumber', e.receiptNumber, 'maxlength="20" placeholder="e.g. IOE0912345678"')) : '') +
@@ -943,7 +962,7 @@ CHANGES['wa-fields'] = el => {
   const form = el.form; if (!form) return;
   const vals = {}; ['workAuthExpiry', 'i94Expiry', 'receiptNumber'].forEach(k => { const x = form.querySelector('[name=' + k + ']'); vals[k] = x ? x.value : ''; });
   const grid = form.querySelector('#wa-grid'), note = form.querySelector('#wa-note');
-  const tmp = document.createElement('div'); tmp.innerHTML = waBlock(Object.assign(vals, { workAuth: el.value }));
+  const tmp = document.createElement('div'); tmp.innerHTML = waBlockUs(Object.assign(vals, { workAuth: el.value }));
   ['workAuthExpiry', 'i94Expiry', 'receiptNumber'].forEach(k => { const a = grid.querySelector('[data-wa="' + k + '"]'), b = tmp.querySelector('[data-wa="' + k + '"]'); if (a && b) a.replaceWith(b); });
   const n2 = tmp.querySelector('#wa-note'); if (note && n2) note.replaceWith(n2);
 };
@@ -1675,7 +1694,7 @@ function profileForm(p) {
     f('Signatory email', 'signatoryEmail', smart('lower', 'type="email"')) + f('HR email', 'hrEmail', smart('lower', 'type="email"'), '', 'Gets review notices; replies go here') +
     field('Pay frequency', sel('payFrequency', [['', '—']].concat(L2.payFrequencies), p.payFrequency, ro)) + '</div>' +
     '<h4>Employer registrations</h4><div class="grid g2">' + f('E-Verify company ID', 'eVerifyCompanyId', 'maxlength="20"') +
-'</div>' + stateRegsBlock(p, ro) +
+'</div>' + stateRegsBlock(p, ro) + entitiesBlock(p, ro) +
     (p.canEdit ? '<button class="btn">Save company profile</button>' : '<p class="hint">Only admins can change the company profile.</p>') + '</form>';
 }
 CHANGES['legal-suggest'] = el => { const v = el.value.trim(), et = el.form.querySelector('[name=entityType]'); if (!et || et.value) return;
@@ -1685,6 +1704,8 @@ FORMS['profile-save'] = async (v, form) => {
   const name = v.name; delete v.name;
   Object.keys(v).forEach(k => { if (/^sr_/.test(k)) delete v[k]; });
   v.stateRegs = stateRegRows(form);
+  Object.keys(v).forEach(k => { if (/^en_/.test(k)) delete v[k]; });
+  v.entities = [...form.querySelectorAll('.en-row')].map(tr => { const g = n => (tr.querySelector('[name=' + n + ']') || {}).value || ''; return { country: g('en_country'), legalName: g('en_name').trim(), regNo: g('en_reg').trim(), taxId: g('en_tax').trim(), address: g('en_addr').trim() }; }).filter(x => x.country || x.legalName);
   if (name && name !== D().org.name) await call('updateOrgSettings', { name: name });
   await call('saveCompanyProfile', v); toast('Company profile saved', 'ok'); await refresh();
 };
@@ -1779,13 +1800,13 @@ Object.assign(FORMS, {
 function templatesCard(list, p) {
   return '<div class="card"><h3>' + ic('book') + 'Agreement templates</h3><p class="muted">The text employees sign. Words in {{double braces}} are filled in from the company profile, the employee and the offer. ' +
     'These are starting points — have your employment counsel review them for your states before use.</p>' +
-    list.map(t => '<div class="res"><span class="ri">' + ic(t.kind === 'handbookDoc' ? 'book' : 'doc') + '</span><div style="flex:1"><b>' + esc(t.title) + '</b> ' + (t.kind === 'handbookDoc' ? chip('The handbook itself') + ' ' : '') + (t.custom ? chip('Customized', 'teal') : chip('Standard')) +
+    list.map(t => '<div class="res"><span class="ri">' + ic(t.kind === 'handbookDoc' ? 'book' : 'doc') + '</span><div style="flex:1"><b>' + esc(t.title) + '</b> ' + (t.kind === 'handbookDoc' ? chip('The handbook itself') + ' ' : t.kind === 'offerIntl' ? chip('Outside the U.S.', 'teal') + ' ' : t.kind === 'offer' ? chip('U.S.') + ' ' : '') + (t.custom ? chip('Customized', 'teal') : chip('Standard')) +
       (t.custom ? '<div class="muted"><small>Changed ' + esc(fmtWhen(t.updatedAt)) + ' by ' + esc(t.updatedBy || '') + '</small></div>' : '') +
       ((t.versions || []).length ? '<div style="margin-top:4px;font-size:12.5px">' + t.versions.slice(0, 4).map(v => '<span style="margin-right:10px;white-space:nowrap">' + esc((String(v.notes || '').match(/Version \d+/) || ['Uploaded'])[0]) + ' · ' + esc(fmtDate(v.at)) + ' ' + (v.current ? chip('Current', 'ok') : chip('Earlier')) + '</span>').join('') + '</div>' : '') +
       ((t.recent || []).length ? '<div style="margin-top:4px">' + t.recent.map(r => '<a href="#app/employee/' + r.employeeId + '/onboarding" style="margin-right:10px;font-size:12.5px;white-space:nowrap">' + esc(r.name) + ' ' + chip(r.status === 'Sent' ? 'Waiting' : r.status, r.status === 'Signed' ? 'ok' : r.status === 'Declined' ? 'bad' : 'info') + '</a>').join('') + '</div>' : '') + '</div>' +
       '<div class="btns"><button class="btn xs ghost" data-action="tpl-preview" data-k="' + t.kind + '">Preview</button><button class="btn xs ghost" data-action="tpl-pdf" data-k="' + t.kind + '">' + ic('download') + 'PDF</button>' +
       (t.kind === 'handbookDoc' ? (p.canEdit ? '<button class="btn xs" data-action="hb-publish">' + ic('upload') + ((t.versions || []).length ? 'Update the handbook' : 'Publish as the handbook') + '</button>' : '') :
-        can('employees.edit') ? '<button class="btn xs" data-action="tpl-create" data-k="' + t.kind + '">' + ic('send') + (t.kind === 'offer' ? 'Create offer…' : 'Send to employee…') + '</button>' : '') +
+        can('employees.edit') ? '<button class="btn xs" data-action="tpl-create" data-k="' + t.kind + '">' + ic('send') + (/^offer/.test(t.kind) ? 'Create offer…' : 'Send to employee…') + '</button>' : '') +
       (p.canEdit ? '<button class="btn xs ghost" data-action="tpl-edit" data-k="' + t.kind + '">' + ic('edit') + 'Edit</button>' : '') + '</div></div>').join('') + '</div>';
 }
 ACTIONS['tpl-edit'] = el => {
@@ -1837,12 +1858,14 @@ async function offerModal(empId) {
   const r = await call('getOfferDraft', { employeeId: empId }), d = r.draft;
   S.cache.offerEmp = empId; S.cache.offerCustom = '';
   const t = (S.cache.emp && (S.cache.emp.checklist || []).find(x => x.key === 'offer')) || null;
-  openModal('Offer letter for ' + r.employee.name, (r.missing.length ? '<div class="banner warn">' + ic('alert') + '<div>Finish the company profile first: ' + esc(r.missing.join(', ')) + '. <a href="#app/settings" data-action="close-modal">Open Settings</a></div></div>' : '') +
+  openModal('Offer letter for ' + r.employee.name, (r.employee.intl ? '<div class="banner">' + ic('globe') + '<div>Works in <b>' + esc(r.employee.countryName) + '</b> — the letter uses the "Offer of Employment (outside the U.S.)" template: local currency, probation and notice, governed by local law. Employer: <b>' + esc(r.employee.employer) + '</b>' + (r.employee.employer === (D().org.legalName || D().org.name) ? ' (add a local company in Settings → Company profile to name it instead)' : '') + '.</div></div>' : '') + (r.missing.length ? '<div class="banner warn">' + ic('alert') + '<div>Finish the company profile first: ' + esc(r.missing.join(', ')) + '. <a href="#app/settings" data-action="close-modal">Open Settings</a></div></div>' : '') +
     (r.current && r.current.status === 'Sent' ? '<div class="banner">' + ic('mail') + '<div>An offer was sent ' + esc(fmtWhen(r.current.sentAt)) + ' and is waiting for a signature. Sending again replaces it.</div></div>' : '') +
     '<form data-form="offer-send"><div class="grid g2">' + field('Job title', inp('jobTitle', d.jobTitle, 'required')) + field('Department', inp('department', d.department)) +
     field('Reports to', inp('manager', d.manager, 'placeholder="Name, title"')) + field('Start date', inp('startDate', d.startDate, 'type="date" required')) +
-    field('Employment type', sel('employmentType', r.lists.empTypes, d.employmentType)) + field('FLSA classification', sel('classification', [['exempt', 'Exempt (salaried, no overtime)'], ['non-exempt', 'Non-exempt (overtime eligible)']], d.classification)) +
-    field('Pay type', sel('payType', ['Salary', 'Hourly'], d.payType)) + field('Pay (USD per year or per hour)', inp('payRate', d.payRate, 'type="number" step="0.01" min="1" required')) +
+    field('Employment type', sel('employmentType', r.lists.empTypes, d.employmentType)) + (r.employee.intl ? field('Currency', inp('currency', d.currency, smart('upper', 'maxlength="3" required'))) :
+      field('FLSA classification', sel('classification', [['exempt', 'Exempt (salaried, no overtime)'], ['non-exempt', 'Non-exempt (overtime eligible)']], d.classification))) +
+    field('Pay type', sel('payType', ['Salary', 'Hourly'], d.payType)) + field('Pay (' + (r.employee.intl ? esc(d.currency) : 'USD') + ' per year or per hour)', inp('payRate', d.payRate, 'type="number" step="0.01" min="1" required')) +
+    (r.employee.intl ? field('Probation period', inp('probation', d.probation, 'placeholder="6 months"')) + field('Notice period after probation', inp('notice', d.notice, 'placeholder="30 days"')) : '') +
     field('Paid', sel('payFrequency', [['weekly', 'Weekly'], ['bi-weekly', 'Every two weeks (bi-weekly)'], ['semi-monthly', 'Twice a month (semi-monthly)'], ['monthly', 'Monthly']], d.payFrequency)) + field('Respond by', inp('respondBy', d.respondBy, 'type="date" required')) +
     field('Primary work location', inp('workLocation', d.workLocation, 'required'), 'span2') + field('Client assignment (optional)', inp('client', d.client), 'span2') +
     field('Benefits (leave blank for the standard sentence)', area('benefits', d.benefits, 'rows="2" placeholder="Health, dental and vision insurance from the first of the month after your start date; 10 days of paid time off; 401(k)…"'), 'span2') +
@@ -1896,7 +1919,7 @@ Object.assign(ACTIONS, {
     const w = window.open('', '_blank'); if (w) { w.document.write('<title>' + esc(r.title) + '</title><body style="max-width:760px;margin:30px auto;font-family:Georgia,serif;line-height:1.55"><h1>' + esc(r.title) + '</h1>' + r.html + '</body>'); w.document.close(); } else toast('Allow pop-ups to preview', 'error'); },
   'tpl-pdf': async el => saveB64(await busy(el, call('templatePdf', { kind: el.dataset.k, employeeId: el.dataset.emp || '' }))),
   'tpl-create': async el => {
-    const k = el.dataset.k, list = await busy(el, empChoices()), miss = D().org.profileMissing || [];
+    const k = el.dataset.k === 'offerIntl' ? 'offer' : el.dataset.k, list = await busy(el, empChoices()), miss = D().org.profileMissing || [];
     const block = miss.length ? '<div class="banner bad">' + ic('alert') + '<div><b>Finish the company profile first:</b> ' + esc(miss.join(', ')) + '. <a href="#app/settings" data-action="close-modal">Open the company profile</a></div></div>' : '';
     const noHb = k === 'handbook' && !D().org.hasHandbook ? '<div class="banner bad">' + ic('alert') + '<div>Add the employee handbook first — upload yours, or <button type="button" class="btn sm" data-action="tpl-preview" data-k="handbookDoc">create the standard handbook</button>.</div></div>' : '';
     openModal(k === 'offer' ? 'Create an offer letter' : 'Send for signature', block + noHb + '<form data-form="tpl-create"><input type="hidden" name="kind" value="' + k + '"><div class="grid">' +
@@ -1992,7 +2015,23 @@ async function readingCopy(file) {
   } catch (e) { console.warn('reading copy', e); } finally { longTask(''); }
   return null;
 }
-const FILL_KEYS = { i9s1: 'i9', w4: 'w4', dd: 'dd' };
+
+function entityRow(x, ro) {
+  x = x || {};
+  return '<tr class="en-row"><td>' + sel('en_country', [['', '—']].concat(((S.cache.profile || {}).lists || {}).countries || []), x.country || '', ro) + '</td><td><input name="en_name" value="' + esc(x.legalName || '') + '" placeholder="e.g. SM Intellisoft Technologies Pvt. Ltd."' + ro + '></td>' +
+    '<td><input name="en_reg" value="' + esc(x.regNo || '') + '" placeholder="CIN / UEN / company no."' + ro + '></td><td><input name="en_tax" value="' + esc(x.taxId || '') + '" placeholder="PAN·TAN / GST / tax no."' + ro + '></td>' +
+    '<td><input name="en_addr" value="' + esc(x.address || '') + '" placeholder="Registered address"' + ro + '></td><td>' + (ro ? '' : '<button type="button" class="btn xs ghost danger" data-action="en-del">' + ic('trash') + '</button>') + '</td></tr>';
+}
+function entitiesBlock(p, ro) {
+  const l = p.entities || [];
+  return '<h4>Companies outside the U.S. <small class="muted" style="font-weight:400">— the employer named on offers for people who work in that country (optional)</small></h4>' +
+    '<div class="tblwrap"><table class="tbl"><thead><tr><th>Country</th><th>Legal name</th><th>Registration no.</th><th>Tax no.</th><th>Address</th><th></th></tr></thead><tbody id="en-body">' + l.map(x => entityRow(x, ro)).join('') + '</tbody></table></div>' +
+    (l.length ? '' : '<p class="muted" id="en-empty">None yet. Without one, offers for people abroad name ' + esc(p.legalName || p.name) + ' as the employer.</p>') +
+    (ro ? '' : '<div class="btns" style="margin:6px 0 14px"><button type="button" class="btn sm ghost" data-action="en-add">' + ic('plus') + 'Add a company in another country</button></div>');
+}
+ACTIONS['en-add'] = () => { const b = $('en-body'); if (!b) return; const e = $('en-empty'); if (e) e.remove(); b.insertAdjacentHTML('beforeend', entityRow({}, '')); toast('Fill it in, then "Save company profile"', 'ok'); };
+ACTIONS['en-del'] = el => { el.closest('tr').remove(); toast('Removed — "Save company profile" to keep the change', 'ok'); };
+const FILL_KEYS = { i9s1: 'i9', w4: 'w4', dd: 'dd', local: 'local' };
 const isFillTask = t => !!FILL_KEYS[t.key] && (t.category === 'fill' || t.category === 'upload');
 
 const FMT = {
@@ -2031,6 +2070,7 @@ async function openFormTask(t, btn) {
   if (d.kind === 'w4') return w4Modal(d);
   if (d.kind === 'dd') return ddModal(d);
   if (d.kind === 'i9') return i9Modal(d);
+  if (d.kind === 'local') return localModal(d);
 }
 ACTIONS['form-paper'] = () => { const t = S.cache.form.task; closeModal(); ACTIONS['task-do']({ dataset: { id: t.id, paper: '1' } }); };
 
@@ -2230,6 +2270,21 @@ FORMS.i9s2 = async v => {
   const r = await call('completeI9Section2', { employeeId: S.cache.i9s2.employee.id, documents: docs, firstDay: v.firstDay, additional: v.additional, alternative: !!v.alternative, signature: v.signature, title: v.title, consent: !!v.consent });
   closeModal(); toast('Form I-9 complete' + (r.late ? ' — note: after the 3-business-day deadline' : ''), r.late ? 'error' : 'ok', 6000); await reloadCurrent();
   try { await makeOfficialI9(S.cache.i9s2.employee.id, null, true); } catch (e) { fail(e); }
+};
+
+function localModal(d) {
+  const sp = d.spec;
+  const f = x => x.choices ? field(x.label, sel(x.key, x.choices, x.choices[0]), '', x.hint) :
+    field(x.label, inp(x.key, '', smart(/pan|ifsc|nric|swift/i.test(x.key) ? 'upper' : '', (x.required ? 'required ' : '') + 'autocomplete="off"' + (/account|aadhaar|uan/.test(x.key) ? ' inputmode="numeric"' : ''))), '', x.hint);
+  const acct = sp.fields.find(x => x.key === 'account');
+  openModal(sp.title, '<form data-form="form-local"><p class="muted">For payroll, tax and statutory filings in ' + esc(sp.countryName) + ' by ' + esc(d.employer.name) + '. Sensitive numbers are kept private — HR and payroll see them on your signed copy only.</p>' +
+    '<div class="grid g2">' + sp.fields.map(f).join('') + (acct ? field('Account number again', inp('accountConfirm', '', 'required autocomplete="off"'), '', 'To catch typos') : '') + '</div>' +
+    sectionHead('', 'Sign') + signBlock(d.employeeName, 'I confirm these details are true and complete, and I authorize ' + d.employer.name + ' to pay my salary into this account and to use these numbers for payroll, tax and statutory filings in ' + sp.countryName + '.') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="form-paper">Upload a paper copy instead</button><button class="btn">' + ic('edit') + 'Sign</button></div></form>', true);
+}
+FORMS['form-local'] = async v => {
+  const data = {}; S.cache.form.draft.spec.fields.forEach(x => { data[x.key] = v[x.key] || ''; }); if (v.accountConfirm !== undefined) data.accountConfirm = v.accountConfirm;
+  return submitFormNow(data, v);
 };
 const CAL_CLS = { Approved: 'ok', Submitted: 'info', Draft: 'warn', Rejected: 'bad', Missing: 'bad' };
 async function calendarModal(empId, month, mine, btn) {
