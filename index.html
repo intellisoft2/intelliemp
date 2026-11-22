@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.8"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.9"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -29,8 +29,24 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .loading{padding:80px 20px;text-align:center;color:var(--mute)}
 .pulse{display:inline-block;width:8px;height:8px;margin-left:8px;border-radius:50%;background:var(--teal);animation:pl 1s infinite ease-in-out}
 @keyframes pl{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
-#net{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--teal),var(--blue));z-index:99;transition:width .3s,opacity .3s;opacity:0}
-#net.on{width:70%;opacity:1;transition:width 8s cubic-bezier(.1,.6,.2,1)}
+#net{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--teal),#7dd3fc,var(--blue),var(--teal));background-size:300% 100%;z-index:130;transition:width .3s,opacity .3s;opacity:0;border-radius:0 3px 3px 0;box-shadow:0 0 10px rgba(31,181,163,.6)}
+#net.on{width:78%;opacity:1;transition:width 9s cubic-bezier(.1,.6,.2,1);animation:netflow 1.6s linear infinite}
+@keyframes netflow{0%{background-position:0 0}100%{background-position:300% 0}}
+#workpill{position:fixed;right:22px;bottom:22px;z-index:125;background:#fff;border:1px solid var(--line,#e2e8f0);border-radius:14px;padding:12px 16px 14px;min-width:260px;max-width:92vw;
+  box-shadow:0 12px 40px rgba(9,22,38,.18);opacity:0;transform:translateY(12px);pointer-events:none;transition:.25s}
+#workpill.show{opacity:1;transform:none}
+#workpill .wp-t{font-size:13.5px;font-weight:600;color:var(--navy,#0d1a2f);display:flex;align-items:center;gap:8px;margin-bottom:9px}
+#workpill .wp-dot{width:9px;height:9px;border-radius:50%;background:var(--teal,#1fb5a3);box-shadow:0 0 0 0 rgba(31,181,163,.6);animation:wpulse 1.2s infinite}
+@keyframes wpulse{0%{box-shadow:0 0 0 0 rgba(31,181,163,.55)}100%{box-shadow:0 0 0 9px rgba(31,181,163,0)}}
+#workpill .wp-bar{height:6px;border-radius:6px;background:#e9f7f5;overflow:hidden;position:relative}
+#workpill .wp-bar i{position:absolute;top:0;bottom:0;width:38%;border-radius:6px;background:linear-gradient(90deg,var(--teal,#1fb5a3),var(--blue,#2563eb));animation:wpslide 1.25s ease-in-out infinite}
+@keyframes wpslide{0%{left:-40%}100%{left:102%}}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;margin-right:7px;vertical-align:-2px;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn[data-busy]{opacity:.85;cursor:progress}
+.form-err{margin:0 0 12px}
+.need input,.need select{border-color:var(--red,#dc2626)!important;background:#fff7f7}
+@media (prefers-reduced-motion:reduce){#net.on,#workpill .wp-bar i,.spin,#workpill .wp-dot{animation:none}}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--navy);color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;max-width:92vw;
   box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:120}
 #toast.show{opacity:1;transform:translate(-50%,0)}#toast.error{background:var(--red)}#toast.ok{background:var(--green)}
@@ -244,8 +260,25 @@ const store = {
 };
 const S = { token: store.get('ie-token'), pub: null, db: null, modal: null, route: { name: '', parts: [], params: {} }, cache: {}, ui: { q: '', status: '', open: false } };
 
-let pending = 0;
-function netBar(d) { pending = Math.max(0, pending + d); const b = $('net'); if (b) b.className = pending ? 'on' : ''; }
+let pending = 0, workTimer = null;
+const WORK_MSG = { aiReadTimesheet: 'Reading the timesheet', submitTimesheet: 'Submitting — checking the client timesheet', saveTimesheet: 'Saving the week', analyzeEmployeeDocs: 'Reading the documents',
+  createEmployeeFromDocs: 'Creating the employee and filing documents', uploadDocument: 'Uploading and reading the document', submitTask: 'Uploading', sendAgreementFor: 'Sending for signature',
+  sendOffer: 'Sending the offer', previewOffer: 'Preparing the preview', previewTemplate: 'Preparing the preview', templatePdf: 'Building the PDF', signAgreement: 'Signing and filing your signed copy',
+  submitForm: 'Signing and filing the form', completeI9Section2: 'Completing Form I-9', generateHandbook: 'Building the handbook PDF', getTimesheetCalendar: 'Loading the calendar',
+  aiReadDocument: 'Reading the document with AI', askDocument: 'Reading the document', readCorpDoc: 'Reading the document', platformTestAi: 'Testing the provider', importEmployees: 'Importing employees',
+  exportTimesheetsCsv: 'Preparing the export', getEmployee: 'Loading', listEmployees: 'Loading employees', getBootstrap: 'Loading your workspace' };
+function workPill(msg) {
+  let w = $('workpill');
+  if (!w) { w = document.createElement('div'); w.id = 'workpill'; w.setAttribute('role', 'status'); document.body.appendChild(w); }
+  if (!msg) { w.className = ''; return; }
+  w.innerHTML = '<div class="wp-t"><span class="wp-dot"></span>' + esc(msg) + '…</div><div class="wp-bar"><i></i></div>';
+  w.className = 'show';
+}
+function netBar(d, fn) {
+  pending = Math.max(0, pending + d); const b = $('net'); if (b) b.className = pending ? 'on' : '';
+  if (d > 0) { clearTimeout(workTimer); workTimer = setTimeout(() => { if (pending) workPill(WORK_MSG[fn] || 'Working'); }, 650); }
+  else if (!pending) { clearTimeout(workTimer); workPill(''); }
+}
 function rpc(fn, args) {
   const req = { fn: fn, args: args || [], token: S.token || '' };
   if (CONF.apiUrl) {
@@ -256,7 +289,7 @@ function rpc(fn, args) {
   return Promise.reject(new Error('IntelliEmp is not connected to its server yet.'));
 }
 async function call(fn, ...args) {
-  netBar(1);
+  netBar(1, fn);
   let r;
   try {
     r = await rpc(fn, args);
@@ -282,8 +315,8 @@ function paintModal() {
 }
 async function busy(btn, p) {
   const b = btn && btn.tagName ? btn : null, label = b && b.innerHTML;
-  if (b) { b.disabled = true; b.innerHTML = 'Working…'; }
-  try { return await p; } finally { if (b && b.isConnected) { b.disabled = false; b.innerHTML = label; } }
+  if (b) { b.disabled = true; b.dataset.busy = '1'; b.innerHTML = '<span class="spin"></span>Working…'; }
+  try { return await p; } finally { if (b && b.isConnected) { b.disabled = false; delete b.dataset.busy; b.innerHTML = label; } }
 }
 const MAX_FILE = 10 * 1024 * 1024;
 function readFile(file) {
@@ -1031,7 +1064,7 @@ FORMS['ts-save'] = async (v, form, submitter) => {
   if (mode === 'submit' && !total && !input.totalOnly && S.cache.tsAi && S.cache.tsAi.totalOnly) input.totalOnly = S.cache.tsAi.totalOnly;
   if (mode === 'submit' && !total && input.file && !input.totalOnly) { const n = prompt('Total hours on the attached timesheet?'); if (n === null) return; input.totalOnly = Number(n); }
   const r = await call(mode === 'submit' ? 'submitTimesheet' : 'saveTimesheet', input);
-  toast(mode === 'submit' ? (r.timesheet.status === 'Approved' ? 'Submitted and approved' : 'Submitted — the approver has been emailed') : 'Draft saved', 'ok');
+  toast(mode === 'submit' ? (r.clientApproved && r.timesheet.status === 'Approved' ? 'Submitted and approved — per ' + (G.employee.clientName || 'the client') + '\'s approved timesheet' : r.clientApproved ? 'Submitted — client approval taken from the attached timesheet; your manager has been emailed' : r.timesheet.status === 'Approved' ? 'Submitted and approved' : 'Submitted — the approver has been emailed') : 'Draft saved', 'ok', 6000);
   if (S.db) loadDb().catch(() => {});
   await renderApp();
 };
@@ -1180,7 +1213,8 @@ PAGES.settings = async () => {
     '<form class="card" data-form="org-save">' +
     '<h3>' + ic('clock') + 'Timesheets</h3><div class="grid g3">' + field('Week starts on', sel('weekStart', ['Monday', 'Sunday'], o.weekStart)) + field('Default approval for new employees', sel('defaultApproval', L('approvalFlows'), o.defaultApproval)) +
     field('Reminder day', sel('reminderDay', ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday'], o.reminderDay), '', 'Employees who have not submitted get a reminder that morning; another on Monday for last week.') + '</div>' +
-    '<label class="check"><input type="checkbox" name="clientTimesheetRequired"' + (o.clientTimesheetRequired ? ' checked' : '') + '> For people placed at a client, the client-approved timesheet is the record of hours (it must be attached to submit)</label><button class="btn">Save</button></form>' +
+    '<label class="check"><input type="checkbox" name="clientTimesheetRequired"' + (o.clientTimesheetRequired ? ' checked' : '') + '> For people placed at a client, the client-approved timesheet is the record of hours (it must be attached to submit)</label>' +
+    '<label class="check"><input type="checkbox" name="acceptClientApproval"' + (o.acceptClientApproval ? ' checked' : '') + '> When the attached client timesheet shows it was approved in the client\'s system and the hours match, count that as the client manager\'s approval</label><button class="btn">Save</button></form>' +
     '<div class="card"><h3>' + ic('mail') + 'Emailed timesheets</h3>' + (o.timesheetInbox ? '<p>Employees can email signed timesheets to <b>' + esc(o.timesheetInbox) + '</b> from the email on their profile. IntelliEmp reads the week and hours, files the attachment and sends it for approval — every 10 minutes.</p>'
       : '<p class="muted">The Intellisoft administrator has not turned on the timesheet inbox yet.</p>') + '</div>' +
     aiSettingsCard() +
@@ -1190,7 +1224,7 @@ PAGES.settings = async () => {
     (o.integration.connected ? '<p>' + chip('Connected', 'ok') + ' Key <code>' + esc(o.integration.hint) + '</code></p>' : '<p>' + chip('Not connected') + '</p>') +
     '<button class="btn ghost" data-action="int-key">' + ic('key') + (o.integration.connected ? 'Replace the company key' : 'Create a company key') + '</button><p class="hint">Paste the key into IntelliHire → Settings → IntelliEmp. A new key stops the old one.</p></div>';
 };
-FORMS['org-save'] = async v => { v.clientTimesheetRequired = !!v.clientTimesheetRequired; await call('updateOrgSettings', v); toast('Saved', 'ok'); await refresh(); };
+FORMS['org-save'] = async v => { v.clientTimesheetRequired = !!v.clientTimesheetRequired; v.acceptClientApproval = !!v.acceptClientApproval; await call('updateOrgSettings', v); toast('Saved', 'ok'); await refresh(); };
 Object.assign(ACTIONS, {
   'mfa-policy': async el => { await busy(el, call('updateMfaPolicy', { require: !!el.dataset.on })); toast('Saved', 'ok'); await refresh(); },
   'int-key': async el => {
@@ -1438,7 +1472,8 @@ async function tsAiRead(form, btn) {
   const box = $('ts-ai'); if (box) box.innerHTML = '<div class="banner ' + (r.issues.length ? 'warn' : 'ok') + '">' + ic('spark') + '<div>' +
     (r.rows ? 'Filled <b>' + esc(r.total) + '</b> hours from the file.' : r.totalOnly ? 'The file shows a total of <b>' + esc(r.totalOnly) + '</b> hours (no daily breakdown).' : 'No hours for this week were found in the file.') +
     (r.otherWeeks.length ? ' It also covers ' + r.otherWeeks.map(w => '<a href="' + (S.route.parts[0] === 'my-timesheet' ? '#app/my-timesheet/' : '#app/timesheet/' + G.employee.id + '/') + w + '">week of ' + esc(fmtDate(w)) + '</a>').join(', ') + '.' : '') +
-    (r.issues.length ? '<br>' + r.issues.map(esc).join('<br>') : '') + '<br><small class="muted">Check the hours, then save or submit. Read by ' + esc(r.via === 'offline' ? 'IntelliEmp\'s built-in reader (no AI)' : r.provider) + '.</small></div></div>';
+    (G.employee.clientName ? '<br>' + (r.approverSigned === true ? ic('check') + ' <b>Marked approved in ' + esc(G.employee.clientName) + '\'s system' + (r.approverName ? ' by ' + esc(r.approverName) : '') + '.</b> ' + (D().org.acceptClientApproval ? 'If the hours match, the client manager\'s approval is already done when you submit.' : '') : 'Not marked as approved in ' + esc(G.employee.clientName) + '\'s system — the client manager will be asked to approve.') : '') +
+    (r.issues.filter(x => !/approver has not signed/.test(x)).length ? '<br>' + r.issues.filter(x => !/approver has not signed/.test(x)).map(esc).join('<br>') : '') + '<br><small class="muted">Check the hours, then save or submit. Read by ' + esc(r.via === 'offline' ? 'IntelliEmp\'s built-in reader (no AI)' : r.provider) + '.</small></div></div>';
   return r;
 }
 Object.assign(ACTIONS, {
@@ -1509,13 +1544,16 @@ const isSignTask = t => !!SIGN_KEYS[t.key] && ['sign', 'ack', 'upload'].indexOf(
 
 function profileForm(p) {
   const L2 = p.lists, ro = !p.canEdit ? ' disabled' : '';
-  const f = (label, name, attrs, cls, hint) => field(label, inp(name, p[name], (attrs || 'type="text"') + ro), cls, hint);
+  const MISSING_KEY = { 'legal name': 'legalName', 'entity type': 'entityType', 'state of incorporation': 'stateOfIncorporation', EIN: 'ein', 'official address': 'addrStreet', 'authorized signatory': 'signatoryName', 'signatory\'s title': 'signatoryTitle' };
+  const need = {}; p.missing.forEach(m => { if (MISSING_KEY[m]) need[MISSING_KEY[m]] = 1; });
+  const f = (label, name, attrs, cls, hint) => field(label, inp(name, p[name], (attrs || 'type="text"') + ro), (cls || '') + (need[name] ? ' need' : ''), need[name] ? 'Required for offer letters and agreements' : hint);
   return '<form class="card" data-form="profile-save"><div class="card-h"><h3>' + ic('briefcase') + 'Company profile</h3>' +
     (p.missing.length ? chip('Missing: ' + p.missing.join(', '), 'warn') : chip('Complete', 'ok')) + '</div>' +
+    (p.missing.length ? '<div class="banner warn">' + ic('alert') + '<div>Fill in the fields outlined in red — offer letters, the Confidentiality and IP agreement and the handbook acknowledgment cannot be sent until they are done.</div></div>' : '') +
     '<p class="muted">Used on offer letters, the Confidentiality and IP agreement, the handbook acknowledgment and signed PDFs.</p>' +
     '<h4>Legal entity</h4><div class="grid g2">' + field('Display name (in the app)', inp('name', p.name, 'required' + ro)) + f('Legal name (exactly as registered)', 'legalName', 'placeholder="' + esc(p.name || 'Your Company Inc.') + '" data-change="legal-suggest"') +
-    f('DBA / trade name (optional)', 'dba') + field('Entity type', sel('entityType', [['', '—']].concat(L2.entityTypes), p.entityType, ro)) +
-    field('State of incorporation / formation', sel('stateOfIncorporation', [['', '—']].concat(L2.states), p.stateOfIncorporation, ro)) + f('Date of incorporation', 'incorporatedOn', 'type="date"') +
+    f('DBA / trade name (optional)', 'dba') + field('Entity type', sel('entityType', [['', '—']].concat(L2.entityTypes), p.entityType, ro), need.entityType ? 'need' : '') +
+    field('State of incorporation / formation', sel('stateOfIncorporation', [['', '—']].concat(L2.states), p.stateOfIncorporation, ro), need.stateOfIncorporation ? 'need' : '') + f('Date of incorporation', 'incorporatedOn', 'type="date"') +
     f('Federal EIN', 'ein', smart('ein', 'placeholder="54-1234567" inputmode="numeric" maxlength="10"'), '', 'On the IRS CP 575 or 147C letter') + f('NAICS code (optional)', 'naics', 'inputmode="numeric" maxlength="6"') + '</div>' +
     '<h4>Official address</h4><div class="grid g2">' + f('Street', 'addrStreet', '', 'span2') + f('Suite / floor', 'addrSuite') + f('City', 'addrCity') +
     field('State', sel('addrState', [['', '—']].concat(L2.states), p.addrState, ro)) + f('ZIP', 'addrZip', smart('zip', 'inputmode="numeric" maxlength="10"')) +
@@ -1541,6 +1579,7 @@ function corpDocsCard(list, p) {
   return '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Corporate documents</h3>' + (p.canEdit ? '<button class="btn sm" data-action="corp-add">' + ic('upload') + 'Add document</button>' : '') + '</div>' +
     '<p class="muted">Articles or certificate of incorporation, IRS EIN letter, bylaws or operating agreement, good standing, registrations, licenses, insurance, E-Verify MOU and the employee handbook. ' +
     'Private to staff — except the handbook, which employees can open.' + (ai ? ' AI can fill the company profile from these.' : '') + '</p>' +
+    (!list.some(d => d.type === 'Employee handbook') && p.canEdit ? '<div class="banner">' + ic('book') + '<div>No employee handbook yet. <button class="btn sm" data-action="tpl-preview" data-k="handbookDoc">Create the standard handbook</button> — timesheets and hours, holidays, conduct, competition and non-solicitation, violations, onboarding and exit (30-day notice). Review and edit it before you publish.</div></div>' : '') +
     (list.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Issued</th><th>Expires</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' + list.map(d =>
       '<tr><td><b>' + esc(d.type) + '</b>' + (d.employeeVisible === 'Yes' ? ' ' + chip('Employees can open', 'teal') : '') + '<br><small class="muted">' + esc(d.fileName) + '</small>' + (d.ai && d.ai.summary ? '<br><small class="muted">' + esc(d.ai.summary) + '</small>' : '') + '</td>' +
       '<td>' + esc(fmtDate(d.issuedOn) || '—') + '</td><td>' + (expiryChip(d.expiresOn) || '—') + '</td><td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '</small></td>' +
@@ -1582,10 +1621,12 @@ Object.assign(FORMS, {
 function templatesCard(list, p) {
   return '<div class="card"><h3>' + ic('book') + 'Agreement templates</h3><p class="muted">The text employees sign. Words in {{double braces}} are filled in from the company profile, the employee and the offer. ' +
     'These are starting points — have your employment counsel review them for your states before use.</p>' +
-    list.map(t => '<div class="res"><span class="ri">' + ic('doc') + '</span><div style="flex:1"><b>' + esc(t.title) + '</b> ' + (t.custom ? chip('Customized', 'teal') : chip('Standard')) +
-      (t.custom ? '<div class="muted"><small>Changed ' + esc(fmtWhen(t.updatedAt)) + ' by ' + esc(t.updatedBy || '') + '</small></div>' : '') + '</div>' +
+    list.map(t => '<div class="res"><span class="ri">' + ic(t.kind === 'handbookDoc' ? 'book' : 'doc') + '</span><div style="flex:1"><b>' + esc(t.title) + '</b> ' + (t.kind === 'handbookDoc' ? chip('The handbook itself') + ' ' : '') + (t.custom ? chip('Customized', 'teal') : chip('Standard')) +
+      (t.custom ? '<div class="muted"><small>Changed ' + esc(fmtWhen(t.updatedAt)) + ' by ' + esc(t.updatedBy || '') + '</small></div>' : '') +
+      ((t.recent || []).length ? '<div style="margin-top:4px">' + t.recent.map(r => '<a href="#app/employee/' + r.employeeId + '/onboarding" style="margin-right:10px;font-size:12.5px;white-space:nowrap">' + esc(r.name) + ' ' + chip(r.status === 'Sent' ? 'Waiting' : r.status, r.status === 'Signed' ? 'ok' : r.status === 'Declined' ? 'bad' : 'info') + '</a>').join('') + '</div>' : '') + '</div>' +
       '<div class="btns"><button class="btn xs ghost" data-action="tpl-preview" data-k="' + t.kind + '">Preview</button><button class="btn xs ghost" data-action="tpl-pdf" data-k="' + t.kind + '">' + ic('download') + 'PDF</button>' +
-      (can('employees.edit') ? '<button class="btn xs" data-action="tpl-create" data-k="' + t.kind + '">' + ic('send') + (t.kind === 'offer' ? 'Create offer…' : 'Send to employee…') + '</button>' : '') +
+      (t.kind === 'handbookDoc' ? (p.canEdit ? '<button class="btn xs" data-action="hb-publish">' + ic('upload') + 'Publish as the handbook</button>' : '') :
+        can('employees.edit') ? '<button class="btn xs" data-action="tpl-create" data-k="' + t.kind + '">' + ic('send') + (t.kind === 'offer' ? 'Create offer…' : 'Send to employee…') + '</button>' : '') +
       (p.canEdit ? '<button class="btn xs ghost" data-action="tpl-edit" data-k="' + t.kind + '">' + ic('edit') + 'Edit</button>' : '') + '</div></div>').join('') + '</div>';
 }
 ACTIONS['tpl-edit'] = el => {
@@ -1670,6 +1711,8 @@ ACTIONS['offer-back'] = async () => { const d = S.cache.offerDraft; await offerM
 
 async function empChoices() { if (!S.cache.emps) S.cache.emps = await call('listEmployees'); return S.cache.emps.filter(e => e.status !== 'Terminated'); }
 function showTplPreview(r, kind) {
+  if (kind === 'handbookDoc') return openModal('Preview: ' + r.title, '<p class="muted">The standard handbook filled in with your company profile and timesheet settings. Edit the wording in Settings → Agreement templates → Employee Handbook.</p>' + docBox(r.html) +
+    '<div class="foot-btns"><button class="btn ghost" data-action="tpl-pdf" data-k="handbookDoc">' + ic('download') + 'Download PDF</button><button class="btn ghost" data-action="tpl-edit" data-k="handbookDoc">' + ic('edit') + 'Edit the text</button>' + (can('settings.manage') ? '<button class="btn" data-action="hb-publish">' + ic('upload') + 'Publish as the employee handbook</button>' : '') + '</div>', true);
   openModal('Preview: ' + r.title, (r.missing.length ? '<div class="banner warn">' + ic('alert') + '<div>Highlighted items are missing from the company profile: ' + esc(r.missing.join(', ')) + '.</div></div>' : '') +
     '<p class="muted">Filled in for <b>' + esc(r.employee) + '</b>' + (r.sample ? ' (a sample person)' : '') + ' with your company profile.</p>' + docBox(r.html) +
     '<div class="foot-btns"><button class="btn ghost" data-action="tpl-pdf" data-k="' + kind + '">' + ic('download') + 'Download PDF</button>' + (can('employees.edit') ? '<button class="btn" data-action="tpl-create" data-k="' + kind + '">' + ic('send') + (kind === 'offer' ? 'Create an offer…' : 'Send to an employee…') + '</button>' : '') + '</div>', true);
@@ -1680,11 +1723,13 @@ Object.assign(ACTIONS, {
     const w = window.open('', '_blank'); if (w) { w.document.write('<title>' + esc(r.title) + '</title><body style="max-width:760px;margin:30px auto;font-family:Georgia,serif;line-height:1.55"><h1>' + esc(r.title) + '</h1>' + r.html + '</body>'); w.document.close(); } else toast('Allow pop-ups to preview', 'error'); },
   'tpl-pdf': async el => saveB64(await busy(el, call('templatePdf', { kind: el.dataset.k, employeeId: el.dataset.emp || '' }))),
   'tpl-create': async el => {
-    const k = el.dataset.k, list = await busy(el, empChoices());
-    openModal(k === 'offer' ? 'Create an offer letter' : 'Send for signature', '<form data-form="tpl-create"><input type="hidden" name="kind" value="' + k + '"><div class="grid">' +
+    const k = el.dataset.k, list = await busy(el, empChoices()), miss = D().org.profileMissing || [];
+    const block = miss.length ? '<div class="banner bad">' + ic('alert') + '<div><b>Finish the company profile first:</b> ' + esc(miss.join(', ')) + '. <a href="#app/settings" data-action="close-modal">Open the company profile</a></div></div>' : '';
+    const noHb = k === 'handbook' && !D().org.hasHandbook ? '<div class="banner bad">' + ic('alert') + '<div>Add the employee handbook first — upload yours, or <button type="button" class="btn sm" data-action="tpl-preview" data-k="handbookDoc">create the standard handbook</button>.</div></div>' : '';
+    openModal(k === 'offer' ? 'Create an offer letter' : 'Send for signature', block + noHb + '<form data-form="tpl-create"><input type="hidden" name="kind" value="' + k + '"><div class="grid">' +
       field('Employee', sel('employeeId', list.map(e => [e.id, e.name + (e.jobTitle ? ' — ' + e.jobTitle : '') + ' (' + e.status + ')']), '')) + '</div>' +
       '<p class="hint">' + (k === 'offer' ? 'Opens the offer form prefilled from their record.' : 'Puts it on their checklist and emails them to review and sign (they are invited to the portal if needed).') + '</p>' +
-      '<div class="foot-btns"><button type="button" class="btn ghost" data-action="tpl-create-preview">Preview for this person</button><button class="btn">' + (k === 'offer' ? 'Continue' : ic('send') + 'Send') + '</button></div></form>');
+      '<div class="foot-btns"><button type="button" class="btn ghost" data-action="tpl-create-preview">Preview for this person</button><button class="btn"' + (block || noHb ? ' disabled title="Finish the setup above first"' : '') + '>' + (k === 'offer' ? 'Continue' : ic('send') + 'Send') + '</button></div></form>');
   },
   'tpl-create-preview': async el => { const f = el.closest('form'), k = f.querySelector('[name=kind]').value; showTplPreview(await busy(el, call('previewTemplate', { kind: k, employeeId: f.querySelector('[name=employeeId]').value })), k); }
 });
@@ -1693,7 +1738,16 @@ FORMS['tpl-create'] = async v => {
   let r;
   try { r = await call('sendAgreementFor', { kind: v.kind, employeeId: v.employeeId }); }
   catch (e) { if (e.code === 'ALREADY' && confirm(e.message + ' Ask them to sign it again?')) r = await call('sendAgreementFor', { kind: v.kind, employeeId: v.employeeId, again: true }); else throw e; }
-  closeModal(); toast('Sent for signature' + (r.invited ? ' — they were invited to the portal' : ''), 'ok');
+  S.cache.templates = null;
+  openModal('Sent for signature', '<div class="banner ok">' + ic('check') + '<div><b>' + esc(r.title) + '</b> was sent to <b>' + esc(r.name) + '</b>' + (r.email ? ' (' + esc(r.email) + ')' : '') + '.</div></div>' +
+    '<p>' + (r.invited ? 'They did not have a portal account yet, so they were also invited — they set a password from the email, then sign.' : 'They got an email with a link to review and sign it in the portal.') + '</p>' +
+    '<p class="muted">It is on their onboarding checklist as <b>Ready to sign</b>. You will get an email when it is signed, and the signed PDF is filed in their documents.</p>' +
+    '<div class="foot-btns"><button class="btn ghost" data-action="tpl-create" data-k="' + v.kind + '">Send to someone else</button><a class="btn" href="#app/employee/' + v.employeeId + '/onboarding" data-action="close-modal">Open their checklist</a></div>');
+  if (S.route.parts[0] === 'settings') renderApp().catch(() => {});
+};
+ACTIONS['hb-publish'] = async el => {
+  if (!confirm('Publish this as the employee handbook? Employees will be able to open it, and new handbook acknowledgments will refer to it.')) return;
+  const r = await busy(el, call('generateHandbook', {})); closeModal(); toast('Published: ' + r.name, 'ok', 6000); S.db = null; await refresh();
 };
 const FILL_KEYS = { i9s1: 'i9', w4: 'w4', dd: 'dd' };
 const isFillTask = t => !!FILL_KEYS[t.key] && (t.category === 'fill' || t.category === 'upload');
@@ -1925,7 +1979,9 @@ document.addEventListener('submit', async ev => {
   if (!name || !FORMS[name]) return;
   ev.preventDefault();
   const submitter = ev.submitter || form.querySelector('button:not([type=button])');
-  try { await busy(submitter, FORMS[name](formValues(form), form, submitter)); } catch (e) { fail(e); }
+  const old = form.querySelector('.form-err'); if (old) old.remove();
+  try { await busy(submitter, FORMS[name](formValues(form), form, submitter)); }
+  catch (e) { fail(e); if (form.isConnected && form.closest('.modal')) { const d = document.createElement('div'); d.className = 'banner bad form-err'; d.innerHTML = ic('alert') + '<div>' + esc(e.message || String(e)) + '</div>'; form.insertBefore(d, form.firstChild); d.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } }
 });
 const onChange = async ev => { const el = ev.target.closest && ev.target.closest('[data-change]'); if (!el || !CHANGES[el.dataset.change]) return; try { await CHANGES[el.dataset.change](el, ev); } catch (e) { fail(e); } };
 document.addEventListener('change', onChange);
