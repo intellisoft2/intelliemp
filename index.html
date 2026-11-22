@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.17"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.18"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -670,8 +670,9 @@ async function employeeHome() {
   const tsCard = (wk, label) => { const t = tsOf(wk); if (!t && (!started(wk) || e.timesheetRequired === 'No')) return ''; return '<div class="stat" data-action="nav" data-href="#app/my-timesheet/' + wk + '"><b style="font-size:18px">' + (t ? statusChip(t.status) : chip('Not started', 'warn')) + '</b><span>' + esc(label) + ' · ' + esc(weekLabel(wk)) + (t ? ' · ' + esc(t.totalHours) + ' h' : '') + '</span></div>'; };
   return head('Hi ' + esc(e.firstName), esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code)) +
     alertsBanner(P.alerts) +
-    (e.status === 'Onboarding' ? '<div class="card"><div class="card-h"><h3>' + ic('check') + 'Your onboarding</h3><span class="muted">' + pr.done + ' of ' + pr.total + ' done</span></div>' + bar(pr.pct) +
-      (open.length ? '<p style="margin-top:12px">Next: <b>' + esc(open[0].title) + '</b>' + (open[0].dueDate ? ' — due ' + fmtDate(open[0].dueDate) : '') + '</p><a class="btn" href="#app/me">Continue onboarding</a>'
+    (e.status === 'Onboarding' || (e.hireType === 'Existing' && pr.done < pr.total) ? '<div class="card"><div class="card-h"><h3>' + ic('check') + (e.hireType === 'Existing' ? 'Update your records' : 'Your onboarding') + '</h3><span class="muted">' + pr.done + ' of ' + pr.total + ' done</span></div>' +
+      (e.hireType === 'Existing' ? '<p class="muted" style="margin:4px 0 8px">' + esc(D().org.name) + ' moved its employee records to this portal. Please confirm your details, re-sign the current forms and add current copies of your documents.</p>' : '') + bar(pr.pct) +
+      (open.length ? '<p style="margin-top:12px">Next: <b>' + esc(open[0].title) + '</b>' + (open[0].dueDate ? ' — due ' + fmtDate(open[0].dueDate) : '') + '</p><a class="btn" href="#app/me">' + (e.hireType === 'Existing' ? 'Continue' : 'Continue onboarding') + '</a>'
         : '<p style="margin-top:12px" class="muted">You have done everything on your list. HR is reviewing the rest.</p>') + '</div>' : '') +
     ((tsCard(P.thisWeek, 'This week') + tsCard(P.lastWeek, 'Last week')) ? '<div class="stats">' + tsCard(P.thisWeek, 'This week') + tsCard(P.lastWeek, 'Last week') + '</div>' : '') +
     '<div class="grid g2"><div class="card"><h3>' + ic('passport') + 'Work authorization</h3><dl class="kv"><dt>Status</dt><dd>' + esc(e.workAuth || '') + '</dd>' +
@@ -784,7 +785,7 @@ PAGES.me = async () => {
   const P = await call('getMyPortal'); S.cache.portal = P;
   if (!P.employee) return head('Onboarding') + '<div class="card"><p>No employee record is linked to your account.</p></div>';
   const pr = P.progress || { pct: 0, done: 0, total: 0 };
-  return head(P.employee.status === 'Onboarding' ? 'Your onboarding' : 'Onboarding checklist', esc(P.employee.workAuth) + ' · start date ' + esc(fmtDate(P.employee.startDate) || 'not set')) +
+  return head(P.employee.hireType === 'Existing' ? 'Update your records' : P.employee.status === 'Onboarding' ? 'Your onboarding' : 'Onboarding checklist', esc(P.employee.workAuth) + ' · ' + (P.employee.hireType === 'Existing' ? 'hired ' : 'start date ') + esc(fmtDate(P.employee.startDate) || 'not set')) +
     '<div class="card"><div class="card-h"><h3>' + pr.done + ' of ' + pr.total + ' required items done</h3><span class="muted">' + pr.pct + '%</span></div>' + bar(pr.pct) + '</div>' +
     '<div class="card">' + checklistHtml(P.checklist || [], { self: true, signs: P.signs }) + '</div>' +
     '<div class="card"><h3>' + ic('user') + 'Your details</h3><p class="muted">Keep your contact details current. Changes to your name, job or pay go through HR.</p><button class="btn ghost" data-action="edit-profile">Update my details</button></div>';
@@ -850,9 +851,9 @@ PAGES.employee = async parts => {
   const badge = { onboarding: E.progress && E.progress.toReview ? chip(E.progress.toReview, 'warn') : '', documents: E.documents ? chip(E.documents.length) : '', immigration: E.cases && E.cases.length ? chip(E.cases.length) : '' };
   const body = { '': empProfile, onboarding: empOnboarding, documents: empDocuments, timesheets: empTimesheets, immigration: empImmigration, notes: empNotes }[tab] || empProfile;
   return '<p><a href="#app/employees">' + ic('back') + ' ' + (can('employees.view') ? 'Employees' : 'My team') + '</a></p>' +
-    '<div class="pagehead"><div class="who"><span class="av lg">' + esc(initials(e.name)) + '</span><div><h1>' + esc(e.name) + '</h1><p>' + esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code) + ' ' + statusChip(e.status) + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '</p></div></div>' +
+    '<div class="pagehead"><div class="who"><span class="av lg">' + esc(initials(e.name)) + '</span><div><h1>' + esc(e.name) + '</h1><p>' + esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code) + ' ' + statusChip(e.status) + (e.hireType === 'Existing' ? ' ' + chip('Moved from another system', 'teal') : '') + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '</p></div></div>' +
     '<div class="btns">' + (hr ? '<button class="btn ghost" data-action="emp-edit">' + ic('edit') + 'Edit</button>' + (E.member ? '' : '<button class="btn" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt ? 'Resend invitation' : 'Invite to portal') + '</button>') : '') + '</div></div>' +
-    '<nav class="tabs">' + tabs.map(t => '<a href="#app/employee/' + e.id + (t[0] ? '/' + t[0] : '') + '" class="' + (tab === t[0] ? 'on' : '') + '">' + esc(t[1]) + (badge[t[0]] || '') + '</a>').join('') + '</nav>' + body(E);
+    '<nav class="tabs">' + tabs.map(t => '<a href="#app/employee/' + e.id + (t[0] ? '/' + t[0] : '') + '" class="' + (tab === t[0] ? 'on' : '') + '">' + esc(t[0] === 'onboarding' && e.hireType === 'Existing' ? 'Records refresh' : t[1]) + (badge[t[0]] || '') + '</a>').join('') + '</nav>' + body(E);
 };
 function empProfile(E) {
   const e = E.employee, kv = (k, v) => v === undefined || v === '' || v === null ? '' : '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>';
@@ -917,7 +918,7 @@ function empForm(e, mode) {
   return '<div class="grid g2">' + field('First name', inp('firstName', e.firstName, 'required')) + field('Last name', inp('lastName', e.lastName, 'required')) +
     field('Work email', inp('email', e.email, 'type="email"'), '', 'Used to sign in to the portal.') + field('Personal email', inp('personalEmail', e.personalEmail, 'type="email"')) +
     field('Job title', inp('jobTitle', e.jobTitle)) + field('Department', inp('department', e.department)) +
-    field('Employment type', sel('employmentType', lists.empTypes, e.employmentType || 'W2 Full-time (salary)')) + field('Start date', inp('startDate', e.startDate, 'type="date"')) +
+    field('Employment type', sel('employmentType', lists.empTypes, e.employmentType || 'W2 Full-time (salary)')) + field(e.hireType === 'Existing' ? 'Original hire date' : 'Start date', inp('startDate', e.startDate, 'type="date"')) +
     (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + field('Pay rate (USD)', inp('payRate', e.payRate, 'type="number" step="0.01" min="0"')) +
       field('Paid', sel('payFrequency', [['', 'Company default (' + (D().org.payFrequency || 'semi-monthly') + ')'], ['weekly', 'Weekly'], ['bi-weekly', 'Every two weeks (bi-weekly)'], ['semi-monthly', 'Twice a month (semi-monthly)'], ['monthly', 'Monthly']], e.payFrequency || '')) : '') +
     (can('confidential.view') ? field('', '<label class="check"><input type="checkbox" name="confidential"' + (e.confidential === 'Yes' ? ' checked' : '') + '> Confidential (executive) record — hidden from anyone without the "confidential records" power</label>', 'span2') : '') +
@@ -948,9 +949,9 @@ CHANGES['wa-fields'] = el => {
 };
 const cleanEmp = v => { const o = Object.assign({}, v); Object.keys(o).forEach(k => { if (o[k] === '') delete o[k]; }); if (o.payRate !== undefined) o.payRate = Number(o.payRate); if (can('confidential.view')) o.confidential = !!v.confidential; else delete o.confidential; return o; };
 Object.assign(ACTIONS, {
-  'add-employee': () => openModal('Add employee', '<form data-form="emp-create">' + empForm({}, 'new') + '<label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal now</label>' +
+  'add-employee': () => openModal('Add employee', '<form data-form="emp-create">' + hireTypePicker('') + empForm({}, 'new') + '<label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal now</label>' +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Add employee</button></div></form>', true),
-  'emp-edit': () => openModal('Edit ' + S.cache.emp.employee.name, '<form data-form="emp-update"><input type="hidden" name="id" value="' + S.cache.emp.employee.id + '">' + empForm(S.cache.emp.employee, 'edit') +
+  'emp-edit': () => openModal('Edit ' + S.cache.emp.employee.name, '<form data-form="emp-update"><input type="hidden" name="id" value="' + S.cache.emp.employee.id + '">' + hireTypePicker(S.cache.emp.employee.hireType || '', true) + empForm(S.cache.emp.employee, 'edit') +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Save</button></div></form>', true),
   'emp-invite': async el => { const r = await busy(el, call('inviteEmployee', { employeeId: el.dataset.id })); toast(r.sent ? 'Invitation sent to ' + r.email : 'Invitation saved; email could not be sent', r.sent ? 'ok' : 'error'); await reloadCurrent(); },
   'task-add': () => openModal('Add a checklist item', '<form data-form="task-add"><input type="hidden" name="employeeId" value="' + S.cache.emp.employee.id + '"><div class="grid g2">' + field('Title', inp('title', '', 'required'), 'span2') +
@@ -967,11 +968,12 @@ Object.assign(ACTIONS, {
   'doc-del': async el => { if (!confirm('Delete this document? The file is moved to the trash.')) return; await busy(el, call('deleteDocument', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); }
 });
 Object.assign(FORMS, {
-  'emp-create': async v => { const invite = v.invite; delete v.invite; const r = await call('createEmployee', cleanEmp(v)); closeModal();
+  'emp-create': async v => { const invite = v.invite; delete v.invite; const o = cleanEmp(v); o.hireType = v.hireType || ''; const r = await call('createEmployee', o); closeModal();
     if (invite) { try { await call('inviteEmployee', { employeeId: r.id }); } catch (e) { fail(e); } }
-    toast('Employee added' + (invite ? ' and invited' : ''), 'ok'); S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); },
+    toast((o.hireType === 'Existing' ? 'Existing employee added — records refresh list ready' : 'Employee added') + (invite ? ' and invited' : ''), 'ok'); S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); },
   'emp-update': async v => { const o = Object.assign({}, v); ['payRate'].forEach(k => { if (o[k] !== '' && o[k] !== undefined) o[k] = Number(o[k]); });
     if (can('confidential.view')) o.confidential = !!v.confidential; else delete o.confidential;
+    o.hireType = v.hireType || '';
     const r = await call('updateEmployee', o); closeModal(); toast(r && r.checklistUpdated ? 'Saved — checklist updated for the new work authorization' : 'Saved', 'ok'); await reloadCurrent(); },
   'task-add': async v => { v.required = v.required !== 'no'; await call('addTask', v); closeModal(); toast('Added', 'ok'); await reloadCurrent(); },
   'doc-upload': async (v, form) => { v.file = await readFile(form.querySelector('[name=file]').files[0]);
@@ -982,6 +984,7 @@ Object.assign(FORMS, {
 ACTIONS['import-csv'] = () => openModal('Import employees from CSV', '<form data-form="emp-import"><p class="muted">One employee per row. Recognized columns: First Name, Last Name, Email, Personal Email, Phone, Title, Department, Start Date, Work Authorization, Work Authorization Expiry, ' +
   'Manager Name, Manager Email, Client, Client Manager, Client Manager Email, Approval, Employment Type, Pay Type, Pay Rate. "H1B", "STEM OPT", "GC", US dates and "$65/hr" are understood.</p>' +
   '<div class="grid">' + field('CSV file', '<input type="file" name="file" accept=".csv,text/csv">') + field('…or paste rows', area('csv', '', 'rows="6" placeholder="First Name,Last Name,Email,Work Authorization\nRavi,Teja,ravi@acme.com,H-1B"')) + '</div>' +
+  '<label class="check" style="margin-top:10px"><input type="checkbox" name="existing" checked> These are <b>existing employees</b> moving from another system — keep them Active with their original hire dates (the Start Date column) and give them a records-refresh list instead of onboarding</label>' +
   '<div class="foot-btns"><button type="button" class="btn ghost" data-action="csv-template">Download template</button><button class="btn">Import</button></div></form>', true);
 ACTIONS['csv-template'] = () => download('intelliemp-employees.csv', 'First Name,Last Name,Email,Personal Email,Phone,Title,Department,Start Date,Work Authorization,Work Authorization Expiry,Manager Name,Manager Email,Client,Client Manager,Client Manager Email,Approval,Employment Type,Pay Type,Pay Rate\n' +
   'Ravi,Teja,ravi@yourco.com,,7035550100,Java Developer,Delivery,2026-12-07,H-1B,2027-09-30,Mia Grant,mia@yourco.com,Capital One,Carl Ito,carl@client.com,"Manager, then client manager",W2 Full-time (salary),Salary,125000\n', 'text/csv');
@@ -989,10 +992,10 @@ FORMS['emp-import'] = async (v, form) => {
   const f = form.querySelector('[name=file]').files[0];
   const csv = f ? await f.text() : v.csv;
   if (!String(csv || '').trim()) throw new Error('Choose a CSV file or paste rows.');
-  const r = await call('importEmployees', { csv: csv });
+  const r = await call('importEmployees', { csv: csv, existing: !!v.existing });
   openModal('Import finished', '<p><b>' + r.created + '</b> employee(s) added' + (r.updated ? ', <b>' + r.updated + '</b> updated' : '') + '.</p>' +
     (r.skipped && r.skipped.length ? '<div class="banner warn"><div><b>Skipped:</b><br>' + r.skipped.map(esc).join('<br>') + '</div></div>' : '') +
-    '<p class="muted">Each new employee has a checklist for their work authorization. Invite them from their profile when you are ready.</p><div class="foot-btns"><button class="btn" data-action="close-modal">Done</button></div>');
+    '<p class="muted">' + (v.existing ? 'They were added as existing employees (Active, original hire dates kept) with a records-refresh list: confirm details, re-sign current forms, upload current documents and the I-9 on file.' : 'Each new employee has an onboarding checklist for their work authorization.') + ' Invite them from their profile when you are ready.</p><div class="foot-btns"><button class="btn" data-action="close-modal">Done</button></div>');
   S.db = null; await loadDb(); if (S.route.parts[0] === 'employees') await renderApp();
 };
 
@@ -1031,6 +1034,20 @@ FORMS['docs-create'] = async v => {
 
 ACTIONS['ssn-verify'] = async el => { if (!confirm('Mark the Social Security number as verified (you checked the card, E-Verify or Form I-9 documents)?')) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'verify' })); toast('Marked verified', 'ok'); await reloadCurrent(); };
 ACTIONS['ssn-clear'] = async el => { if (!confirm('Remove the Social Security number on file? The employee will be asked for it again on their next form. Signed forms keep the number they were signed with.')) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'clear' })); toast('Removed — they will be asked again', 'ok'); await reloadCurrent(); };
+
+function hireTypePicker(cur, editing) {
+  const opt = (v, t, d) => '<label class="pick' + (cur === v ? ' on' : '') + '" style="flex:1;min-width:240px;border:1px solid var(--line,#dfe3ea);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;gap:10px;align-items:flex-start' + (cur === v ? ';border-color:var(--teal,#1fb5a3);background:#f2fbfa' : '') + '">' +
+    '<input type="radio" name="hireType" value="' + v + '"' + (cur === v ? ' checked' : '') + ' data-change="hire-type" style="margin-top:3px"><span><b>' + t + '</b><br><small class="muted">' + d + '</small></span></label>';
+  return '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">' +
+    opt('', 'New hire', 'Full onboarding: offer letter, Form I-9 (Sections 1 and 2), tax forms, direct deposit, agreements and documents for their status.') +
+    opt('Existing', 'Existing employee — moving from another system', 'Records refresh: they stay Active with their original hire date, confirm details, re-sign current forms and upload current documents. HR uploads the I-9 already on file — no new I-9.') + '</div>' +
+    (editing ? '<p class="hint" style="margin-top:-6px">Switching to "existing" waives the new-hire-only items still open (offer, new I-9, H-1B transfer papers) and adds the records-refresh items.</p>' : '');
+}
+CHANGES['hire-type'] = el => {
+  const f = el.form, ex = el.value === 'Existing';
+  f.querySelectorAll('label.pick').forEach(l => { const on = l.querySelector('input').checked; l.style.borderColor = on ? 'var(--teal,#1fb5a3)' : ''; l.style.background = on ? '#f2fbfa' : ''; });
+  const sd = f.querySelector('[name=startDate]'); if (sd) { sd.required = ex; const lab = sd.parentNode.querySelector('label'); if (lab) lab.textContent = ex ? 'Original hire date' : 'Start date'; }
+};
 PAGES.timesheets = async (parts, p) => {
   if (!isStaff()) return go('#app/my-timesheet');
   const wk = p.week || '', st = p.status || (wk ? '' : 'Submitted');
