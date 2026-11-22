@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.28"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.29"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -199,6 +199,9 @@ form .grid{margin-bottom:14px}
   .tbl .hide-m{display:none}.pagehead h1{font-size:21px}.weeknav b{min-width:0;font-size:14px}
 }
 @media print{.side,.topbar,.btns,.btn{display:none!important}.shell{display:block}.main{padding:0}.card{box-shadow:none}}
+.modal.nudge{animation:nudge .32s ease}
+@keyframes nudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.banner.draft-note{margin-bottom:12px}.banner.draft-note .btn{margin-left:8px}
 </style>
 
 </head>
@@ -360,8 +363,60 @@ async function call(fn, ...args) {
 let toastT = null;
 function toast(msg, kind, ms, onClick) { const t = $('toast'); if (!t) return; t.textContent = msg; t.className = 'show ' + (kind || '') + (onClick ? ' click' : ''); t.onclick = onClick ? () => { t.className = ''; t.onclick = null; onClick(); } : null; clearTimeout(toastT); toastT = setTimeout(() => { t.className = ''; }, ms || 3800); }
 function fail(e) { toast(e && e.message ? e.message : String(e), 'error', 6500); }
-function openModal(title, body, wide) { S.modal = { title: title, body: body, wide: !!wide }; paintModal(); const f = document.querySelector('.modal input:not([type=hidden]),.modal select,.modal textarea'); if (f) setTimeout(() => f.focus(), 30); }
+function openModal(title, body, wide) {
+  S.modal = { title: title, body: body, wide: !!wide }; paintModal();
+  restoreDrafts();
+  document.querySelectorAll('.modal form').forEach(f => { if (typeof payRateSync === 'function') payRateSync(f); });
+  const f = document.querySelector('.modal input:not([type=hidden]),.modal select,.modal textarea'); if (f) setTimeout(() => f.focus(), 30);
+}
 function closeModal() { S.modal = null; paintModal(); }
+const DRAFT_SKIP_ = /ssn|password|passcode|account|routing|aadhaar|nric|\bfin\b|iban|swift|uan|\bpan\b|card|pin\b|otp|^code$|mfa|token|signature/i;
+function draftKey(form) {
+  const id = (form.querySelector('[name=id],[name=employeeId]') || {}).value || form.dataset.id || '';
+  return 'ie-draft|' + (((S.db && S.db.who) || {}).email || '') + '|' + (form.dataset.form || '') + '|' + id + '|' + ((S.modal && S.modal.title) || '');
+}
+function draftFields(form) {
+  return Array.from(form.elements).filter(x => x.name && !x.disabled && ['file', 'password', 'hidden', 'submit', 'button'].indexOf(x.type) < 0 && !DRAFT_SKIP_.test(x.name) && !x.hasAttribute('data-nodraft'));
+}
+function saveDraft(form) {
+  try {
+    const v = {}; draftFields(form).forEach(x => { if (x.type === 'checkbox') v[x.name + (x.value && x.value !== 'on' ? '=' + x.value : '')] = x.checked; else if (x.type === 'radio') { if (x.checked) v[x.name] = x.value; } else v[x.name] = x.value; });
+    sessionStorage.setItem(draftKey(form), JSON.stringify({ at: Date.now(), v: v }));
+  } catch (e) { /* storage full or blocked: nothing to keep */ }
+}
+function dropDraft(form) { try { sessionStorage.removeItem(draftKey(form)); } catch (e) { /* ignore */ } }
+function dropAllDrafts() { try { Object.keys(sessionStorage).filter(k => k.indexOf('ie-draft|') === 0).forEach(k => sessionStorage.removeItem(k)); } catch (e) { /* ignore */ } }
+function applyDraft(form, v) {
+  draftFields(form).forEach(x => {
+    const ck = x.name + (x.value && x.value !== 'on' ? '=' + x.value : '');
+    if (x.type === 'checkbox') { if (ck in v) x.checked = !!v[ck]; }
+    else if (x.type === 'radio') { if (x.name in v) x.checked = x.value === v[x.name]; }
+    else if (x.name in v && x.value !== v[x.name]) { x.value = v[x.name]; if (x.dataset.change) x.dispatchEvent(new Event('change', { bubbles: true })); }
+  });
+}
+function restoreDrafts() {
+  document.querySelectorAll('.modal form[data-form]').forEach(form => {
+    let d = null; try { d = JSON.parse(sessionStorage.getItem(draftKey(form)) || 'null'); } catch (e) { d = null; }
+    if (!d || !d.v || Date.now() - d.at > 12 * 3600e3) return;
+    applyDraft(form, d.v);
+    setTimeout(() => { if (form.isConnected) { applyDraft(form, d.v); if (typeof payRateSync === 'function') payRateSync(form); } }, 60);   // fields shown by a choice (country, status) are filled on the second pass
+    S.modal.dirty = true;
+    const b = document.createElement('div'); b.className = 'banner draft-note';
+    b.innerHTML = ic('clock') + '<div>Your unsaved entries from ' + esc(new Date(d.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })) + ' are back. <button type="button" class="btn ghost xs" data-action="draft-clear">Start over</button></div>';
+    form.insertBefore(b, form.firstChild);
+  });
+}
+function userClose(how) {
+  if (!S.modal) return;
+  if (S.modal.dirty && (how === 'outside' || how === 'esc')) { toast('Your entries are kept — use Save, or × to close.', '', 3200); const m = document.querySelector('.modal'); if (m) { m.classList.remove('nudge'); void m.offsetWidth; m.classList.add('nudge'); } return; }
+  if (S.modal.dirty && document.querySelector('.modal form[data-form]')) toast('Closed — what you entered is kept as a draft and comes back when you open this again.', '', 4500);
+  closeModal();
+}
+['input', 'change'].forEach(t => document.addEventListener(t, ev => {
+  const form = ev.target && ev.target.form; if (!form || !S.modal || !form.closest('.modal') || !form.dataset.form || !ev.isTrusted) return;
+  if (!ev.target.name || ev.target.type === 'file' || DRAFT_SKIP_.test(ev.target.name)) { S.modal.dirty = true; return; }
+  S.modal.dirty = true; clearTimeout(form._draftT); form._draftT = setTimeout(() => saveDraft(form), 400);
+}));
 function paintModal() {
   let m = $('modal-root'); if (!m) { m = document.createElement('div'); m.id = 'modal-root'; document.body.appendChild(m); }
   m.innerHTML = S.modal ? '<div class="modal-bg" data-action="modal-bg"><div class="modal ' + (S.modal.wide ? 'wide' : '') + '" role="dialog" aria-modal="true" aria-label="' + esc(S.modal.title) + '">' +
@@ -442,6 +497,7 @@ const can = cap => !!(S.db && S.db.who.caps.indexOf(cap) >= 0);
 const isStaff = () => can('reports.view');
 const L = k => (D().lists || {})[k] || [];
 function sessionEnded(msg) {
+  dropAllDrafts();
   S.token = ''; store.set('ie-token', ''); S.db = null; S.cache = {}; S.modal = null; paintModal();
   if (msg) toast(msg, 'error', 6000);
   go('#login');
@@ -937,7 +993,8 @@ function empForm(e, mode) {
     field('Work email', inp('email', e.email, 'type="email"'), '', 'Used to sign in to the portal.') + field('Personal email', inp('personalEmail', e.personalEmail, 'type="email"')) +
     field('Job title', inp('jobTitle', e.jobTitle)) + field('Department', inp('department', e.department)) +
     field('Employment type', sel('employmentType', lists.empTypes, e.employmentType || 'W2 Full-time (salary)')) + field(e.hireType === 'Existing' ? 'Original hire date' : 'Start date', inp('startDate', e.startDate, 'type="date"')) +
-    (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + field('Pay rate' + (e.country && e.country !== 'US' ? ' (' + (e.currency || 'local currency') + ')' : ' (USD — or the pay currency below for people abroad)'), inp('payRate', e.payRate, 'type="number" step="0.01" min="0"')) +
+    (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + '<div><label id="payRateLbl">' + esc(payRateLabel(e.payType, e.country && e.country !== 'US' ? (e.currency || (((L('countries') || []).find(c => c.code === e.country) || {}).currency) || '') : 'USD')) + '</label>' +
+        inp('payRate', e.payRate, 'type="number" step="0.01" min="0"') + '<div class="hint" id="payRateHint"></div></div>' +
       field('Paid', sel('payFrequency', [['', 'Company default (' + (D().org.payFrequency || 'semi-monthly') + ')'], ['weekly', 'Weekly'], ['bi-weekly', 'Every two weeks (bi-weekly)'], ['semi-monthly', 'Twice a month (semi-monthly)'], ['monthly', 'Monthly']], e.payFrequency || '')) : '') +
     (can('confidential.view') ? field('', '<label class="check"><input type="checkbox" name="confidential"' + (e.confidential === 'Yes' ? ' checked' : '') + '> Confidential (executive) record — hidden from anyone without the "confidential records" power</label>', 'span2') : '') +
     (isNew ? '' : field('Status', sel('status', lists.empStatuses, e.status)) + field('End date', inp('endDate', e.endDate, 'type="date"'))) +
@@ -961,6 +1018,22 @@ function waBlock(e) {
   }
   return '<div id="wa-wrap"><div class="grid g3">' + cSel + '</div>' + waBlockUs(e) + '</div>';
 }
+function payRateLabel(type, cur) { return (type === 'Salary' ? 'Annual salary' : type === 'Hourly' ? 'Hourly rate' : 'Pay rate') + ' (' + (cur || 'USD') + ')'; }
+const PER_YEAR_ = { weekly: 52, 'bi-weekly': 26, 'semi-monthly': 24, monthly: 12 };
+function payRateSync(f) {
+  const lbl = f && f.querySelector('#payRateLbl'); if (!lbl) return;
+  const g = n => { const x = f.querySelector('[name=' + n + ']'); return x ? x.value : ''; };
+  const abroad = g('country') && g('country') !== 'US', cur = abroad ? (g('currency') || '').toUpperCase() : 'USD', type = g('payType'), rate = Number(g('payRate'));
+  lbl.textContent = payRateLabel(type, cur);
+  const freq = g('payFrequency') || D().org.payFrequency || 'semi-monthly', hint = f.querySelector('#payRateHint');
+  if (hint) hint.textContent = !type ? 'Choose Salary (yearly amount) or Hourly (per hour).' : !(rate > 0) ? (type === 'Salary' ? 'The yearly amount, before tax.' : 'Amount per hour worked.') :
+    type === 'Salary' ? '≈ ' + money(Math.round(rate / (PER_YEAR_[freq] || 24) * 100) / 100, '', cur) + ' per ' + freq + ' paycheck' + (freq === 'monthly' ? '' : ' · ' + money(Math.round(rate / 12), '', cur) + ' a month')
+      : '≈ ' + money(Math.round(rate * 2080), '', cur) + ' a year at 40 hours a week';
+}
+['input', 'change'].forEach(t => document.addEventListener(t, ev => {
+  const n = ev.target && ev.target.name;
+  if (['payType', 'payRate', 'payFrequency', 'currency', 'country', 'localStatus'].indexOf(n) >= 0 && ev.target.form) setTimeout(() => payRateSync(ev.target.form), 0);
+}));
 CHANGES['wa-country'] = el => {
   const f = el.form, wrap = f.querySelector('#wa-wrap'); if (!wrap) return;
   const g = n => { const x = f.querySelector('[name=' + n + ']'); return x ? x.value : ''; };
@@ -2650,8 +2723,9 @@ Object.assign(ACTIONS, {
   copy: el => copy(el.dataset.text || ''),
   menu: () => { S.ui.open = !S.ui.open; const s = $('shell'); if (s) s.classList.toggle('open', S.ui.open); },
   reload: () => { S.db = null; route(); },
-  'close-modal': () => closeModal(),
-  'modal-bg': (el, ev) => { if (ev.target === el) closeModal(); },
+  'close-modal': el => userClose(el.classList.contains('x') ? 'x' : 'cancel'),
+  'modal-bg': (el, ev) => { if (ev.target === el) userClose('outside'); },
+  'draft-clear': el => { const form = el.closest('form'); if (!form) return; dropDraft(form); const t = S.modal.title, body = S.modal.body, wide = S.modal.wide; S.modal = null; openModal(t, body, wide); },
   logout: async () => { try { await call('logout'); } catch (e) { /* already signed out */ } sessionEnded(''); }
 });
 CHANGES['switch-org'] = async el => { await call('switchOrg', el.value); S.db = null; S.cache = {}; go('#app'); };
@@ -2673,13 +2747,15 @@ document.addEventListener('submit', async ev => {
   ev.preventDefault();
   const submitter = ev.submitter || form.querySelector('button:not([type=button])');
   const old = form.querySelector('.form-err'); if (old) old.remove();
-  try { await busy(submitter, FORMS[name](formValues(form), form, submitter)); }
+  const dk = form.closest('.modal') ? draftKey(form) : '';
+  try { await busy(submitter, FORMS[name](formValues(form), form, submitter)); if (dk) { try { sessionStorage.removeItem(dk); } catch (e2) { /* ignore */ } if (S.modal && form.isConnected) S.modal.dirty = false; } }
   catch (e) { fail(e); if (form.isConnected && form.closest('.modal')) { const d = document.createElement('div'); d.className = 'banner bad form-err'; d.innerHTML = ic('alert') + '<div>' + esc(e.message || String(e)) + '</div>'; form.insertBefore(d, form.firstChild); d.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } }
 });
 const onChange = async ev => { const el = ev.target.closest && ev.target.closest('[data-change]'); if (!el || !CHANGES[el.dataset.change]) return; try { await CHANGES[el.dataset.change](el, ev); } catch (e) { fail(e); } };
 document.addEventListener('change', onChange);
 document.addEventListener('input', ev => { if (ev.target.dataset && ['ts-sum', 'w4-calc'].indexOf(ev.target.dataset.change) >= 0) onChange(ev); });
-document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && S.modal) closeModal(); });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && S.modal) userClose('esc'); });
+window.addEventListener('beforeunload', ev => { if (S.modal && S.modal.dirty) { ev.preventDefault(); ev.returnValue = ''; } });
 ['dragover', 'dragleave', 'drop'].forEach(t => document.addEventListener(t, ev => {
   const z = ev.target.closest && ev.target.closest('.drop'); if (!z) return;
   ev.preventDefault(); z.classList.toggle('on', t === 'dragover');
