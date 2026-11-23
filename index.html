@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.45"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.47"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -782,8 +782,7 @@ function navItems() {
   if (isStaff()) {
     it('', 'home', 'Dashboard');
     it('employees', 'users', can('employees.view') ? 'Employees' : 'My team');
-    if (can('employees.view')) it('contractors', 'briefcase', 'Contractors');
-    if (can('pay.view') || can('timesheets.all')) it('invoices', 'doc', 'Invoices', s.invoicesToApprove);
+    if (can('employees.view')) it('contractors', 'briefcase', 'Contractors', s.invoicesToApprove);
     if (can('onboarding.manage')) it('onboarding', 'check', 'Onboarding', s.toReview);
     it('timesheets', 'clock', 'Timesheets', s.myApprovals);
     if (can('immigration.manage')) it('immigration', 'flag', 'Immigration', s.openCases);
@@ -799,10 +798,14 @@ function navItems() {
   if (D().platformAdmin) { sec('Intellisoft'); it('platform', 'globe', 'Platform'); }
   return items;
 }
+function conPage() {
+  const id = (location.hash.split('/')[2] || '').split('?')[0];
+  return !!id && ((S.cache.emp && S.cache.emp.employee && S.cache.emp.employee.id === id && S.cache.emp.employee.employmentType === '1099 Contractor') || (S.cache.emps || []).some(e => e.id === id && e.employmentType === '1099 Contractor'));
+}
 function shell(html) {
   const db = D(), cur = S.route.parts[0] || '', orgs = db.myOrgs || [];
   const nav = navItems().map(x => x.sec ? '<div class="sec">' + esc(x.sec) + '</div>' :
-    '<a href="#app' + (x.page ? '/' + x.page : '') + '" class="' + (cur === x.page || (x.page === 'employees' && cur === 'employee') || (x.page === 'immigration' && cur === 'case') ? 'on' : '') + '">' + ic(x.icon) + esc(x.label) + (x.n ? '<span class="n">' + x.n + '</span>' : '') + '</a>').join('');
+    '<a href="#app' + (x.page ? '/' + x.page : '') + '" class="' + (cur === x.page || (cur === 'employee' && x.page === (conPage() ? 'contractors' : 'employees')) || (x.page === 'immigration' && cur === 'case') ? 'on' : '') + '">' + ic(x.icon) + esc(x.label) + (x.n ? '<span class="n">' + x.n + '</span>' : '') + '</a>').join('');
   return '<div class="shell' + (S.ui.open ? ' open' : '') + '" id="shell"><div class="topbar"><button data-action="menu" aria-label="Menu">' + ic('menu') + '</button>' + BRAND + '<span></span></div>' +
     '<aside class="side">' + BRAND + '<div class="orgbox"><b>' + esc(db.org.name) + '</b>' + esc(roleName(db.who.role)) +
     (orgs.length > 1 ? '<select data-change="switch-org" aria-label="Switch company">' + opts(orgs.map(o => [o.id, o.name]), db.org.id) + '</select>' : '') + '</div>' +
@@ -1121,20 +1124,39 @@ const CON_TYPE = '1099 Contractor';
 const paperChip = (st, label) => st === 'Approved' ? chip('✓ ' + label, 'ok') : st === 'Waived' ? chip(label + ' waived') : st === 'Submitted' ? chip(label + ' to review', 'info') : st === 'Rejected' ? chip(label + ' sent back', 'bad') : st ? chip(label + ' pending', 'warn') : '';
 PAGES.contractors = async (parts, p) => {
   if (!can('employees.view')) return go('#app/employees');
+  const seeInv = can('pay.view') || can('timesheets.all'), view = seeInv && p.view === 'invoices' ? 'invoices' : '';
   const all = await call('listEmployees'); S.cache.emps = all;
-  const list = all.filter(e => e.employmentType === CON_TYPE), q = (p.q || '').toLowerCase(), st = p.status || '';
+  const list = all.filter(e => e.employmentType === CON_TYPE);
+  const toApprove = list.reduce((n, e) => n + (((e.contractor || {}).invoices || {}).toApprove || 0), 0);
+  const actions = (can('docs.manage') || can('settings.manage') ? '<button class="btn ghost" data-action="intake" data-scope="contractors" title="W-9, contractor agreement, insurance certificate, invoices, timesheets — IntelliEmp works out what each is and whose it is">' + ic('upload') + 'Add documents</button> ' : '') +
+    (view === 'invoices' ? (can('pay.view') ? '<button class="btn" data-action="inv-new">' + ic('plus') + 'Add an invoice</button>' : '')
+      : (can('employees.edit') ? '<button class="btn" data-action="add-contractor">' + ic('plus') + 'Add contractor</button>' : ''));
+  const tabs = seeInv ? '<nav class="tabs"><a href="#app/contractors" class="' + (view ? '' : 'on') + '">' + ic('users') + 'Contractors ' + chip(list.filter(e => e.status !== 'Terminated').length) + '</a>' +
+    '<a href="#app/contractors?view=invoices" class="' + (view ? 'on' : '') + '">' + ic('doc') + 'Invoices' + (toApprove ? ' ' + chip(toApprove + ' to approve', 'warn') : '') + '</a></nav>' : '';
+  const sub = view ? 'Invoices from all contractors — checked against their timesheets before approval' : '1099 independent contractors · their papers, timesheets and invoices in one place';
+  return head('Contractors', sub, actions) + tabs + (view ? await conInvoices(p) : conList(list, p)) +
+    (view ? '' : '<div class="card"><h3>' + ic('book') + 'Before you engage a contractor</h3><p class="muted">A worker is a 1099 contractor only when they control how the work is done. Misclassifying an employee can mean back taxes, wages and penalties. See <a href="#app/resources?for=contractor">Resources → 1099 contractors</a> for the IRS and Department of Labor tests, Form W-9 and Form 1099-NEC.</p></div>');
+};
+function conList(list, p) {
+  const q = (p.q || '').toLowerCase(), st = p.status || '', seeInv = can('pay.view') || can('timesheets.all');
   const rows = list.filter(e => (!q || [e.name, e.email, e.code, e.jobTitle, e.clientName, e.businessName].join(' ').toLowerCase().indexOf(q) >= 0) && (!st ? e.status !== 'Terminated' : e.status === st));
-  return head('Contractors', '1099 independent contractors · ' + rows.length + ' of ' + list.length,
-    can('employees.edit') ? '<button class="btn" data-action="add-contractor">' + ic('plus') + 'Add contractor</button>' : '') +
-    '<div class="card"><form class="filters" data-form="con-filter">' + inp('q', p.q || '', 'type="search" placeholder="Search name, business, client…"') +
+  const invCell = e => { const v = (e.contractor || {}).invoices; if (!v) return '—';
+    return '<a href="#app/employee/' + e.id + '/invoices" data-action="nav" data-href="#app/employee/' + e.id + '/invoices">' + (v.toApprove ? chip(v.toApprove + ' to approve', 'warn') + ' ' : '') + (v.toPay ? chip(amt(v.toPay) + ' to pay', 'info') + ' ' : '') +
+      (v.last ? '<small class="muted">Last: ' + esc(v.last.number) + ' · ' + esc(v.last.status) + '</small>' : '<small class="muted">None yet</small>') + (v.paidThisYear ? '<br><small class="muted">Paid this year ' + esc(amt(v.paidThisYear)) + '</small>' : '') + '</a>'; };
+  return '<div class="card"><form class="filters" data-form="con-filter">' + inp('q', p.q || '', 'type="search" placeholder="Search name, business, client…"') +
     '<select name="status"><option value="">Current contractors</option>' + opts(L('empStatuses'), st) + '</select><button class="btn ghost sm">Filter</button></form>' +
-    (rows.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Contractor</th><th class="hide-m">Business</th><th class="hide-m">Client</th>' + (can('pay.view') ? '<th class="num">Rate</th>' : '') + '<th>W-9 and agreement</th><th>Status</th><th>Last week</th></tr></thead><tbody>' +
+    (rows.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Contractor</th><th class="hide-m">Business</th><th class="hide-m">Client</th>' + (can('pay.view') ? '<th class="num">Rate</th>' : '') + '<th>W-9 and agreement</th><th>Last week</th>' + (seeInv ? '<th>Invoices</th>' : '') + '<th>Status</th></tr></thead><tbody>' +
       rows.map(e => '<tr class="click" data-action="nav" data-href="#app/employee/' + e.id + '"><td>' + empName(e) + '</td><td class="hide-m">' + esc(e.businessName || '—') + '</td><td class="hide-m">' + esc(e.clientName || '—') + '</td>' +
         (can('pay.view') ? '<td class="num">' + esc(money(e.payRate, e.payType, e.currency) || '—') + '</td>' : '') +
-        '<td>' + paperChip((e.contractor || {}).w9, 'W-9') + ' ' + paperChip((e.contractor || {}).agreement, 'Agreement') + '</td><td>' + statusChip(e.status) + '</td><td>' + statusChip(e.lastWeek) + '</td></tr>').join('') + '</tbody></table></div>'
-      : '<div class="empty">' + (list.length ? 'No one matches.' : 'No 1099 contractors yet. Add one — they get a W-9, the independent contractor agreement and payment details to complete, and can submit timesheets like everyone else.') + '</div>') + '</div>' +
-    '<div class="card"><h3>' + ic('book') + 'Before you engage a contractor</h3><p class="muted">A worker is a 1099 contractor only when they control how the work is done. Misclassifying an employee can mean back taxes, wages and penalties. See <a href="#app/resources">Resources → 1099 contractors</a> for the IRS and Department of Labor tests, Form W-9 and Form 1099-NEC.</p></div>';
-};
+        '<td>' + paperChip((e.contractor || {}).w9, 'W-9') + ' ' + paperChip((e.contractor || {}).agreement, 'Agreement') + '</td><td>' + statusChip(e.lastWeek) + '</td>' + (seeInv ? '<td>' + invCell(e) + '</td>' : '') + '<td>' + statusChip(e.status) + '</td></tr>').join('') + '</tbody></table></div>'
+      : '<div class="empty">' + (list.length ? 'No one matches.' : 'No 1099 contractors yet. Add one — they get a W-9, the independent contractor agreement and payment details to complete, and submit timesheets and invoices from their portal.') + '</div>') + '</div>';
+}
+async function conInvoices(p) {
+  const st = p.status === undefined ? 'Submitted' : p.status;
+  const list = await call('listInvoices', { status: st || undefined });
+  return '<div class="card"><div class="filters"><span class="muted">Show</span> ' + ['Submitted', 'Approved', 'Paid', 'Rejected', ''].map(s => '<a class="btn sm ' + (s === st ? '' : 'ghost') + '" href="#app/contractors?view=invoices&status=' + s + '">' + (s === 'Submitted' ? 'To approve' : s === 'Approved' ? 'To pay' : s || 'All') + '</a>').join(' ') + (can('pay.view') ? '<span style="flex:1"></span><button class="btn sm ghost" data-action="inv-1099" data-y="' + new Date().getFullYear() + '">' + ic('download') + 'Form 1099-NEC totals</button>' : '') + '</div>' + invoiceRows(list, true) + '</div>' +
+    '<p class="hint">Each invoice is checked against the contractor\'s timesheets for the same period (hours × rate), and for duplicate numbers and overlapping periods. Paid invoices make up the Form 1099-NEC totals. Open a contractor to see all their invoices with their timesheets and papers.</p>';
+}
 FORMS['con-filter'] = v => go('#app/contractors?' + Object.keys(v).filter(k => v[k]).map(k => k + '=' + encodeURIComponent(v[k])).join('&'));
 ACTIONS['add-contractor'] = () => openModal('Add contractor', '<form data-form="emp-create">' + hireTypePicker('') + empForm({ employmentType: CON_TYPE, payType: 'Hourly' }, 'new') +
   '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal now, to</label>' + sel('inviteTo', [['work', 'their work email'], ['personal', 'their personal email'], ['both', 'both (sign in with work email)']], 'personal', 'style="width:auto"') + '</div>' +
@@ -1157,8 +1179,9 @@ PAGES.employee = async parts => {
   const id = parts[0], tab = parts[1] || '';
   const E = await call('getEmployee', id); S.cache.emp = E;
   const e = E.employee, hr = can('employees.edit');
-  const tabs = EMP_TABS.filter(t => (t[0] !== 'onboarding' && t[0] !== 'documents') || E.checklist).filter(t => t[0] !== 'immigration' || (E.cases && (E.cases.length || ((L('waFields') || {})[e.workAuth] || {}).cases !== false))).filter(t => t[0] !== 'notes' || E.notes).filter(t => t[0] !== 'invoices' || E.invoices);
-  const badge = { onboarding: E.progress && E.progress.toReview ? chip(E.progress.toReview, 'warn') : '', documents: E.documents ? chip(E.documents.length) : '', immigration: E.cases && E.cases.length ? chip(E.cases.length) : '' };
+  const order = e.employmentType === CON_TYPE ? ['', 'invoices', 'timesheets', 'documents', 'onboarding', 'notes'] : null;
+  const tabs = (order ? order.map(k => EMP_TABS.find(t => t[0] === k)) : EMP_TABS).filter(t => (t[0] !== 'onboarding' && t[0] !== 'documents') || E.checklist).filter(t => t[0] !== 'immigration' || (E.cases && (E.cases.length || ((L('waFields') || {})[e.workAuth] || {}).cases !== false))).filter(t => t[0] !== 'notes' || E.notes).filter(t => t[0] !== 'invoices' || E.invoices);
+  const badge = { onboarding: E.progress && E.progress.toReview ? chip(E.progress.toReview, 'warn') : '', documents: E.documents ? chip(E.documents.length) : '', immigration: E.cases && E.cases.length ? chip(E.cases.length) : '', invoices: (n => n ? chip(n, 'warn') : '')((E.invoices || []).filter(v => v.status === 'Submitted').length) };
   const body = { '': empProfile, onboarding: empOnboarding, documents: empDocuments, timesheets: empTimesheets, invoices: empInvoices, immigration: empImmigration, notes: empNotes }[tab] || empProfile;
   return '<div class="pagehead"><div class="who"><span class="av lg">' + esc(initials(e.name)) + '</span><div><h1>' + esc(e.name) + '</h1><p>' + esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code) + ' ' + statusChip(e.status) + (e.country && e.country !== 'US' ? ' ' + chip(((L('countries') || []).find(c => c.code === e.country) || { name: e.country }).name, 'info') : '') + (e.employmentType === '1099 Contractor' ? ' ' + chip('1099 contractor' + (e.businessName ? ' · ' + e.businessName : ''), 'info') : '') + (e.hireType === 'Existing' ? ' ' + chip('Moved from another system', 'teal') : '') + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '</p></div></div>' +
     '<div class="btns">' + (hr ? '<button class="btn ghost" data-action="emp-edit">' + ic('edit') + 'Edit</button>' + (E.member ? '' : '<button class="btn" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt ? 'Resend invitation' : 'Invite to portal') + '</button>') : '') + '</div></div>' +
@@ -1403,12 +1426,13 @@ Object.assign(ACTIONS, {
     field('Type', sel('category', [['upload', 'Employee uploads a document'], ['ack', 'Employee reads and signs'], ['info', 'Employee reads'], ['hr', 'HR completes']], 'upload')) + field('Document type', sel('docType', L('docTypes'), 'Other')) +
     field('Due date', inp('dueDate', '', 'type="date"')) + field('Required', sel('required', [['yes', 'Required'], ['no', 'Optional']], 'yes')) + field('Instructions', area('help', ''), 'span2') + '</div><div class="foot-btns"><button class="btn">Add</button></div></form>'),
   'checklist-reset': async el => { const r = await busy(el, call('resetChecklist', { employeeId: S.cache.emp.employee.id })); toast(r.added ? r.added + ' item(s) added' : 'Checklist is up to date', 'ok'); await reloadCurrent(); },
-  'doc-add': el => openModal('Add a document', '<form data-form="doc-upload"><input type="hidden" name="employeeId" value="' + esc(el.dataset.emp) + '"><div class="grid g2">' + field('Type', sel('type', L('docTypes'), 'Other'), 'span2') +
+  'doc-add': el => openModal('Add a document', '<form data-form="doc-upload"><input type="hidden" name="employeeId" value="' + esc(el.dataset.emp) + '"><div class="grid g2">' +
+    field('Type', '<select name="type">' + docTypeOptions(personFor(el.dataset.emp), 'Other', can('docs.manage')) + '</select>', 'span2') +
     field('File (up to 40 MB)', '<input type="file" name="file" required>', 'span2') + field('Issued', inp('issuedOn', '', 'type="date"')) + field('Expires', inp('expiresOn', '', 'type="date"'), '', AI().docs ? 'Leave blank — AI reads it from the document' : 'Required for EAD, I-797, green card, passport') +
     field('Notes', inp('notes', ''), 'span2') + '</div><div class="foot-btns"><button class="btn">Upload</button></div></form>'),
   'doc-verify': async el => { await busy(el, call('updateDocument', { id: el.dataset.id, status: 'Verified' })); toast('Verified', 'ok'); await reloadCurrent(); },
   'doc-edit': el => { const d = (S.cache.emp.documents || []).find(x => x.id === el.dataset.id) || {};
-    openModal('Edit document', '<form data-form="doc-update"><input type="hidden" name="id" value="' + d.id + '"><div class="grid g2">' + field('Type', sel('type', L('docTypes'), d.type), 'span2') + field('Issued', inp('issuedOn', d.issuedOn, 'type="date"')) +
+    openModal('Edit document', '<form data-form="doc-update"><input type="hidden" name="id" value="' + d.id + '"><div class="grid g2">' + field('Type', '<select name=\"type\">' + docTypeOptions(personFor(d.employeeId), d.type, true) + '</select>', 'span2') + field('Issued', inp('issuedOn', d.issuedOn, 'type="date"')) +
       field('Expires', inp('expiresOn', d.expiresOn, 'type="date"')) + field('Status', sel('status', ['Received', 'Verified', 'Expired'], d.status)) + field('Notes', inp('notes', d.notes)) + '</div><div class="foot-btns"><button class="btn">Save</button></div></form>'); },
   'doc-del': async el => { if (!confirm('Delete this document? The file is moved to the trash.')) return; await busy(el, call('deleteDocument', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); }
 });
@@ -1816,22 +1840,31 @@ Object.assign(FORMS, {
   'case-update': async v => { await call('updateCase', v); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); },
   'stage-update': async v => { v.id = S.cache.case.id; if (!v.receiptNumber) delete v.receiptNumber; if (v.denied !== true) delete v.denied; await call('updateCaseStage', v); closeModal(); toast('Updated', 'ok'); await reloadCurrent(); }
 });
-PAGES.resources = async () => {
+PAGES.resources = async (parts, p) => {
   const list = await call('listResources'); S.cache.res = list;
-  const cats = {}; list.forEach(r => { (cats[r.category] = cats[r.category] || []).push(r); });
-  const mg = can('resources.manage');
-  return head('Resources', 'Official forms and guidance for employees — work authorization, taxes, benefits and company policies.', mg ? '<button class="btn" data-action="res-new">' + ic('plus') + 'Add resource</button>' : '') +
+  const mg = can('resources.manage'), staff = isStaff(), TAGS = D().lists.personTags || {};
+  const meTags = D().who.tags || [], forTag = p.for || '', showAll = p.all === '1';
+  const view = forTag ? [forTag] : (!staff && !showAll ? meTags : null);
+  const shown = list.filter(r => !view || hits(r.tags, view));
+  const cats = {}; shown.forEach(r => { (cats[r.category] = cats[r.category] || []).push(r); });
+  const tagChips = r => (r.tags || []).map(t => chip(TAGS[t] || t, 'teal')).join(' ');
+  const filterBar = staff ? '<div class="card"><div class="filters"><span class="muted">Show resources for</span> <a class="btn sm ' + (!forTag ? '' : 'ghost') + '" href="#app/resources">Everyone</a>' +
+      ' ' +
+      Object.keys(TAGS).map(t => '<a class="btn sm ' + (forTag === t ? '' : 'ghost') + '" href="#app/resources?for=' + t + '">' + esc(TAGS[t]) + '</a>').join(' ') + '</div></div>'
+    : '<div class="banner">' + ic('user') + '<div>' + (showAll ? 'Showing every resource. <a href="#app/resources">Show only what applies to me</a>' : 'Showing what applies to you' + (meTags.length ? ' (' + meTags.map(t => esc(TAGS[t] || t)).join(', ') + ')' : '') + '. <a href="#app/resources?all=1">Show all resources</a>') + '</div></div>';
+  return head('Resources', staff ? 'Official forms and guidance — tagged by who they are for, so each person sees what applies to them.' : 'Official forms and guidance for you — work authorization, taxes and company policies.', mg ? '<button class="btn" data-action="res-new">' + ic('plus') + 'Add resource</button>' : '') + filterBar +
     (Object.keys(cats).length ? Object.keys(cats).sort().map(c => '<div class="card"><h3>' + esc(c) + '</h3>' + cats[c].map(r => '<div class="res"><span class="ri">' + ic(r.hasFile ? 'doc' : 'link') + '</span><div style="flex:1">' +
-      (r.url ? '<a href="' + esc(r.url) + '" target="_blank" rel="noopener"><b>' + esc(r.title) + '</b></a>' : '<b>' + esc(r.title) + '</b>') + (r.audience !== 'Everyone' ? ' ' + chip(r.audience) : '') +
+      (r.url ? '<a href="' + esc(r.url) + '" target="_blank" rel="noopener"><b>' + esc(r.title) + '</b></a>' : '<b>' + esc(r.title) + '</b>') + (r.audience !== 'Everyone' ? ' ' + chip(r.audience) : '') + (staff ? ' ' + (tagChips(r) || chip('Everyone')) : '') +
       (r.description ? '<div class="muted">' + esc(r.description) + '</div>' : '') + '</div><div class="btns">' + (r.hasFile ? '<button class="btn xs ghost" data-action="res-file" data-id="' + r.id + '">' + ic('download') + esc(r.fileName) + '</button>' : '') +
       (mg ? '<button class="btn xs ghost" data-action="res-edit" data-id="' + r.id + '">' + ic('edit') + '</button><button class="btn xs danger" data-action="res-del" data-id="' + r.id + '">' + ic('trash') + '</button>' : '') + '</div></div>').join('') + '</div>').join('')
-      : '<div class="card"><div class="empty">No resources yet.</div></div>');
+      : '<div class="card"><div class="empty">' + (list.length ? 'Nothing here for this group.' : 'No resources yet.') + '</div></div>');
 };
 function resForm(r) {
   r = r || {};
   return '<form data-form="res-save">' + (r.id ? '<input type="hidden" name="id" value="' + r.id + '">' : '') + '<div class="grid g2">' + field('Title', inp('title', r.title, 'required'), 'span2') +
     field('Category', inp('category', r.category || 'Company policies', 'list="res-cats"') + '<datalist id="res-cats">' + ['Employment eligibility', 'Work authorization', 'Taxes and payroll', 'Benefits', 'Company policies', 'Timesheets'].map(x => '<option value="' + x + '">').join('') + '</datalist>') +
-    field('Who sees it', sel('audience', ['Everyone', 'Employees', 'Staff'], r.audience || 'Everyone')) + field('Link (https://…)', inp('url', r.url, 'type="url"'), 'span2') +
+    field('Who sees it', sel('audience', ['Everyone', 'Employees', 'Staff'], r.audience || 'Everyone')) +
+    field('Who it is for (none ticked = everyone)', '<div class="checks" style="columns:3">' + Object.keys(D().lists.personTags || {}).map(t => '<label class="check"><input type="checkbox" name="tag" value="' + t + '"' + ((r.tags || []).indexOf(t) >= 0 ? ' checked' : '') + '> ' + esc(D().lists.personTags[t]) + '</label>').join('') + '</div>', 'span2') + field('Link (https://…)', inp('url', r.url, 'type="url"'), 'span2') +
     field('…or a file (handbook, policy, form)', '<input type="file" name="file">', 'span2') + field('Description', area('description', r.description), 'span2') + '</div><div class="foot-btns"><button class="btn">Save</button></div></form>';
 }
 Object.assign(ACTIONS, {
@@ -1840,7 +1873,7 @@ Object.assign(ACTIONS, {
   'res-del': async el => { if (!confirm('Remove this resource?')) return; await call('deleteResource', el.dataset.id); toast('Removed', 'ok'); await reloadCurrent(); },
   'res-file': async el => saveB64(await busy(el, call('getResourceFile', el.dataset.id)))
 });
-FORMS['res-save'] = async (v, form) => { const f = form.querySelector('[name=file]').files[0]; if (f) v.file = await readFile(f); await call('saveResource', v); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); };
+FORMS['res-save'] = async (v, form) => { const f = form.querySelector('[name=file]').files[0]; if (f) v.file = await readFile(f); delete v.tag; v.appliesTo = Array.from(form.querySelectorAll('[name=tag]:checked')).map(x => x.value); await call('saveResource', v); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); };
 
 const ROLE_HELP = { EXECUTIVE: 'Everything an admin can do, plus confidential executive records by default. Only admins and executives can make someone an executive.', MANAGER: 'Sees and approves timesheets for people who report to them. No pay or immigration data.', PAYROLL: 'All timesheets, pay rates, tax and bank forms; exports to payroll.',
   HR: 'Employees, onboarding, documents, immigration and resources.', ADMIN: 'Everything, plus team, settings and integrations.' };
@@ -2285,10 +2318,11 @@ async function readAfterUpload(r, name) {
 
 ACTIONS['intake'] = async el => {
   const emp = el.dataset.emp || '', staff = isStaff() && (can('docs.manage') || can('settings.manage'));
-  const list = emp || !staff ? [] : await busy(el, empChoices());
-  openModal('Add documents', '<form data-form="intake"><p class="muted">Drop any documents — passport, EAD, I-797, I-94, tax forms, offer letters, client timesheets (one week or a month)' + (staff && !emp ? ', company documents' : '') + '. IntelliEmp reads each one' + (AI().on ? ' with AI' : '') + ', works out what it is' + (emp ? '' : ' and whose it is') + ', and you check before it is filed.</p>' +
+  const con = el.dataset.scope === 'contractors' || (emp && (S.cache.emps || []).some(e => e.id === emp && e.employmentType === CON_TYPE));
+  const list = emp || !staff ? [] : (await busy(el, empChoices())).filter(e => !con || e.employmentType === CON_TYPE);
+  openModal('Add documents', '<form data-form="intake"><p class="muted">Drop any documents — ' + (con ? 'Form W-9, contractor agreement, certificate of insurance, business registration, invoices, client timesheets' : 'passport, EAD, I-797, I-94, tax forms, offer letters, client timesheets (one week or a month)' + (staff && !emp ? ', company documents' : '')) + '. IntelliEmp reads each one' + (AI().on ? ' with AI' : '') + ', works out what it is' + (emp ? '' : ' and whose it is') + ', and you check before it is filed.</p>' +
     '<div class="drop">' + ic('upload') + '<p>Choose one or more files (up to 40 MB each)</p><input type="file" name="files" multiple required accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.doc,.docx,.xlsx,.xls,.csv,.txt"></div>' +
-    (emp ? '<input type="hidden" name="employeeId" value="' + esc(emp) + '">' : staff ? '<div class="grid" style="margin-top:10px">' + field('For', sel('employeeId', [['', 'Let IntelliEmp work it out (name on the document, or the company)']].concat(list.map(e => [e.id, e.name + (e.jobTitle ? ' — ' + e.jobTitle : '')])), '')) + '</div>' : '') +
+    (emp ? '<input type="hidden" name="employeeId" value="' + esc(emp) + '">' : staff ? '<div class="grid" style="margin-top:10px">' + field('For', sel('employeeId', [['', 'Let IntelliEmp work it out (name on the document' + (con ? '' : ', or the company') + ')']].concat(list.map(e => [e.id, e.name + (e.jobTitle ? ' — ' + e.jobTitle : '')])), '')) + '</div>' : '') +
     '<div class="foot-btns"><button class="btn">' + ic('spark') + 'Read and sort</button></div></form>');
 };
 FORMS['intake'] = async (v, form) => {
@@ -2324,7 +2358,8 @@ async function intakeReview(items, errs, fixedEmp) {
   const staff = isStaff() && (can('docs.manage') || can('settings.manage')), emps = staff && !fixedEmp ? await empChoices() : [];
   const corpTypes = (D().lists.corpDocTypes || []), empTypes = L('docTypes') || [];
   S.cache.intake = { items: items, fixedEmp: fixedEmp };
-  const typeSel = (i, x) => '<select name="t_' + i + '">' + '<optgroup label="Employee documents">' + empTypes.map(t => '<option value="e|' + esc(t) + '"' + (x.category === 'employee' && x.documentType === t ? ' selected' : '') + '>' + esc(t) + '</option>').join('') + '</optgroup>' +
+  const who = x => personFor(fixedEmp || x.employeeId) || (emps || []).find(e => e.id === (fixedEmp || x.employeeId)) || null;
+  const typeSel = (i, x) => '<select name="t_' + i + '">' + (who(x) ? docTypeOptions(who(x), x.category === 'employee' ? x.documentType : '', staff, t => 'e|' + t) : '<optgroup label="Employee documents">' + empTypes.map(t => '<option value="e|' + esc(t) + '"' + (x.category === 'employee' && x.documentType === t ? ' selected' : '') + '>' + esc(t) + '</option>').join('') + '</optgroup>') +
     '<optgroup label="Timesheets"><option value="t|Timesheet"' + (x.category === 'timesheet' ? ' selected' : '') + '>Timesheet (record the weeks)</option></optgroup>' +
     (can('settings.manage') ? '<optgroup label="Company documents">' + corpTypes.map(t => '<option value="c|' + esc(t) + '"' + (x.category === 'company' && x.documentType === t ? ' selected' : '') + '>' + esc(t) + '</option>').join('') + '</optgroup>' : '') + '</select>';
   const whoSel = (i, x) => fixedEmp ? '' : '<select name="e_' + i + '"><option value="">' + (x.category === 'company' ? 'The company' : '— choose —') + '</option>' + emps.map(e => '<option value="' + e.id + '"' + (x.employeeId === e.id ? ' selected' : '') + '>' + esc(e.name) + '</option>').join('') + '</select>' +
@@ -3209,15 +3244,7 @@ function invoiceRows(list, staff) {
         (['Submitted', 'Approved'].indexOf(v.status) >= 0 ? '<button class="btn xs ghost" data-action="inv-reject" data-id="' + v.id + '" data-n="' + esc(v.number) + '">Send back</button>' : '') : '') +
       '</div></td></tr>').join('') + '</tbody></table></div>';
 }
-PAGES.invoices = async (parts, p) => {
-  if (!(can('pay.view') || can('timesheets.all'))) return go('#app');
-  const st = p.status === undefined ? 'Submitted' : p.status;
-  const list = await call('listInvoices', { status: st || undefined });
-  const yr = new Date().getFullYear();
-  return head('Invoices', '1099 contractors · ' + (st ? st.toLowerCase() : 'all') + ' · ' + list.length, can('pay.view') ? '<button class="btn ghost" data-action="inv-1099" data-y="' + yr + '">' + ic('download') + 'Form 1099-NEC totals</button> <button class="btn" data-action="inv-new">' + ic('plus') + 'Add an invoice</button>' : '') +
-    '<div class="card"><div class="filters"><span class="muted">Show</span> ' + ['Submitted', 'Approved', 'Paid', 'Rejected', ''].map(s => '<a class="btn sm ' + (s === st ? '' : 'ghost') + '" href="#app/invoices?status=' + s + '">' + (s || 'All') + '</a>').join(' ') + '</div>' + invoiceRows(list, true) + '</div>' +
-    '<p class="hint">Each invoice is checked against the contractor\'s submitted and approved timesheets for the same period (hours × rate), and for duplicate numbers and overlapping periods. Paid invoices make up the Form 1099-NEC totals.</p>';
-};
+PAGES.invoices = async (parts, p) => go('#app/contractors?view=invoices' + (p.status !== undefined ? '&status=' + encodeURIComponent(p.status) : ''));
 PAGES['my-invoices'] = async () => {
   const me = D().who.employeeId; if (!me) return go('#app');
   const list = await call('listInvoices', {});
@@ -3225,8 +3252,12 @@ PAGES['my-invoices'] = async () => {
     '<div class="card">' + invoiceRows(list, false) + '</div>';
 };
 function empInvoices(E) {
-  const list = E.invoices || [];
-  return '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Invoices</h3>' + (can('pay.view') || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="inv-new" data-emp="' + esc(E.employee.id) + '">' + ic('plus') + 'Add an invoice</button>' : '') + '</div>' + invoiceRows(list, false) + '</div>';
+  const list = E.invoices || [], yr = String(today()).slice(0, 4), sum = l => l.reduce((a, v) => a + Number(v.amount || 0), 0);
+  const tile = (label, val, cls) => '<div class="stat' + (cls ? ' ' + cls : '') + '"><b>' + esc(val) + '</b><span>' + esc(label) + '</span></div>';
+  const stats = list.length ? '<div class="stats">' + tile('To approve', String(list.filter(v => v.status === 'Submitted').length), list.some(v => v.status === 'Submitted') ? 'warn' : '') +
+    tile('Approved, to pay', amt(sum(list.filter(v => v.status === 'Approved')))) + tile('Paid in ' + yr, amt(sum(list.filter(v => v.status === 'Paid' && String(v.paidAt || '').slice(0, 4) === yr)))) +
+    tile('Billed in ' + yr, amt(sum(list.filter(v => v.status !== 'Rejected' && String(v.invoiceDate || '').slice(0, 4) === yr)))) + '</div>' : '';
+  return stats + '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Invoices</h3>' + (can('pay.view') || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="inv-new" data-emp="' + esc(E.employee.id) + '">' + ic('plus') + 'Add an invoice</button>' : '') + '</div>' + invoiceRows(list, false) + '</div>';
 }
 async function invoiceModal(empId, pre) {
   pre = pre || {};
@@ -3271,6 +3302,32 @@ Object.assign(ACTIONS, {
 });
 FORMS['inv-reject'] = async v => { await call('decideInvoice', { id: v.id, decision: 'reject', note: v.note }); closeModal(); toast('Sent back to the contractor', 'ok'); await reloadCurrent(); };
 FORMS['inv-paid'] = async v => { await call('decideInvoice', { id: v.id, decision: 'paid', paidOn: v.paidOn, reference: v.reference }); closeModal(); toast('Marked paid', 'ok'); await reloadCurrent(); };
+function tagsOf(e) {
+  if (!e) return [];
+  const intl = e.workAuth === 'Outside the U.S.' || (e.country && e.country !== 'US');
+  return [e.employmentType === '1099 Contractor' ? 'contractor' : 'w2'].concat(intl ? ['outside-us'] : ((D().lists.authTags || {})[e.workAuth] || []));
+}
+const hits = (tags, mine) => !tags || !tags.length || tags.some(t => mine.indexOf(t) >= 0);
+const DOC_TAGS = {
+  'Offer letter': ['w2'], 'Form I-9': ['w2'], 'I-9 documents': ['w2'], 'Form W-4': ['w2'], 'State withholding': ['w2'], 'Employment agreement': ['w2'], 'Handbook acknowledgment': ['w2'], 'Pay stubs': ['w2', 'h1b'],
+  'Form W-9': ['contractor'], 'Contractor agreement': ['contractor'], 'Certificate of insurance': ['contractor'], 'Business registration': ['contractor'], 'Form 1099-NEC': ['contractor'], 'Invoice': ['contractor'],
+  'EAD card': ['ead'], 'Green card': ['green-card'], 'I-797 approval': ['h1b', 'ead', 'gc-path'], 'I-94': ['nonimmigrant'], 'Visa stamp': ['nonimmigrant'], 'I-20': ['opt'], 'Form I-983': ['stem-opt'],
+  'I-485 receipt': ['gc-path'], 'TN approval': ['tn'], 'E-3 approval': ['e3'], 'LCA (ETA-9035)': ['h1b'], 'PERM (ETA-9089)': ['gc-path'], 'I-140 notice': ['gc-path'], 'RFE / NOID': ['h1b', 'gc-path', 'ead'],
+  'Local tax and bank details': ['outside-us'], 'ID document': ['outside-us'], 'PAN card': ['outside-us'], 'Work permit': ['outside-us'], 'Relieving letter': ['outside-us'], 'Direct deposit': ['w2', 'contractor']
+};
+function docTypeOptions(e, cur, staff, valueOf) {
+  const all = L('docTypes') || [], mine = tagsOf(e), val = valueOf || (t => t);
+  if (!e) return all.map(t => '<option value="' + esc(val(t)) + '"' + (t === cur ? ' selected' : '') + '>' + esc(t) + '</option>').join('');
+  const rel = all.filter(t => t !== 'Other' && DOC_TAGS[t] && hits(DOC_TAGS[t], mine)), gen = all.filter(t => t !== 'Other' && !DOC_TAGS[t]), rest = all.filter(t => DOC_TAGS[t] && !hits(DOC_TAGS[t], mine));
+  const o = t => '<option value="' + esc(val(t)) + '"' + (t === cur ? ' selected' : '') + '>' + esc(t) + '</option>';
+  const who = e.employmentType === '1099 Contractor' ? '1099 contractor' : (e.workAuth || 'employee');
+  return '<optgroup label="For ' + esc(e.firstName || e.name || 'this person') + ' (' + esc(who) + ')">' + rel.map(o).join('') + '</optgroup><optgroup label="Any employee">' + gen.map(o).join('') + o('Other') + '</optgroup>' +
+    (staff && rest.length ? '<optgroup label="Other types">' + rest.map(o).join('') + '</optgroup>' : (cur && rest.indexOf(cur) >= 0 ? o(cur) : ''));
+}
+function personFor(id) {
+  const c = [S.cache.emp && S.cache.emp.employee, S.cache.portal && S.cache.portal.employee].filter(Boolean);
+  return c.find(e => e.id === id) || (S.cache.emps || []).find(e => e.id === id) || null;
+}
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
   copy: el => copy(el.dataset.text || ''),
