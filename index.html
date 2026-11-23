@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.52"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.53"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1161,7 +1161,7 @@ async function conInvoices(p) {
 }
 FORMS['con-filter'] = v => go('#app/contractors?' + Object.keys(v).filter(k => v[k]).map(k => k + '=' + encodeURIComponent(v[k])).join('&'));
 ACTIONS['add-contractor'] = () => openModal('Add contractor', '<form data-form="emp-create">' + hireTypePicker('') + empForm({ employmentType: CON_TYPE, payType: 'Hourly' }, 'new') +
-  '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal now, to</label>' + sel('inviteTo', [['work', 'their work email'], ['personal', 'their personal email'], ['both', 'both (sign in with work email)']], 'personal', 'style="width:auto"') + '</div>' +
+  inviteChoice('personal') +
   '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Add contractor</button></div></form>', true);
 FORMS['emp-filter'] = v => go('#app/employees?' + Object.keys(v).filter(k => v[k]).map(k => k + '=' + encodeURIComponent(v[k])).join('&'));
 
@@ -1186,7 +1186,7 @@ PAGES.employee = async parts => {
   const badge = { onboarding: E.progress && E.progress.toReview ? chip(E.progress.toReview, 'warn') : '', documents: E.documents ? chip(E.documents.length) : '', immigration: E.cases && E.cases.length ? chip(E.cases.length) : '', invoices: (n => n ? chip(n, 'warn') : '')((E.invoices || []).filter(v => v.status === 'Submitted').length) };
   const body = { '': empProfile, onboarding: empOnboarding, documents: empDocuments, timesheets: empTimesheets, invoices: empInvoices, immigration: empImmigration, notes: empNotes }[tab] || empProfile;
   return '<div class="pagehead"><div class="who"><span class="av lg">' + esc(initials(e.name)) + '</span><div><h1>' + esc(e.name) + '</h1><p>' + esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code) + ' ' + statusChip(e.status) + (e.country && e.country !== 'US' ? ' ' + chip(((L('countries') || []).find(c => c.code === e.country) || { name: e.country }).name, 'info') : '') + (e.employmentType === '1099 Contractor' ? ' ' + chip('1099 contractor' + (e.businessName ? ' · ' + e.businessName : ''), 'info') : '') + (e.hireType === 'Existing' ? ' ' + chip('Moved from another system', 'teal') : '') + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '</p></div></div>' +
-    '<div class="btns">' + (hr ? '<button class="btn ghost" data-action="emp-edit">' + ic('edit') + 'Edit</button>' + (E.member ? '' : '<button class="btn" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt ? 'Resend invitation' : 'Invite to portal') + '</button>') : '') + '</div></div>' +
+    '<div class="btns">' + (hr ? '<button class="btn ghost" data-action="emp-edit">' + ic('edit') + 'Edit</button>' + (E.member && E.member.signedIn ? '' : '<button class="btn" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt || E.member ? 'Resend invitation' : 'Invite to portal') + '</button>') : '') + '</div></div>' +
     '<nav class="tabs">' + tabs.map(t => '<a href="#app/employee/' + e.id + (t[0] ? '/' + t[0] : '') + '" class="' + (tab === t[0] ? 'on' : '') + '">' + esc(t[0] === 'onboarding' && e.hireType === 'Existing' ? 'Records refresh' : t[1]) + (badge[t[0]] || '') + '</a>').join('') + '</nav>' + body(E);
 };
 function empProfile(E) {
@@ -1196,7 +1196,9 @@ function empProfile(E) {
     (e.ssnLast4 || e.ssnStatus === 'Cleared' ? kv('Social Security no.', e.ssnLast4 ? '***-**-' + esc(e.ssnLast4) + ' ' + (e.ssnStatus === 'Verified' ? chip('Verified', 'ok') + ' <small class="muted">' + esc(e.ssnVerifiedBy || '') + '</small>' : chip('Entered by employee', 'warn')) +
       (can('onboarding.manage') ? ' ' + (e.ssnStatus !== 'Verified' ? '<button class="btn xs" data-action="ssn-verify" data-emp="' + e.id + '">Mark verified</button> ' : '') + '<button class="btn xs ghost" data-action="ssn-clear" data-emp="' + e.id + '" title="Removes it so the employee is asked again on the next form">Ask again</button>' : '')
       : '<span class="muted">Will be asked on the next form</span>') : '') +
-    (e.payRate !== undefined ? kv('Pay', esc(money(e.payRate, e.payType, e.currency)) + (e.payFrequency || D().org.payFrequency ? ' <small class="muted">· paid ' + esc(e.payFrequency || D().org.payFrequency) + '</small>' : '')) : '') + kv('Start date', esc(fmtDate(e.startDate))) + kv('End date', esc(fmtDate(e.endDate))) +
+    (e.payRate !== undefined ? kv('Pay', esc(money(e.payRate, e.payType, e.currency)) + (e.payFrequency || D().org.payFrequency ? ' <small class="muted">· paid ' + esc(e.payFrequency || D().org.payFrequency) + '</small>' : '')) : '') +
+    (Number(e.perDiem) ? kv('Per diem', esc(money(e.perDiem, '', e.currency)) + ' per ' + esc(e.perDiemPer || 'day')) : '') +
+    (Number(e.bonusRate) ? kv('Bonus', e.bonusType === '% of base pay' || !e.bonusType ? esc(e.bonusRate) + '% of base pay' : esc(money(e.bonusRate, '', e.currency)) + ' ' + esc({ 'Per hour worked': 'per hour worked', 'Fixed amount per year': 'per year', 'Fixed amount per quarter': 'per quarter', 'One-time': 'one-time' }[e.bonusType] || '')) : '') + kv('Start date', esc(fmtDate(e.startDate))) + kv('End date', esc(fmtDate(e.endDate))) +
     kv('Manager', esc(e.managerName || '') + (e.managerEmail ? ' <small class="muted">' + esc(e.managerEmail) + '</small>' : '')) + (placementOf(e) === 'Internal' ? kv('Client', '<span class="muted">No client — works for us directly</span>') : kv('Client', esc(e.clientName)) + kv('Project', esc(e.projectName))) +
     kv('Client manager', esc(e.clientManagerName || '') + (e.clientManagerEmail ? ' <small class="muted">' + esc(e.clientManagerEmail) + '</small>' : '')) + kv('Worksite', esc(e.worksite)) + '</dl></div>' +
     '<div class="card"><h3>' + ic('clock') + 'Timesheets</h3><dl class="kv">' + kv('Weekly timesheet', e.timesheetRequired === 'No' ? 'Not required' : 'Required') + kv('Approval', esc(e.approvalFlow)) +
@@ -1205,8 +1207,10 @@ function empProfile(E) {
       kv(((L('waFields') || {})[e.workAuth] || {}).receipt || 'Receipt number', esc(e.receiptNumber)) + (((L('waFields') || {})[e.workAuth] || {}).note ? '<dt></dt><dd><small class="muted">' + esc(L('waFields')[e.workAuth].note) + '</small></dd>' : '') + kv('E-Verify case', esc(e.eVerifyCase) + (e.eVerifyStatus ? ' · ' + esc(e.eVerifyStatus) : '')) + '</dl>' : '') + '</div>' +
     '<div class="card"><h3>' + ic('user') + 'Contact</h3><dl class="kv">' + kv('Work email', esc(e.email)) + kv('Personal email', esc(e.personalEmail)) + kv('Phone', esc(e.phone)) +
     kv('Address', esc([e.address, e.city, e.state, e.zip].filter(Boolean).join(', '))) + kv('Emergency contact', esc([e.emergencyName, e.emergencyPhone].filter(Boolean).join(' · '))) + '</dl></div>' +
-    '<div class="card"><h3>' + ic('shield') + 'Portal access</h3>' + (E.member ? '<p>' + esc(E.member.email) + ' · ' + esc(roleName(E.member.role)) + ' ' + statusChip(E.member.status) + '</p>' :
-      '<p class="muted">' + (e.invitedAt ? 'Invited ' + fmtWhen(e.invitedAt) + ' — not signed in yet.' : 'Not invited yet.') + '</p>') +
+    '<div class="card"><div class="card-h"><h3>' + ic('shield') + 'Portal access</h3>' + (can('employees.edit') && !(E.member && E.member.signedIn) ? '<button class="btn sm" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt || E.member ? 'Resend invitation' : 'Invite to portal') + '</button>' : '') + '</div>' +
+      (E.member && E.member.signedIn ? '<p>' + chip('Signed in', 'ok') + ' ' + esc(E.member.email) + ' · ' + esc(roleName(E.member.role)) + (E.member.lastLogin ? ' <small class="muted">· last signed in ' + esc(fmtWhen(E.member.lastLogin)) + '</small>' : '') + '</p>'
+        : e.invitedAt || E.member ? '<p>' + chip('Invited — not signed in yet', 'warn') + ' ' + (E.member ? esc(E.member.email) : '') + (e.invitedAt ? ' <small class="muted">· sent ' + esc(fmtWhen(e.invitedAt)) + '</small>' : '') + '</p><p class="hint">Resend if the email was missed or the code expired — you can pick the work email, the personal email or both.</p>'
+        : '<p class="muted">Not invited yet.</p>') +
     '<dl class="kv">' + kv('Added', esc(fmtDate(e.createdAt)) + ' by ' + esc(e.createdBy || '')) + kv('Source', esc(e.source)) + '</dl></div></div>';
 }
 function empOnboarding(E) {
@@ -1319,6 +1323,8 @@ function empForm(e, mode) {
       '<div class="hint" id="kindHint"' + (e.employmentType === '1099 Contractor' ? '' : ' hidden') + '>1099 independent contractor: no Form I-9, W-4, state withholding or E-Verify — the checklist asks for a Form W-9, the independent contractor agreement and payment details. Use 1099 only if they control how they do the work (Resources → 1099 contractors). H-1B and STEM OPT workers must be W-2 employees.</div>') + field(e.hireType === 'Existing' ? 'Original hire date' : 'Start date', inp('startDate', e.startDate, 'type="date"')) +
     (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + '<div><label id="payRateLbl">' + esc(payRateLabel(e.payType, e.country && e.country !== 'US' ? (e.currency || (((L('countries') || []).find(c => c.code === e.country) || {}).currency) || '') : 'USD')) + '</label>' +
         inp('payRate', e.payRate, 'type="number" step="0.01" min="0"') + '<div class="hint" id="payRateHint"></div></div>' +
+      '<div><label>Per diem</label><div style="display:flex;gap:8px">' + inp('perDiem', e.perDiem, 'type="number" step="0.01" min="0" placeholder="0.00"') + sel('perDiemPer', [['day', 'per day'], ['week', 'per week'], ['month', 'per month']], e.perDiemPer || 'day', 'style="width:auto"') + '</div><div class="hint">Travel or living allowance, if any.</div></div>' +
+      '<div><label>Bonus rate</label><div style="display:flex;gap:8px">' + inp('bonusRate', e.bonusRate, 'type="number" step="0.01" min="0" placeholder="0"') + sel('bonusType', [['% of base pay', '% of base pay'], ['Per hour worked', 'per hour worked'], ['Fixed amount per year', 'fixed, per year'], ['Fixed amount per quarter', 'fixed, per quarter'], ['One-time', 'one-time']], e.bonusType || '% of base pay', 'style="width:auto"') + '</div><div class="hint">A percentage, or an amount in the pay currency.</div></div>' +
       field('Paid', sel('payFrequency', [['', 'Company default (' + (D().org.payFrequency || 'semi-monthly') + ')'], ['weekly', 'Weekly'], ['bi-weekly', 'Every two weeks (bi-weekly)'], ['semi-monthly', 'Twice a month (semi-monthly)'], ['monthly', 'Monthly']], e.payFrequency || '')) : '') +
     (can('confidential.view') ? field('', '<label class="check"><input type="checkbox" name="confidential"' + (e.confidential === 'Yes' ? ' checked' : '') + '> Confidential (executive) record — hidden from anyone without the "confidential records" power</label>', 'span2') : '') +
     (isNew ? '' : field('Status', sel('status', lists.empStatuses, e.status)) + field('End date', inp('endDate', e.endDate, 'type="date"'))) +
@@ -1407,9 +1413,9 @@ CHANGES['wa-fields'] = el => {
   ['workAuthExpiry', 'i94Expiry', 'receiptNumber'].forEach(k => { const a = grid.querySelector('[data-wa="' + k + '"]'), b = tmp.querySelector('[data-wa="' + k + '"]'); if (a && b) a.replaceWith(b); });
   const n2 = tmp.querySelector('#wa-note'); if (note && n2) note.replaceWith(n2);
 };
-const cleanEmp = v => { const o = Object.assign({}, v); Object.keys(o).forEach(k => { if (o[k] === '') delete o[k]; }); if (o.payRate !== undefined) o.payRate = Number(o.payRate); if (can('confidential.view')) o.confidential = !!v.confidential; else delete o.confidential; return o; };
+const cleanEmp = v => { const o = Object.assign({}, v); Object.keys(o).forEach(k => { if (o[k] === '') delete o[k]; }); ['payRate', 'perDiem', 'bonusRate'].forEach(k => { if (o[k] !== undefined) o[k] = Number(o[k]); }); if (!o.perDiem) delete o.perDiemPer; if (!o.bonusRate) delete o.bonusType; if (can('confidential.view')) o.confidential = !!v.confidential; else delete o.confidential; return o; };
 Object.assign(ACTIONS, {
-  'add-employee': () => openModal('Add employee', '<form data-form="emp-create">' + hireTypePicker('') + empForm({}, 'new') + '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal now, to</label>' + sel('inviteTo', [['work', 'their work email'], ['personal', 'their personal email'], ['both', 'both (sign in with work email)']], 'work', 'style="width:auto"') + '</div>' +
+  'add-employee': () => openModal('Add employee', '<form data-form="emp-create">' + hireTypePicker('') + empForm({}, 'new') + inviteChoice('work') +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Add employee</button></div></form>', true),
   'emp-edit': () => openModal('Edit ' + S.cache.emp.employee.name, '<form data-form="emp-update"><input type="hidden" name="id" value="' + S.cache.emp.employee.id + '">' + hireTypePicker(S.cache.emp.employee.hireType || '', true) + empForm(S.cache.emp.employee, 'edit') +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Save</button></div></form>', true),
@@ -1439,10 +1445,10 @@ Object.assign(ACTIONS, {
   'doc-del': async el => { if (!confirm('Delete this document? The file is moved to the trash.')) return; await busy(el, call('deleteDocument', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); }
 });
 Object.assign(FORMS, {
-  'emp-create': async v => { const invite = v.invite, inviteTo = v.inviteTo; delete v.invite; delete v.inviteTo; const o = cleanEmp(v); o.hireType = v.hireType || ''; const r = await call('createEmployee', o); closeModal();
-    if (invite) { try { const to = inviteTo === 'work' && !o.email ? 'personal' : inviteTo === 'personal' && !o.personalEmail ? 'work' : inviteTo; await call('inviteEmployee', { employeeId: r.id, to: to, signIn: to === 'both' ? 'work' : to }); } catch (e) { fail(e); } }
+  'emp-create': async v => { const invite = v.invite, inviteTo = v.inviteTo, signIn = v.signIn; delete v.invite; delete v.inviteTo; delete v.signIn; const o = cleanEmp(v); o.hireType = v.hireType || ''; const r = await call('createEmployee', o); closeModal();
+    if (invite) { try { const to = inviteTo === 'work' && !o.email ? 'personal' : inviteTo === 'personal' && !o.personalEmail ? 'work' : inviteTo; await call('inviteEmployee', { employeeId: r.id, to: to === 'both' && !(o.email && o.personalEmail) ? (o.email ? 'work' : 'personal') : to, signIn: to === 'both' && o.email && o.personalEmail ? (signIn || 'work') : to === 'both' ? (o.email ? 'work' : 'personal') : to }); } catch (e) { fail(e); } }
     toast((o.employmentType === '1099 Contractor' ? 'Contractor added — W-9, agreement and payment details are on their checklist' : o.hireType === 'Existing' ? 'Existing employee added — records refresh list ready' : 'Employee added') + (invite ? ' and invited' : ''), 'ok'); S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); },
-  'emp-update': async v => { const o = Object.assign({}, v); ['payRate'].forEach(k => { if (o[k] !== '' && o[k] !== undefined) o[k] = Number(o[k]); });
+  'emp-update': async v => { const o = Object.assign({}, v); ['payRate', 'perDiem', 'bonusRate'].forEach(k => { if (o[k] !== '' && o[k] !== undefined) o[k] = Number(o[k]); });
     if (can('confidential.view')) o.confidential = !!v.confidential; else delete o.confidential;
     o.hireType = v.hireType || '';
     const r = await call('updateEmployee', o); closeModal(); toast(r && r.checklistUpdated ? 'Saved — checklist updated for the new work authorization' : 'Saved', 'ok'); await reloadCurrent(); },
@@ -1492,19 +1498,27 @@ function showDocRead(r, files) {
     r.documents.map((d, i) => '<tr><td><small>' + esc(d.name) + '</small>' + (d.readable ? '' : '<br>' + chip('No text found', 'warn')) + (d.readBy && d.readBy !== 'Built-in reader' ? '<br>' + chip('AI · ' + d.readBy, 'teal') : '') + '</td><td>' + sel('type_' + i, L('docTypes'), d.type || 'Other') + '</td><td>' + inp('exp_' + i, d.expiresOn || '', 'type="date"') + '</td>' +
       '<td><small>' + esc([d.workAuth, d.category ? 'Category ' + d.category : '', d.receiptNumber].filter(Boolean).join(' · ')) + '</small>' + (d.summary ? '<br><small class="muted">' + esc(d.summary) + '</small>' : '') +
       ((d.issues || []).length ? '<br><small style="color:var(--warn,#b45309)">' + d.issues.map(esc).join('<br>') + '</small>' : '') + '</td></tr>').join('') + '</tbody></table>' +
-    empForm(p, 'new') + '<label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal</label>' +
+    empForm(p, 'new') + inviteChoice(p.email ? 'both' : 'personal') +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Create employee and file documents</button></div></form>', true);
 }
 FORMS['docs-create'] = async v => {
   const files = S.cache.docFiles.map((f, i) => Object.assign({}, f, { type: v['type_' + i], expiresOn: v['exp_' + i] }));
-  const emp = {}; Object.keys(v).filter(k => !/^(type|exp)_\d+$/.test(k) && k !== 'invite').forEach(k => { emp[k] = v[k]; });
-  await docJob('Creating ' + (emp.firstName || 'the employee') + ' and filing ' + files.length + ' document(s)', call('createEmployeeFromDocs', { employee: cleanEmp(emp), files: files, invite: !!v.invite }), async (r, here) => {
-    if (here) closeModal(); toast('Employee added · ' + r.filed + ' document(s) filed' + (r.invite && r.invite.sent ? ' · invited' : ''), 'ok');
+  const emp = {}; Object.keys(v).filter(k => !/^(type|exp)_\d+$/.test(k) && ['invite', 'inviteTo', 'signIn'].indexOf(k) < 0).forEach(k => { emp[k] = v[k]; });
+  await docJob('Creating ' + (emp.firstName || 'the employee') + ' and filing ' + files.length + ' document(s)', call('createEmployeeFromDocs', { employee: cleanEmp(emp), files: files, invite: !!v.invite, inviteTo: v.inviteTo, signIn: v.signIn }), async (r, here) => {
+    if (here) closeModal(); toast('Employee added · ' + r.filed + ' document(s) filed' + (r.invite && r.invite.sent ? ' · invitation sent to ' + r.invite.email + (r.invite.copyTo ? ' and ' + r.invite.copyTo : '') : ''), 'ok');
     S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); });
 };
 
 ACTIONS['ssn-verify'] = async el => { if (!confirm('Mark the Social Security number as verified (you checked the card, E-Verify or Form I-9 documents)?')) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'verify' })); toast('Marked verified', 'ok'); await reloadCurrent(); };
 ACTIONS['ssn-clear'] = async el => { if (!confirm('Remove the Social Security number on file? The employee will be asked for it again on their next form. Signed forms keep the number they were signed with.')) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'clear' })); toast('Removed — they will be asked again', 'ok'); await reloadCurrent(); };
+
+function inviteChoice(def) {
+  return '<div class="invite-choice"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal now, to</label>' +
+    sel('inviteTo', [['personal', 'their personal email'], ['work', 'their work email'], ['both', 'both work and personal']], def || 'personal', 'style="width:auto" data-change="inv-to-pick"') +
+    '<span data-signin' + (def === 'both' ? '' : ' hidden') + ' class="muted">— they sign in with</span>' + sel('signIn', [['work', 'the work email'], ['personal', 'the personal email']], 'work', 'style="width:auto"' + (def === 'both' ? '' : ' hidden') + ' data-signin') + '</div>' +
+    '<p class="hint">New hires often have no work email yet — use their personal email, or both so the work inbox gets a copy. If the chosen address is missing, the other one is used.</p></div>';
+}
+CHANGES['inv-to-pick'] = el => { el.closest('.invite-choice').querySelectorAll('[data-signin]').forEach(x => { x.hidden = el.value !== 'both'; }); };
 
 function hireTypePicker(cur, editing) {
   const opt = (v, t, d) => '<label class="pick' + (cur === v ? ' on' : '') + '" style="flex:1;min-width:240px;border:1px solid var(--line,#dfe3ea);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;gap:10px;align-items:flex-start' + (cur === v ? ';border-color:var(--teal,#1fb5a3);background:#f2fbfa' : '') + '">' +
