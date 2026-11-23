@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.47"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.48"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -100,6 +100,7 @@ form .grid{margin-bottom:14px}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:16px}
 .card.tight{padding:14px 16px}.card h3{display:flex;align-items:center;gap:8px}
+.sched-status{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;background:var(--bg,#f5f7fa);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:14px}.sched-status>div>div{margin-top:3px;font-weight:600}
 .card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}.card-h h3{margin:0}
 .empty{text-align:center;color:var(--mute);padding:26px 10px;font-size:14px}
 .banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;font-size:14px;margin-bottom:14px;background:var(--bluebg);color:#24508f}
@@ -1728,12 +1729,13 @@ function tsInboxStrip(st) {
 Object.assign(ACTIONS, {
   'ts-inbox-run': async el => {
     const r = await busy(el, call('runTimesheetInboxNow'));
+    if (r.off) { toast(r.note || 'Emailed timesheets are off.', 'error', 8000); return reloadCurrent(); }
     toast(r.emails ? 'Read ' + r.emails + ' email' + (r.emails === 1 ? '' : 's') + ': ' + ([r.filed ? r.filed + ' timesheet' + (r.filed === 1 ? '' : 's') + ' filed' : '', r.waiting ? r.waiting + ' to assign' : '', r.errors ? r.errors + ' failed' : ''].filter(Boolean).join(', ') || 'nothing for this company') : 'No new timesheet emails.', r.errors ? 'error' : 'ok', 7000);
     await reloadCurrent();
   },
   'ts-inbox-history': async el => {
     const st = await busy(el, call('getTsInboxStatus'));
-    openModal('Emailed timesheets — recent runs', '<p class="muted">' + esc(st.label) + (st.next ? ' · next ' + esc(fmtWhen(st.next)) : '') + '. Counts are for your company.</p>' +
+    openModal('Emailed timesheets — recent runs', '<p class="muted">' + esc(st.label) + (st.next ? ' · next ' + esc(fmtWhen(st.next)) : '') + '. ' + (st.all ? 'Counts cover every company.' : 'Counts are for your company.') + '</p>' +
       (st.runs.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>When</th><th>By</th><th class="num">Emails</th><th class="num">Filed</th><th class="num">To assign</th><th class="num">Failed</th><th class="num">Took</th></tr></thead><tbody>' +
         st.runs.map(x => '<tr><td>' + esc(fmtWhen(x.at)) + '</td><td>' + esc(x.by) + '</td><td class="num">' + (x.off ? '—' : x.emails) + '</td><td class="num">' + x.filed + '</td><td class="num">' + x.waiting + '</td><td class="num">' + (x.errors ? '<b style="color:var(--red)">' + x.errors + '</b>' : 0) + '</td><td class="num">' + x.secs + ' s</td></tr>').join('') + '</tbody></table></div>'
         : '<div class="empty">No runs yet.</div>') + '<div class="foot-btns"><button type="button" class="btn" data-action="ts-inbox-run">' + ic('mail') + 'Run now</button></div>', true);
@@ -2012,21 +2014,35 @@ Object.assign(FORMS, {
   'pw-change': async (v, form) => { await call('changePassword', v); form.reset(); toast('Password changed. Other devices were signed out.', 'ok'); }
 });
 
+function tsSchedulerCard(r, st) {
+  const x = r.settings; S.cache.plat = { appUrl: x.appUrl, timesheetInbox: x.timesheetInbox, timesheetLabel: x.timesheetLabel, timesheetDoneLabel: x.timesheetDoneLabel, signupOpen: String(x.signupOpen) };
+  const last = st && st.runs[0], on = st && st.on;
+  return '<form class="card" data-form="plat-save"><div class="card-h"><h3>' + ic('clock') + 'Timesheet email scheduler</h3><div class="btns"><button type="button" class="btn sm ghost" data-action="ts-inbox-history">History</button>' +
+      '<button type="button" class="btn sm" data-action="ts-inbox-run"' + (on ? '' : ' disabled title="Set the Gmail label or inbox address first"') + '>' + ic('mail') + 'Run now</button></div></div>' +
+    '<div class="sched-status">' + [['Status', on ? (st.every === 'off' ? chip('Run now only', 'warn') : chip('On', 'ok')) : chip('Off — no label or address', 'bad')], ['Schedule', esc(st ? st.label : '—')],
+      ['Last run', last ? esc(fmtWhen(last.at)) + ' · ' + (last.off ? esc(last.note || 'off') : last.emails + ' email' + (last.emails === 1 ? '' : 's') + ', ' + last.filed + ' filed' + (last.waiting ? ', ' + last.waiting + ' to assign' : '') + (last.errors ? ', <b style="color:var(--red)">' + last.errors + ' failed</b>' : '')) : 'Not run yet'],
+      ['Next run', st && st.next ? esc(fmtWhen(st.next)) : st && st.every === 'off' ? 'Only when you click Run now' : '—']].map(k => '<div><small class="muted">' + k[0] + '</small><div>' + k[1] + '</div></div>').join('') + '</div>' +
+    '<div class="grid g3">' +
+    field('Read emailed timesheets', sel('tsEvery', [['off', 'Off (Run now only)'], ['10', 'Every 10 minutes'], ['15', 'Every 15 minutes'], ['30', 'Every 30 minutes'], ['60', 'Every hour'], ['120', 'Every 2 hours'], ['240', 'Every 4 hours'], ['360', 'Every 6 hours'], ['720', 'Every 12 hours'], ['daily', 'Once a day']], x.tsEvery || '10')) +
+    field('Once a day at', sel('tsAt', Array.from({ length: 24 }, (q, h) => [String(h), (h % 12 || 12) + ':00 ' + (h < 12 ? 'AM' : 'PM')]), String(x.tsAt === undefined ? 7 : x.tsAt)), '', 'Used when the schedule is "Once a day".') +
+    '<div></div>' +
+    field('Gmail label for timesheets', inp('timesheetLabel', x.timesheetLabel, 'placeholder="timesheets"'), '', 'Emails with this label (or "label/company-slug") in the IntelliEmp Gmail account are read on the schedule above. Empty = off.') +
+    field('Label for processed timesheets', inp('timesheetDoneLabel', x.timesheetDoneLabel, 'placeholder="timesheets-proc"'), '', 'Processed emails move here and the timesheets label is removed.') +
+    field('Timesheet inbox address (optional)', inp('timesheetInbox', x.timesheetInbox, 'type="email" placeholder="timesheets@intellisoft-tech.com"'), '', 'Mail sent to this address is read too.') +
+    '</div><p class="hint">Each company admin also sees Run now and History on their Timesheets page; their counts cover only their own company.</p><button class="btn">Save schedule</button></form>';
+}
 PAGES.platform = async () => {
   if (!D().platformAdmin) return go('#app');
-  const r = await call('platformOverview');
+  const [r, st] = await Promise.all([call('platformOverview'), call('getTsInboxStatus').catch(() => null)]);
   return head('Platform', r.orgs.length + ' companies · ' + r.users + ' accounts') +
+    tsSchedulerCard(r, st) +
     '<form class="card" data-form="plat-save"><h3>' + ic('gear') + 'Platform settings</h3><div class="grid g3">' + field('App address', inp('appUrl', r.settings.appUrl || 'https://employee.intellisoft-tech.com', 'type="url"')) +
-    field('Timesheet inbox address', inp('timesheetInbox', r.settings.timesheetInbox, 'type="email" placeholder="timesheets@intellisoft-tech.com"')) +
-    field('Gmail label for timesheets', inp('timesheetLabel', r.settings.timesheetLabel, 'placeholder="timesheets"'), '', 'Emails with this label (or "label/company-slug") in this account are read every 10 minutes. Leave empty to turn off.') +
-    field('Read emailed timesheets', sel('tsEvery', [['off', 'Off (Run now only)'], ['10', 'Every 10 minutes'], ['15', 'Every 15 minutes'], ['30', 'Every 30 minutes'], ['60', 'Every hour'], ['120', 'Every 2 hours'], ['240', 'Every 4 hours'], ['360', 'Every 6 hours'], ['720', 'Every 12 hours'], ['daily', 'Once a day']], r.settings.tsEvery || '10')) +
-    field('Once a day at', sel('tsAt', Array.from({ length: 24 }, (x, h) => [String(h), (h % 12 || 12) + ':00 ' + (h < 12 ? 'AM' : 'PM')]), String(r.settings.tsAt === undefined ? 7 : r.settings.tsAt)), '', 'Used when the schedule is "Once a day". Every company also has Run now on its Timesheets page.') +
-    field('Label for processed timesheets', inp('timesheetDoneLabel', r.settings.timesheetDoneLabel, 'placeholder="timesheets-proc"'), '', 'Processed emails move here (the timesheets label is removed).') + field('New company sign-ups', sel('signupOpen', [['true', 'Open'], ['false', 'Paused']], r.settings.signupOpen)) + '</div><button class="btn">Save</button></form>' + aiPlatformCard(r.ai) +
+    field('New company sign-ups', sel('signupOpen', [['true', 'Open'], ['false', 'Paused']], r.settings.signupOpen)) + '</div><button class="btn">Save</button></form>' + aiPlatformCard(r.ai) +
     '<div class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>Company</th><th>Owner</th><th class="num">Employees</th><th class="num">Staff + portal users</th><th>Status</th><th></th></tr></thead><tbody>' +
     r.orgs.map(o => '<tr><td><b>' + esc(o.name) + '</b><br><small class="muted">' + esc(fmtDate(o.createdAt)) + '</small></td><td><small>' + esc(o.ownerEmail) + '</small></td><td class="num">' + o.employees + '</td><td class="num">' + o.members + '</td><td>' + statusChip(o.status === 'Suspended' ? 'Rejected' : 'Active').replace('Rejected', 'Suspended') + '</td>' +
       '<td class="num"><button class="btn xs ghost" data-action="plat-org" data-id="' + o.id + '" data-s="' + (o.status === 'Suspended' ? 'Active' : 'Suspended') + '">' + (o.status === 'Suspended' ? 'Reactivate' : 'Suspend') + '</button></td></tr>').join('') + '</tbody></table></div></div>';
 };
-FORMS['plat-save'] = async v => { await call('saveTsSchedule', { every: v.tsEvery, at: v.tsAt }); await call('platformSaveSettings', { appUrl: v.appUrl, timesheetInbox: v.timesheetInbox, timesheetLabel: v.timesheetLabel, timesheetDoneLabel: v.timesheetDoneLabel, signupOpen: v.signupOpen === 'true' }); toast('Saved', 'ok'); await refresh(); };
+FORMS['plat-save'] = async v => { const P = S.cache.plat || {}; if (v.tsEvery !== undefined) await call('saveTsSchedule', { every: v.tsEvery, at: v.tsAt }); v = Object.assign({}, P, v); await call('platformSaveSettings', { appUrl: v.appUrl, timesheetInbox: v.timesheetInbox, timesheetLabel: v.timesheetLabel, timesheetDoneLabel: v.timesheetDoneLabel, signupOpen: v.signupOpen === 'true' }); toast('Saved', 'ok'); await refresh(); };
 ACTIONS['plat-org'] = async el => { if (!confirm(el.dataset.s === 'Suspended' ? 'Suspend this company? Its people cannot sign in.' : 'Reactivate this company?')) return; await call('platformSetOrgStatus', { id: el.dataset.id, status: el.dataset.s }); toast('Saved', 'ok'); await renderApp(); };
 
 function powersCard(P) {
