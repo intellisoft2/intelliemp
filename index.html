@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.55"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.56"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -3275,10 +3275,10 @@ function paperI9Modal(r) {
     field(i ? '' : 'Document title', '<input name="dt' + i + '" list="i9titles" value="' + esc(x.title || '') + '">') + field(i ? '' : 'Issuing authority', inp('da' + i, x.authority || '')) + field(i ? '' : 'Number', inp('dn' + i, x.number || '', smart('upper', ''))) +
     field(i ? '' : 'Expires (or N/A)', inp('de' + i, x.expiresOn || '', 'placeholder="YYYY-MM-DD or N/A"')) + '</div>'; };
   openModal('Convert the paper Form I-9 — ' + r.employee.name, '<form data-form="i9-paper"><div class="banner">' + ic('spark') + '<div>Read by ' + esc(r.readBy) + '. <b>Check every field against the paper form</b> — then IntelliEmp fills the official USCIS Form I-9 with it.</div></div>' +
-    '<datalist id="i9titles">' + [].concat(L.A, L.B, L.C).map(x => '<option value="' + esc(x) + '">').join('') + '</datalist>' +
+    ((r.notes || []).length ? '<div class="banner warn">' + ic('alert') + '<div>' + r.notes.map(esc).join('<br>') + '</div></div>' : '') + '<datalist id="i9titles">' + [].concat(L.A, L.B, L.C).map(x => '<option value="' + esc(x) + '">').join('') + '</datalist>' +
     sectionHead('', 'Section 1 — employee') + '<div class="grid g3">' + t('lastName', 'Last name', '', 'required') + t('firstName', 'First name', '', 'required') + t('middleInitial', 'Middle initial', '', 'maxlength="1"') +
     t('otherLastNames', 'Other last names used') + t('address', 'Address', 'span2') + t('apt', 'Apt.') + t('city', 'City') + '<div class="grid g2" style="gap:10px">' + t('state', 'State', '', 'maxlength="2"') + t('zip', 'ZIP') + '</div>' +
-    field('Date of birth', inp('dob', a.dob || '', 'type="date"')) + t('ssn', 'Social Security number', '', smart('ssn', 'inputmode="numeric" autocomplete="off"')) + t('email', 'Email') + t('phone', 'Telephone') +
+    field('Date of birth', inp('dob', a.dob || '', 'type="date"')) + (r.ssnOnFile ? field('Social Security number', inp('ssn', '', smart('ssn', 'inputmode="numeric" autocomplete="off" placeholder="Using the number on file (' + esc(r.ssnOnFile) + ')"')) + '<input type="hidden" name="ssnOnFile" value="1">', '', 'Matches the paper form — leave empty to use it.') : t('ssn', 'Social Security number', '', smart('ssn', 'inputmode="numeric" autocomplete="off"'))) + t('email', 'Email') + t('phone', 'Telephone') +
     field('Box checked', sel('status', [['', '—']].concat(Object.keys(r.statuses).map(k => [k, k + '. ' + r.statuses[k]])), String(a.status || ''), 'required'), 'span2') +
     t('lprNumber', 'Box 3: USCIS / A-Number') + field('Box 4: work authorized until', inp('workUntil', a.workUntil || '', 'placeholder="YYYY-MM-DD or N/A"')) + t('aNumber', 'Box 4: A-Number') + t('i94', 'Box 4: I-94 number') + t('passport', 'Box 4: foreign passport') + t('passportCountry', 'Passport country') +
     field('Signed by (employee)', inp('signedBy', r.signedBy || r.employee.name)) + field('Date signed', inp('signedAt', r.signedAt || '', 'type="date"')) + '</div>' +
@@ -3287,12 +3287,14 @@ function paperI9Modal(r) {
     field('Date signed', inp('s2At', s2.signedAt || '', 'type="date"')) + field('Additional information', inp('additional', s2.additional || ''), 'span2') + '</div>' +
     '<label class="check"><input type="checkbox" name="alternative"' + (s2.alternative ? ' checked' : '') + '> Alternative procedure (remote examination) box is checked</label>' +
     '<p class="hint">The official form is marked "signed on paper — original on file": keep the signed paper form (or this scan) — it remains the record of the signatures.</p>' +
+    (r.middleName && r.middleName.toLowerCase() !== String(r.employee.middleName || '').toLowerCase() && can('employees.edit') ? '<label class="check"><input type="checkbox" name="saveMiddle" value="' + esc(r.middleName) + '" checked> Save the middle name <b>' + esc(r.middleName) + '</b> to ' + esc(r.employee.name) + '\'s record' + (r.employee.middleName ? ' (now ' + esc(r.employee.middleName) + ')' : '') + '</label>' : '') +
     '<div class="foot-btns"><button class="btn">' + ic('doc') + 'Fill the official form</button></div></form>', true);
 }
 FORMS['i9-paper'] = async v => {
   const r = S.cache.paperI9, answers = {};
   ['lastName', 'firstName', 'middleInitial', 'otherLastNames', 'address', 'apt', 'city', 'state', 'zip', 'dob', 'ssn', 'email', 'phone', 'lprNumber', 'workUntil', 'aNumber', 'i94', 'passport', 'passportCountry'].forEach(k => { answers[k] = v[k] || ''; });
-  answers.status = Number(v.status);
+  answers.status = Number(v.status); if (v.ssnOnFile && !v.ssn) answers.ssnOnFile = true;
+  if (v.saveMiddle) { try { await call('updateEmployee', { id: r.employee.id, middleName: v.saveMiddle }); } catch (e) { toast('Could not save the middle name: ' + (e.message || e), 'error'); } }
   const docs = [0, 1, 2].map(i => ({ list: v['dl' + i], title: v['dt' + i], authority: v['da' + i], number: v['dn' + i], expiresOn: v['de' + i] })).filter(x => x.list && (x.title || x.number));
   const transcribed = { answers: answers, signedBy: v.signedBy, signedAt: v.signedAt,
     section2: { documents: docs, firstDay: v.firstDay, signer: v.signer, signerTitle: v.signerTitle, signedAt: v.s2At, additional: v.additional, alternative: !!v.alternative } };
