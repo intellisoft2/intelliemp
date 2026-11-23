@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.56"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.57"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -624,6 +624,13 @@ async function route() {
 async function refresh() { S.cache = {}; dropCaches(); await loadDb(); await renderApp(); }
 
 const ACTIONS = {}, FORMS = {}, CHANGES = {};
+
+function deviceName() {
+  const u = navigator.userAgent || '';
+  const b = /Edg\//.test(u) ? 'Edge' : /OPR\//.test(u) ? 'Opera' : /Firefox\//.test(u) ? 'Firefox' : /Chrome\//.test(u) ? 'Chrome' : /Safari\//.test(u) ? 'Safari' : 'Browser';
+  const o = /iPhone|iPad/.test(u) ? 'iPhone/iPad' : /Android/.test(u) ? 'Android' : /Windows/.test(u) ? 'Windows' : /Mac OS X/.test(u) ? 'Mac' : /Linux/.test(u) ? 'Linux' : '';
+  return b + (o ? ' on ' + o : '');
+}
 function pubShell(inner) {
   return '<div class="pub"><div class="pub-top"><a href="#home" style="text-decoration:none">' + BRAND + '</a><div class="btns">' +
     (S.token ? '<a class="btn sm" href="#app">Open my workspace</a>' : '<a class="btn ghost sm" href="#login">Sign in</a><a class="btn sm" href="#register">Start free</a>') + '</div></div>' + inner +
@@ -731,12 +738,12 @@ function afterSignIn(res) {
   setSession(res);
 }
 Object.assign(FORMS, {
-  login: async v => afterSignIn(await call('login', { email: v.email, password: v.password })),
-  'login-mfa': async v => { const r = await call('loginMfa', { mfaToken: S.mfaToken, code: v.code }); S.mfaToken = ''; if (r.usedRecovery) toast('Recovery code used. Make new codes in Account → Security.', '', 7000); setSession(r); },
+  login: async v => afterSignIn(await call('login', { email: v.email, password: v.password, device: deviceName() })),
+  'login-mfa': async v => { const r = await call('loginMfa', { mfaToken: S.mfaToken, code: v.code, device: deviceName() }); S.mfaToken = ''; if (r.usedRecovery) toast('Recovery code used. Make new codes in Account → Security.', '', 7000); setSession(r); },
   register: async v => { const r = await call('register', v); if (r.pending) go('#verify?email=' + encodeURIComponent(r.email)); else afterSignIn(r); },
-  verify: async v => afterSignIn(await call('verifyEmail', { email: v.email, code: v.code })),
+  verify: async v => afterSignIn(await call('verifyEmail', { email: v.email, code: v.code, device: deviceName() })),
   forgot: async v => { await call('requestPasswordCode', { email: v.email }); toast('If that email has an account, a code is on its way.', 'ok'); go('#reset?email=' + encodeURIComponent(v.email)); },
-  reset: async v => afterSignIn(await call('resetPassword', v)),
+  reset: async v => afterSignIn(await call('resetPassword', Object.assign({ device: deviceName() }, v))),
   'new-company': async v => { await call('createOrganization', { company: v.company }); S.db = null; go('#app'); }
 });
 Object.assign(ACTIONS, {
@@ -1209,6 +1216,7 @@ function empProfile(E) {
     '<div class="card"><h3>' + ic('user') + 'Contact</h3><dl class="kv">' + kv('Work email', esc(e.email)) + kv('Personal email', esc(e.personalEmail)) + kv('Phone', esc(e.phone)) +
     kv('Address', esc([e.address, e.city, e.state, e.zip].filter(Boolean).join(', '))) + kv('Emergency contact', esc([e.emergencyName, e.emergencyPhone].filter(Boolean).join(' · '))) + '</dl></div>' +
     '<div class="card"><div class="card-h"><h3>' + ic('shield') + 'Portal access</h3>' + (can('employees.edit') && !(E.member && E.member.signedIn) ? '<button class="btn sm" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt || E.member ? 'Resend invitation' : 'Invite to portal') + '</button>' : '') + '</div>' +
+      (E.member && can('employees.edit') ? '<p><button class="btn xs ghost" data-action="emp-signins" data-email="' + esc(E.member.email) + '">' + ic('lock') + 'Sign-in history</button></p>' : '') +
       (E.member && E.member.signedIn ? '<p>' + chip('Signed in', 'ok') + ' ' + esc(E.member.email) + ' · ' + esc(roleName(E.member.role)) + (E.member.lastLogin ? ' <small class="muted">· last signed in ' + esc(fmtWhen(E.member.lastLogin)) + '</small>' : '') + '</p>'
         : e.invitedAt || E.member ? '<p>' + chip('Invited — not signed in yet', 'warn') + ' ' + (E.member ? esc(E.member.email) : '') + (e.invitedAt ? ' <small class="muted">· sent ' + esc(fmtWhen(e.invitedAt)) + '</small>' : '') + '</p><p class="hint">Resend if the email was missed or the code expired — you can pick the work email, the personal email or both.</p>'
         : '<p class="muted">Not invited yet.</p>') +
@@ -1510,6 +1518,10 @@ FORMS['docs-create'] = async v => {
     S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); });
 };
 
+ACTIONS['emp-signins'] = async el => {
+  const r = await busy(el, call('getSignInActivity', { email: el.dataset.email }));
+  openModal('Sign-in history — ' + el.dataset.email, signInRows(r.events) + (can('audit.view') ? '<p class="hint"><a href="#app/audit?view=signins&who=' + encodeURIComponent(el.dataset.email) + '">Everyone\'s sign-ins →</a></p>' : ''), true);
+};
 ACTIONS['ssn-verify'] = async el => { if (!confirm('Mark the Social Security number as verified (you checked the card, E-Verify or Form I-9 documents)?')) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'verify' })); toast('Marked verified', 'ok'); await reloadCurrent(); };
 ACTIONS['ssn-clear'] = async el => { if (!confirm('Remove the Social Security number on file? The employee will be asked for it again on their next form. Signed forms keep the number they were signed with.')) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'clear' })); toast('Removed — they will be asked again', 'ok'); await reloadCurrent(); };
 
@@ -2016,13 +2028,37 @@ Object.assign(ACTIONS, {
 });
 
 PAGES.audit = async (parts, p) => {
+  const tabs = '<nav class="tabs"><a href="#app/audit" class="' + (p.view === 'signins' ? '' : 'on') + '">' + ic('list') + 'All activity</a><a href="#app/audit?view=signins" class="' + (p.view === 'signins' ? 'on' : '') + '">' + ic('lock') + 'Sign-ins</a></nav>';
+  if (p.view === 'signins') return head('Audit log', 'Who signs in, when and from what device — staff and employees.') + tabs + await signInsView(p);
   const list = await call('getAuditLogs', { q: p.q || '' });
-  return head('Audit log', 'Sign-ins, document downloads, approvals and changes — newest first (last 400).') +
+  return head('Audit log', 'Sign-ins, document downloads, approvals and changes — newest first (last 400).') + tabs +
     '<div class="card"><form class="filters" data-form="audit-q">' + inp('q', p.q || '', 'type="search" placeholder="Search person, action, employee ID…"') + '<button class="btn ghost sm">Search</button>' +
-    '<a class="btn ghost sm" href="#app/audit?q=failed">' + ic('alert') + 'Failures</a>' + (p.q ? '<a class="btn ghost sm" href="#app/audit">Show all</a>' : '') + '</form>' +
+    '<a class="btn ghost sm" href="#app/audit?q=sign_in">' + ic('lock') + 'Sign-ins</a><a class="btn ghost sm" href="#app/audit?q=failed">' + ic('alert') + 'Failures</a>' + (p.q ? '<a class="btn ghost sm" href="#app/audit">Show all</a>' : '') + '</form>' +
     '<div class="tblwrap"><table class="tbl"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Details</th></tr></thead><tbody>' +
-    list.map(a => '<tr><td><small>' + esc(fmtWhen(a.createdAt)) + '</small></td><td><small>' + esc(a.actor) + '</small></td><td>' + chip(String(a.action).replace(/_/g, ' ').toLowerCase(), /^(FAILED|ACCESS_DENIED)$/.test(a.action) ? 'bad' : '') + '</td><td><small>' + esc(a.entity) + ' · ' + esc(a.entityId) + '</small></td></tr>').join('') + '</tbody></table></div></div>';
+    list.map(a => '<tr><td><small>' + esc(fmtWhen(a.createdAt)) + '</small></td><td><small>' + esc(a.actor) + '</small></td><td>' + auditChip(a.action) + '</td><td><small>' + esc(a.entity) + ' · ' + esc(a.entityId) + '</small></td></tr>').join('') + '</tbody></table></div></div>';
 };
+const auditChip = act => chip({ SIGN_IN: 'signed in', SIGN_IN_FAILED: 'sign-in failed', SIGN_OUT: 'signed out', PASSWORD_SET: 'password set' }[act] || String(act).replace(/_/g, ' ').toLowerCase(), /^(FAILED|ACCESS_DENIED|SIGN_IN_FAILED)$/.test(act) ? 'bad' : act === 'SIGN_IN' ? 'ok' : '');
+const signInRows = ev => ev.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>When</th><th>Who</th><th>What</th><th>How / device</th></tr></thead><tbody>' +
+  ev.map(a => '<tr><td><small>' + esc(fmtWhen(a.at)) + '</small></td><td><small>' + esc(a.email) + '</small></td><td>' + auditChip(a.action) + '</td><td><small>' + esc(a.detail || '') + '</small></td></tr>').join('') + '</tbody></table></div>' : '<div class="empty">No sign-ins recorded yet.</div>';
+async function signInsView(p) {
+  const days = Number(p.days) || 30, who = p.who || '', show = p.show || '';
+  const r = await call('getSignInActivity', { days: days });
+  const T = r.totals, kindOf = x => x.employeeId && x.role === 'EMPLOYEE' ? 'emp' : 'staff';
+  const people = r.people.filter(x => !show || (show === 'emp' ? kindOf(x) === 'emp' : show === 'staff' ? kindOf(x) === 'staff' : show === 'never' ? !x.lastSignIn : show === 'failed' ? x.failed || x.account === 'Locked' : true));
+  const tile = (label, val, cls, href) => '<a class="stat' + (cls ? ' ' + cls : '') + '" href="' + href + '" style="text-decoration:none"><b>' + val + '</b><span>' + esc(label) + '</span></a>';
+  const link = (k, v) => '#app/audit?view=signins&days=' + days + '&show=' + (k === 'show' ? v : show) + (k === 'who' ? '&who=' + encodeURIComponent(v) : '');
+  return '<div class="stats">' + tile('People with access', T.people, '', link('show', '')) + tile('Signed in, last ' + days + ' days', T.signedIn, 'ok', link('show', '')) +
+      tile('Never signed in', T.never, T.never ? 'warn' : '', link('show', 'never')) + tile('Failed attempts, last ' + days + ' days', T.failed + (T.locked ? ' · ' + T.locked + ' locked' : ''), T.failed ? 'bad' : '', link('show', 'failed')) + '</div>' +
+    '<div class="card"><div class="filters"><span class="muted">Show</span> ' + [['', 'Everyone'], ['emp', 'Employees'], ['staff', 'Staff'], ['never', 'Never signed in'], ['failed', 'Failed attempts']].map(o => '<a class="btn sm ' + (show === o[0] ? '' : 'ghost') + '" href="' + link('show', o[0]) + '">' + o[1] + '</a>').join(' ') +
+      '<span style="flex:1"></span><span class="muted">Period</span> ' + [7, 30, 90].map(d => '<a class="btn sm ' + (days === d ? '' : 'ghost') + '" href="#app/audit?view=signins&days=' + d + '&show=' + show + '">' + d + ' days</a>').join(' ') + '</div>' +
+    '<div class="tblwrap"><table class="tbl"><thead><tr><th>Person</th><th>Role</th><th>Last sign-in</th><th class="num">Sign-ins</th><th class="num">Failed</th><th>Account</th><th></th></tr></thead><tbody>' +
+      people.map(x => '<tr><td><b>' + esc(x.name) + '</b><br><small class="muted">' + esc(x.email) + (x.code ? ' · ' + esc(x.code) : '') + '</small></td><td>' + esc(roleName(x.role)) + '</td>' +
+        '<td>' + (x.lastSignIn ? esc(fmtWhen(x.lastSignIn)) + (x.lastDevice ? '<br><small class="muted">' + esc(x.lastDevice) + '</small>' : '') : '<span class="muted">Never</span>') + '</td><td class="num">' + x.signIns + '</td>' +
+        '<td class="num">' + (x.failed ? '<b style="color:var(--red)">' + x.failed + '</b>' : 0) + '</td><td>' + statusChip(x.account) + (x.mfa ? ' ' + chip('2-step', 'teal') : '') + '</td>' +
+        '<td class="num"><a class="btn xs ghost" href="' + link('who', x.email) + '">History</a>' + (x.employeeId ? ' <a class="btn xs ghost" href="#app/employee/' + esc(x.employeeId) + '">Open</a>' : '') + '</td></tr>').join('') + '</tbody></table></div></div>' +
+    '<div class="card"><div class="card-h"><h3>' + ic('lock') + (who ? 'Sign-in history — ' + esc(who) : 'Recent sign-ins') + '</h3>' + (who ? '<a class="btn sm ghost" href="' + link('show', show) + '">Everyone</a>' : '') + '</div>' +
+      signInRows(r.events.filter(a => !who || a.email === who)) + '<p class="hint">Every sign-in, failed attempt (wrong password, wrong two-step code, locked or disabled account), sign-out and password set with an emailed code. The device is what the browser reports.</p></div>';
+}
 FORMS['audit-q'] = v => go('#app/audit?q=' + encodeURIComponent(v.q || ''));
 
 PAGES.account = async () => {
