@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.54"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.55"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1193,7 +1193,7 @@ PAGES.employee = async parts => {
 function empProfile(E) {
   const e = E.employee, kv = (k, v) => v === undefined || v === '' || v === null ? '' : '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>';
   const flowSteps = { Manager: [e.managerName || e.managerEmail], 'Client manager': [e.clientManagerName || e.clientManagerEmail], 'Manager, then client manager': [e.managerName || e.managerEmail, e.clientManagerName || e.clientManagerEmail], 'No approval needed': [] }[e.approvalFlow] || [];
-  return '<div class="grid g2"><div class="card"><h3>' + ic('briefcase') + 'Job</h3><dl class="kv">' + kv('Job title', esc(e.jobTitle)) + kv('Department', esc(e.department)) + kv('Employment', esc(e.employmentType)) +
+  return '<div class="grid g2"><div class="card"><h3>' + ic('briefcase') + 'Job</h3><dl class="kv">' + (e.middleName ? kv('Full legal name', esc([e.firstName, e.middleName, e.lastName].join(' '))) : '') + kv('Job title', esc(e.jobTitle)) + kv('Department', esc(e.department)) + kv('Employment', esc(e.employmentType)) +
     (e.ssnLast4 || e.ssnStatus === 'Cleared' ? kv('Social Security no.', e.ssnLast4 ? '***-**-' + esc(e.ssnLast4) + ' ' + (e.ssnStatus === 'Verified' ? chip('Verified', 'ok') + ' <small class="muted">' + esc(e.ssnVerifiedBy || '') + '</small>' : chip('Entered by employee', 'warn')) +
       (can('onboarding.manage') ? ' ' + (e.ssnStatus !== 'Verified' ? '<button class="btn xs" data-action="ssn-verify" data-emp="' + e.id + '">Mark verified</button> ' : '') + '<button class="btn xs ghost" data-action="ssn-clear" data-emp="' + e.id + '" title="Removes it so the employee is asked again on the next form">Ask again</button>' : '')
       : '<span class="muted">Will be asked on the next form</span>') : '') +
@@ -1316,7 +1316,7 @@ FORMS['emp-note'] = async v => { await call('addEmployeeNote', v); toast('Note a
 
 function empForm(e, mode) {
   e = e || {}; const lists = D().lists, isNew = mode !== 'edit';
-  return '<div class="grid g2">' + field('First name', inp('firstName', e.firstName, 'required')) + field('Last name', inp('lastName', e.lastName, 'required')) +
+  return '<div class="grid g3">' + field('First name', inp('firstName', e.firstName, 'required')) + field('Middle name', inp('middleName', e.middleName, 'maxlength="60" placeholder="Optional"')) + field('Last name', inp('lastName', e.lastName, 'required')) + '</div><div class="grid g2">' +
     field('Work email', inp('email', e.email, 'type="email"'), '', 'Used to sign in to the portal.') + field('Personal email', inp('personalEmail', e.personalEmail, 'type="email"')) +
     field('Job title', inp('jobTitle', e.jobTitle)) + field('Department', inp('department', e.department)) +
     field('Employment type', sel('employmentType', lists.empTypes, e.employmentType || 'W2 Full-time (salary)', 'data-change="emp-kind"') +
@@ -2931,7 +2931,7 @@ function i9Modal(d) {
   const radio = n => '<label class="check" style="align-items:flex-start"><input type="radio" name="status" value="' + n + '" data-change="i9-status"' + (String(st) === String(n) ? ' checked' : '') + '> <span><b>' + n + '.</b> ' + esc(d.statuses[n]) + '</span></label>';
   openModal('Form I-9, Section 1 — Employment Eligibility Verification', '<form data-form="form-i9"><p class="muted">Fill this in on or before your first day. HR then examines your original documents (Section 2). <small>' + esc(d.edition) + '</small></p>' +
     sectionHead('', 'Your information') + '<div class="grid g3">' + field('Last name (family name)', inp('lastName', p.lastName, 'required')) + field('First name (given name)', inp('firstName', p.firstName, 'required')) +
-    field('Middle initial', inp('middleInitial', '', smart('upper', 'maxlength="1"'))) + field('Other last names used (if any)', inp('otherLastNames', '', 'placeholder="N/A"'), 'span2') + field('Date of birth', inp('dob', '', 'type="date" required')) +
+    field('Middle initial', inp('middleInitial', p.middleInitial || '', smart('upper', 'maxlength="1"'))) + field('Other last names used (if any)', inp('otherLastNames', '', 'placeholder="N/A"'), 'span2') + field('Date of birth', inp('dob', '', 'type="date" required')) +
     field('Address (street number and name)', inp('address', p.address, 'required'), 'span2') + field('Apt. number', inp('apt', '')) + field('City or town', inp('city', p.city, 'required')) +
     field('State', inp('state', p.state, smart('upper', 'required maxlength="2"'))) + field('ZIP code', inp('zip', p.zip, smart('zip', 'required inputmode="numeric"'))) +
     ssnField(d, 'U.S. Social Security number', d.everify ? 'required' : '', d.everify ? 'Required — your employer uses E-Verify' : 'Optional — your employer does not use E-Verify') +
