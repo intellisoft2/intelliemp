@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.62"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.63"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -100,6 +100,8 @@ form .grid{margin-bottom:14px}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:16px}
 .card.tight{padding:14px 16px}.card h3{display:flex;align-items:center;gap:8px}
+.mgrid{width:100%;border-collapse:collapse;table-layout:fixed}.mgrid th{font-size:12px;padding:4px;color:var(--mute)}.mgrid td{border:1px solid var(--line);vertical-align:top;padding:4px 5px;height:64px}
+.mgrid .mg-empty{background:#f8fafc}.mgrid .we{background:#fbfcfd}.mg-n{font-size:11.5px;color:var(--mute);margin-bottom:2px}.mgrid input{width:100%;padding:3px 5px;font-size:13px;margin-top:2px;height:26px}.mg-wt{text-align:center;font-weight:700;vertical-align:middle!important;width:70px}
 .ts-sum{margin:4px 0 14px;padding:10px 12px;border-radius:var(--r);background:var(--bg,#f5f7fa);border:1px solid var(--line);font-size:13.5px;line-height:1.6}.ts-sum svg{width:15px;height:15px;vertical-align:-3px;margin-right:5px}.warn-txt{color:var(--amber)}.bad-txt{color:var(--red)}
 .sched-note{font-size:12.5px;font-weight:500;color:var(--amber);margin-top:4px;display:flex;gap:5px;align-items:flex-start}.sched-note.bad{color:var(--red)}.sched-note svg{width:14px;height:14px;flex:none;margin-top:2px}
 .sched-status{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;background:var(--bg,#f5f7fa);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:14px}.sched-status>div>div{margin-top:3px;font-weight:600}
@@ -758,21 +760,22 @@ async function renderApproval(token) {
   try { a = await call('getApproval', token); }
   catch (e) { return paint('<div class="pub"><div class="pub-top">' + BRAND + '</div><div class="appr"><div class="card"><h2>This link cannot be used</h2><p class="muted">' + esc(e.message) + '</p><p class="muted">If you still need to approve this week, ask the employee to resend the approval email.</p></div></div></div>'); }
   S.appr = { token: token, a: a };
-  const rows = a.rows.filter(rw => (a.entries.rows[rw] || []).some(h => Number(h) > 0));
-  const grid = a.entries.totalOnly !== undefined && !rows.length ? '<p><b>Total hours: ' + esc(a.entries.totalOnly) + '</b> (see the attached timesheet)</p>' :
+  const rows = a.rows.filter(rw => ((a.entries.rows || {})[rw] || []).some(h => Number(h) > 0));
+  const grid = a.period === 'month' ? (a.entries.totalOnly !== undefined && !Object.keys(a.entries.mdays || {}).length ? '<p><b>Total hours for ' + esc(monthTitle(a.month)) + ': ' + esc(a.entries.totalOnly) + '</b> (the attached timesheet gives only the total)</p>' : monthGridHtml(a.days, a.entries.mdays, false)) :
+    a.entries.totalOnly !== undefined && !rows.length ? '<p><b>Total hours: ' + esc(a.entries.totalOnly) + '</b> (see the attached timesheet)</p>' :
     '<div class="tblwrap"><table class="ts"><thead><tr><th></th>' + a.days.map(d => '<th>' + fmtShort(d).split(',')[0] + '<small>' + fmtDate(d).replace(/, \d{4}$/, '') + '</small></th>').join('') + '<th>Total</th></tr></thead><tbody>' +
     rows.map(rw => { const h = a.entries.rows[rw]; return '<tr><td>' + esc(rw) + '</td>' + h.map(x => '<td class="tot">' + (Number(x) || '–') + '</td>').join('') + '<td class="tot">' + h.reduce((s, x) => s + (Number(x) || 0), 0) + '</td></tr>'; }).join('') +
     '</tbody><tfoot><tr><td>Total</td><td colspan="7"></td><td>' + esc(a.totalHours) + '</td></tr></tfoot></table></div>';
   const done = a.status !== 'Submitted';
   paint('<div class="pub"><div class="pub-top">' + BRAND + '<span class="muted" style="color:#9fb3c8">' + esc(a.org.name) + '</span></div><div class="appr"><div class="card">' +
-    '<div class="card-h"><div><h2 style="margin:0">Timesheet approval</h2><p class="muted" style="margin:0">' + esc(a.org.name) + ' asks you to approve this week as <b>' + esc(a.step.role) + '</b>.</p></div>' + statusChip(a.status) + '</div>' +
+    '<div class="card-h"><div><h2 style="margin:0">Timesheet approval</h2><p class="muted" style="margin:0">' + esc(a.org.name) + ' asks you to approve this ' + (a.period === 'month' ? 'month' : 'week') + ' as <b>' + esc(a.step.role) + '</b>.</p></div>' + statusChip(a.status) + '</div>' +
     '<dl class="kv" style="margin-bottom:14px"><dt>Employee</dt><dd>' + esc(a.employee.name) + (a.employee.jobTitle ? ' · ' + esc(a.employee.jobTitle) : '') + '</dd>' +
     (a.employee.clientName ? '<dt>Client / project</dt><dd>' + esc(a.employee.clientName) + (a.employee.projectName ? ' · ' + esc(a.employee.projectName) : '') + '</dd>' : '') +
-    '<dt>Week</dt><dd>' + esc(weekLabel(a.weekStart)) + '</dd><dt>Total hours</dt><dd><b>' + esc(a.totalHours) + '</b></dd>' +
+    (a.period === 'month' ? '<dt>Month</dt><dd>' + esc(monthTitle(a.month)) + ' (' + esc(fmtDate(a.days[0])) + ' – ' + esc(fmtDate(a.days[a.days.length - 1])) + ')</dd>' : '<dt>Week</dt><dd>' + esc(weekLabel(a.weekStart)) + '</dd>') + '<dt>Total hours</dt><dd><b>' + esc(a.totalHours) + '</b></dd>' +
     (a.previous.length ? '<dt>Already approved by</dt><dd>' + a.previous.map(p => esc(p.name || p.role) + ' (' + esc(p.role) + ', ' + fmtWhen(p.at) + ')').join('<br>') + '</dd>' : '') + '</dl>' +
     grid + (a.notes ? '<div class="banner"><b>Note from the employee:</b> ' + esc(a.notes) + '</div>' : '') +
     (a.hasFile ? '<p><button class="btn ghost sm" data-action="appr-file">' + ic('download') + 'Open the attached timesheet (' + esc(a.fileName) + ')</button></p>' : '') +
-    (done ? '<div class="banner ok">This week is already ' + esc(String(a.status).toLowerCase()) + '. Thank you.</div>' :
+    (done ? '<div class="banner ok">This ' + (a.period === 'month' ? 'month' : 'week') + ' is already ' + esc(String(a.status).toLowerCase()) + '. Thank you.</div>' :
       '<form data-form="appr-decide"><div class="grid g2">' + field('Your name', inp('name', a.step.name || '', 'required')) + field('Note (needed if you reject)', inp('note', '', 'maxlength="500"')) + '</div>' +
       '<div class="btns"><button class="btn" name="decision" value="approve">' + ic('check') + 'Approve hours</button><button class="btn danger" name="decision" value="reject">Send back for changes</button></div></form>') +
     '</div><p class="muted" style="color:#9fb3c8;text-align:center">This private link was emailed to you and works once. No account is needed.</p></div></div>');
@@ -1313,7 +1316,7 @@ function empDocuments(E) {
 function empTimesheets(E) {
   const ts = E.timesheets || [];
   return '<div class="card"><div class="card-h"><h3>' + ic('clock') + 'Recent weeks</h3><div class="btns">' + (can('timesheets.all') || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="ts-upload" data-emp="' + E.employee.id + '">' + ic('upload') + 'Add from a timesheet file</button>' : '') + '<a class="btn sm ghost" href="#app/timesheet/' + E.employee.id + '/' + D().thisWeek + '">Open this week</a></div></div>' +
-    (ts.length ? '<table class="tbl"><thead><tr>' + selHead(ts) + '<th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Source</th></tr></thead><tbody>' + ts.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + E.employee.id + '/' + t.weekStart + '">' + selCell(ts, t) + '<td>' + esc(weekLabel(t.weekStart)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + '</td><td class="hide-m">' + esc(t.source || '') + (t.hasFile ? ' · file' : '') + '</td></tr>').join('') + '</tbody></table>' + bulkBar(ts)
+    (ts.length ? '<table class="tbl"><thead><tr>' + selHead(ts) + '<th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Source</th></tr></thead><tbody>' + ts.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + E.employee.id + '/' + tsKey(t) + '">' + selCell(ts, t) + '<td>' + esc(tsLabel(t)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + '</td><td class="hide-m">' + esc(t.source || '') + (t.hasFile ? ' · file' : '') + '</td></tr>').join('') + '</tbody></table>' + bulkBar(ts)
       : '<div class="empty">No timesheets yet.</div>') + '</div>';
 }
 function empImmigration(E) {
@@ -1614,8 +1617,8 @@ PAGES.timesheets = async (parts, p) => {
     tsTabs('') + '<div class="card"><form class="filters" data-form="ts-filter"><select name="week"><option value="">Any week</option>' + opts(weeks.map(w => [w, weekLabel(w)]), wk) + '</select>' +
     '<select name="status"><option value="">Any status</option>' + opts([['Draft', 'Draft'], ['Submitted', 'Submitted'], ['Approved', 'Approved'], ['Rejected', 'Rejected'], ['Flagged', 'Possible duplicates']], st) + '</select><button class="btn ghost sm">Show</button></form>' +
     (rows.length ? '<div class="tblwrap"><table class="tbl"><thead><tr>' + selHead(rows) + '<th>Employee</th><th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Waiting for</th><th></th></tr></thead><tbody>' +
-      rows.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + t.employeeId + '/' + t.weekStart + '">' + selCell(rows, t) + '<td><b>' + esc(t.employeeName) + '</b>' + (t.clientName ? '<br><small class="muted">' + esc(t.clientName) + '</small>' : '') + '</td>' +
-        '<td>' + esc(weekLabel(t.weekStart)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + (t.source === 'Email' ? ' ' + chip('Emailed') : '') + (t.hasFile ? ' ' + chip('File') : '') + (t.dupFlag ? ' <span title="' + esc(t.dupFlag) + '">' + chip('Possible duplicate', 'bad') + '</span>' : '') + '</td>' +
+      rows.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + t.employeeId + '/' + tsKey(t) + '">' + selCell(rows, t) + '<td><b>' + esc(t.employeeName) + '</b>' + (t.clientName ? '<br><small class="muted">' + esc(t.clientName) + '</small>' : '') + '</td>' +
+        '<td>' + esc(tsLabel(t)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + (t.source === 'Email' ? ' ' + chip('Emailed') : '') + (t.hasFile ? ' ' + chip('File') : '') + (t.dupFlag ? ' <span title="' + esc(t.dupFlag) + '">' + chip('Possible duplicate', 'bad') + '</span>' : '') + '</td>' +
         '<td class="hide-m"><small>' + esc(t.waitingFor || '') + '</small></td><td class="num">' + (t.mine ? '<div class="btns" style="justify-content:flex-end"><button class="btn xs" data-action="ts-approve" data-id="' + t.id + '">' + ic('check') + 'Approve</button><button class="btn xs danger" data-action="ts-reject" data-id="' + t.id + '">Reject</button></div>' : '') + '</td></tr>').join('') + '</tbody></table></div>' + bulkBar(rows)
       : '<div class="empty">No timesheets here.</div>') + '</div>' +
     (r.missing && r.missing.length ? '<div class="card"><div class="card-h"><h3>' + ic('alert') + 'Not submitted for ' + esc(weekLabel(wk)) + '</h3><span class="muted">' + r.missing.length + '</span></div>' +
@@ -1625,11 +1628,12 @@ FORMS['ts-filter'] = v => go('#app/timesheets?' + (v.week ? 'week=' + v.week + '
 PAGES['my-timesheet'] = async parts => {
   const me = D().who.employeeId;
   if (!me) return head('Timesheets') + '<div class="card"><p>No employee record is linked to your account.</p></div>';
-  return timesheetPage(me, parts[0] || D().thisWeek, true);
+  return timesheetPage(me, parts[0] || (D().who.tsPeriod === 'Monthly' ? (D().today || new Date().toISOString()).slice(0, 7) : D().thisWeek), true);
 };
 PAGES.timesheet = async parts => timesheetPage(parts[0], parts[1] || D().thisWeek, false);
 
 async function timesheetPage(empId, week, mine) {
+  if (isMonthKey(week)) return monthSheetPage(empId, week, mine);
   const G = await call('getTimesheet', { employeeId: empId, weekStart: week }); S.cache.ts = G; S.cache.tsAi = null;
   const t = G.timesheet, e = G.employee, edit = G.canEdit;
   const rows = (t && t.entries.rows) || {};
@@ -1847,18 +1851,18 @@ function tsWeeksModal(emp, r) {
     ((r.issues || []).length ? '<div class="banner warn">' + ic('alert') + '<div>' + r.issues.map(esc).join('<br>') + '</div></div>' : '') +
     '<div class="tblwrap"><table class="tbl"><thead><tr><th></th><th>Week of</th>' + ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => '<th class="num hide-m">' + d + '</th>').join('') + '<th class="num">Total</th><th>Now</th></tr></thead><tbody>' +
     r.weeks.map((w, i) => '<tr><td><input type="checkbox" name="w_' + i + '"' + (w.locked ? ' disabled' : ' checked') + '></td><td><b>' + esc(weekLabel(w.weekStart)) + '</b>' + (w.future ? '<br><small class="muted">not started yet — saved as a draft</small>' : '') + (w.spread ? '<br><small style="color:var(--amber)">spread from ' + esc(w.spread.total) + ' h for ' + esc(fmtDate(w.spread.from)) + ' – ' + esc(fmtDate(w.spread.to)) + ' (no daily hours on the sheet)</small>' : '') + '</td>' +
-      days(w.weekStart).map((d, k) => '<td class="num hide-m">' + (w.rows ? (dayTot(w, k) || '<span class="muted">–</span>') : '') + '</td>').join('') +
-      '<td class="num"><b>' + esc(w.total) + '</b>' + (w.rows ? '' : '<br><small class="muted">total only</small>') + '</td>' +
+      (w.month ? '<td class="hide-m" colspan="7"></td>' : '') + (w.month ? [] : days(w.weekStart)).map((d, k) => '<td class="num hide-m">' + (w.rows ? (dayTot(w, k) || '<span class="muted">–</span>') : '') + '</td>').join('') +
+      '<td class="num"><b>' + esc(w.total) + '</b>' + (w.rows || w.mdays ? '' : '<br><small class="muted">total only</small>') + '</td>' +
       '<td>' + (w.status ? statusChip(w.status) + (w.current !== null ? ' <small class="muted">' + esc(w.current) + 'h</small>' : '') : '<span class="muted">—</span>') + (w.locked ? '<br><small class="muted">reopen it to change</small>' : w.status ? '<br><small class="muted">will be replaced</small>' : '') + '</td></tr>').join('') +
     '</tbody></table></div>' + (okWeeks.length ? '<div class="foot-btns"><button class="btn ghost" name="mode" value="draft">Save as drafts</button><button class="btn" name="mode" value="submit">' + ic('send') + 'Save and submit for approval</button></div>' : '<p class="muted">Every week in this file is already submitted or approved.</p>') + '</form>', true);
 }
 FORMS['ts-record'] = async (v, form, submitter) => {
   const U = S.cache.tsUp, mode = (submitter && submitter.value) || 'draft';
-  const weeks = U.r.weeks.filter((w, i) => v['w_' + i]).map(w => ({ weekStart: w.weekStart, rows: w.rows, totalOnly: w.totalOnly }));
+  const weeks = U.r.weeks.filter((w, i) => v['w_' + i]).map(w => ({ weekStart: w.weekStart, month: w.month, mdays: w.mdays, rows: w.rows, totalOnly: w.totalOnly }));
   const res = await call('recordTimesheets', { employeeId: U.emp, token: U.r.token, weeks: weeks, submit: mode === 'submit' });
   closeModal();
-  toast(res.recorded.length + ' week' + (res.recorded.length === 1 ? '' : 's') + ' recorded' + (mode === 'submit' ? ' (' + res.recorded.filter(x => x.status !== 'Draft').length + ' submitted' + (res.recorded.some(x => x.status === 'Approved') ? ', some approved per the client timesheet' : '') + ')' : ' as drafts') +
-    (res.skipped.length ? ' · skipped: ' + res.skipped.map(x => weekLabel(x.weekStart) + ' — ' + x.why).join('; ') : ''), res.skipped.length ? 'error' : 'ok', 9000);
+  toast(res.recorded.length + (res.recorded.some(x => x.month) ? ' timesheet' : ' week') + (res.recorded.length === 1 ? '' : 's') + ' recorded' + (mode === 'submit' ? ' (' + res.recorded.filter(x => x.status !== 'Draft').length + ' submitted' + (res.recorded.some(x => x.status === 'Approved') ? ', some approved per the client timesheet' : '') + ')' : ' as drafts') +
+    (res.skipped.length ? ' · skipped: ' + res.skipped.map(x => (x.month ? monthTitle(x.month) : weekLabel(x.weekStart)) + ' — ' + x.why).join('; ') : ''), res.skipped.length ? 'error' : 'ok', 9000);
   S.db = null; await refresh();
   const nx = (S.tsQueue || []).shift(); if (nx) tsWeeksModal(nx.employeeId, nx);
 };
@@ -3198,8 +3202,10 @@ async function calendarModal(empId, month, mine, btn) {
     '<button class="btn ghost sm" data-action="cal-month" data-m="' + next + '">' + ic('chev') + '</button><input type="month" value="' + c.month + '" data-change="cal-pick" style="max-width:170px"></div>' +
     '<div class="tblwrap"><table style="width:100%;border-collapse:collapse;table-layout:fixed"><thead><tr>' + names.map(n => '<th style="font-size:12px;padding:4px">' + n + '</th>').join('') + '<th style="font-size:12px;width:130px">Week</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
     '<p style="margin-top:10px"><b>' + c.totals.hours + ' hours</b> this month · ' + c.totals.approved + ' approved · ' + c.totals.submitted + ' waiting · ' + (c.totals.missing ? '<span style="color:var(--red,#b91c1c)">' + c.totals.missing + ' missing</span>' : '0 missing') + '</p>' +
+    (c.monthSheet ? '<div class="banner">' + ic('calendar') + '<div><b>Monthly timesheet: ' + c.monthSheet.total + ' hours</b> ' + statusChip(c.monthSheet.status) + (c.monthSheet.totalOnly ? ' <small class="muted">(total only)</small>' : '') + ' <a class="btn xs ghost" href="' + (S.cache.cal.mine ? '#app/my-timesheet/' : '#app/timesheet/' + S.cache.cal.empId + '/') + c.month + '" data-action="close-modal">Open the month</a></div></div>'
+      : c.employee.period === 'Monthly' && c.canEdit ? '<div class="banner">' + ic('calendar') + '<div>' + esc(c.employee.name) + ' is on a monthly timesheet. <a class="btn xs" href="' + (S.cache.cal.mine ? '#app/my-timesheet/' : '#app/timesheet/' + S.cache.cal.empId + '/') + c.month + '" data-action="close-modal">Enter ' + esc(new Date(c.month + '-15T12:00:00').toLocaleDateString('en-US', { month: 'long' })) + '</a></div></div>' : '') +
     (function () {
-      const files = c.weeks.filter(w => w.id && w.hasFile).map(w => w.id), drafts = c.weeks.filter(w => w.weekStart.slice(0, 7) === c.month && ['Draft', 'Rejected'].indexOf(w.status) >= 0 && (w.total || w.hasFile)).length;
+      const files = c.weeks.filter(w => w.id && w.hasFile).map(w => w.id).concat(c.monthSheet && c.monthSheet.hasFile ? [c.monthSheet.id] : []), drafts = c.monthSheet ? (['Draft', 'Rejected'].indexOf(c.monthSheet.status) >= 0 ? 1 : 0) : c.weeks.filter(w => w.weekStart.slice(0, 7) === c.month && ['Draft', 'Rejected'].indexOf(w.status) >= 0 && (w.total || w.hasFile)).length;
       const b = (c.canEdit && drafts ? '<button class="btn sm" data-action="cal-submit" data-m="' + c.month + '">' + ic('send') + 'Submit month (' + drafts + ' week' + (drafts === 1 ? '' : 's') + ')</button>' : '') +
         (files.length && (can('timesheets.all') || can('timesheets.approve')) ? '<button class="btn sm ghost" data-action="cal-reread" data-ids="' + files.join(',') + '">' + ic('spark') + 'Read the month\'s files again</button>' : '');
       return b ? '<div class="btns" style="margin:8px 0">' + b + '</div>' : '';
@@ -3555,7 +3561,8 @@ async function monthlyView(p) {
   const prev = addDays(m + '-01', -1).slice(0, 7), next = addDays(m + '-01', 32).slice(0, 7), T = r.totals, show = p.show || '';
   const people = r.people.filter(x => !show || (show === 'ready' ? x.ready : show === 'waiting' ? x.submitted : show === 'missing' ? x.missing.length : show === 'monthly' ? x.period === 'Monthly' : show === 'flagged' ? x.flagged : true));
   const tile = (label, val, cls, s) => '<a class="stat' + (cls ? ' ' + cls : '') + '" href="#app/timesheets?view=month&month=' + m + '&show=' + s + '" style="text-decoration:none"><b>' + val + '</b><span>' + esc(label) + '</span></a>';
-  const wkChip = w => '<span title="' + esc(weekLabel(w.weekStart) + ' · ' + w.hours + ' h this month' + (w.weekHours !== w.hours ? ' (' + w.weekHours + ' h in the week)' : '') + (w.flag ? ' · ' + w.flag : '')) + '">' + chip(fmtDate(w.weekStart).replace(/, \d{4}$/, '') + (w.flag ? ' ⚠' : ''), CAL_CLS[w.status] || '') + '</span>';
+  let x0 = '';
+  const wkChip = w => '<span title="' + esc(weekLabel(w.weekStart) + ' · ' + w.hours + ' h this month' + (w.weekHours !== w.hours ? ' (' + w.weekHours + ' h in the week)' : '') + (w.flag ? ' · ' + w.flag : '')) + '">' + (w.month ? '<a href="#app/timesheet/' + esc(x0) + '/' + w.month + '">' + chip('Month · ' + w.status, CAL_CLS[w.status] || '') + '</a>' : chip(fmtDate(w.weekStart).replace(/, \d{4}$/, '') + (w.flag ? ' ⚠' : ''), CAL_CLS[w.status] || '')) + '</span>';
   const amount = x => x.payType === 'Hourly' && Number(x.payRate) ? money(Math.round(x.hours * Number(x.payRate) * 100) / 100, '', x.currency || 'USD') : '';
   return head('Timesheets', 'Hours by month — ready to invoice', '<button class="btn ghost" data-action="tsm-csv">' + ic('download') + 'Download for invoicing</button>') + tsTabs('month') +
     '<div class="card"><div class="weeknav"><a class="btn ghost sm" href="#app/timesheets?view=month&month=' + prev + '">' + ic('back') + '</a><b style="min-width:160px;text-align:center">' + esc(monthTitle(m)) + '</b>' +
@@ -3566,7 +3573,7 @@ async function monthlyView(p) {
     (people.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th class="sel"><input type="checkbox" data-tsm-all aria-label="Select all"></th><th>Employee</th><th class="num">Hours</th><th class="num">Approved</th><th class="num">Waiting</th><th class="num">Draft</th>' + (can('pay.view') ? '<th class="num">Amount</th>' : '') + '<th>Weeks</th><th>Invoice</th><th></th></tr></thead><tbody>' +
       people.map(x => '<tr><td class="sel"><input type="checkbox" name="tsmSel" value="' + esc(x.employeeId) + '"></td><td><a href="#app/employee/' + esc(x.employeeId) + '/timesheets"><b>' + esc(x.name) + '</b></a>' + (x.period === 'Monthly' ? ' ' + chip('Monthly', 'teal') : '') + (x.contractor ? ' ' + chip('1099') : '') + '<br><small class="muted">' + esc(x.clientName || x.code || '') + '</small></td>' +
         '<td class="num"><b>' + x.hours + '</b></td><td class="num">' + x.approved + '</td><td class="num">' + (x.submitted || 0) + '</td><td class="num">' + (x.draft || 0) + '</td>' + (can('pay.view') ? '<td class="num">' + esc(amount(x)) + '</td>' : '') +
-        '<td>' + x.weeks.map(wkChip).join(' ') + (x.missing.length ? ' ' + x.missing.map(w => '<span title="No timesheet for the week of ' + esc(weekLabel(w)) + '">' + chip(fmtDate(w).replace(/, \d{4}$/, '') + ' missing', 'bad') + '</span>').join(' ') : '') + '</td>' +
+        '<td>' + (x0 = x.employeeId, x.weeks.map(wkChip).join(' ')) + (x.alsoWeekly && x.alsoWeekly.length ? ' <span title="Weekly timesheets also have hours this month: ' + esc(x.alsoWeekly.join(', ')) + '">' + chip('also weekly ⚠', 'bad') + '</span>' : '') + (x.missing.length ? ' ' + x.missing.map(w => '<span title="No timesheet for the week of ' + esc(weekLabel(w)) + '">' + chip(fmtDate(w).replace(/, \d{4}$/, '') + ' missing', 'bad') + '</span>').join(' ') : '') + '</td>' +
         '<td>' + (x.ready ? chip('Ready', 'ok') : x.missing.length ? chip('Missing weeks', 'bad') : x.submitted ? chip('Approve first', 'warn') : chip('Not ready', 'warn')) + '</td>' +
         '<td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="ts-calendar" data-emp="' + esc(x.employeeId) + '" data-month="' + m + '">' + ic('calendar') + 'Month</button>' +
           (x.submitted ? '<button class="btn xs" data-action="tsm-approve" data-emp="' + esc(x.employeeId) + '">' + ic('check') + 'Approve month</button>' : '') + '</div></td></tr>').join('') + '</tbody></table></div>' +
@@ -3693,6 +3700,75 @@ Object.assign(ACTIONS, {
   }
 });
 FORMS['pii-save'] = async v => { if (!v.ssn) delete v.ssn; await call('saveSensitiveInfo', v); closeModal(); toast('Saved', 'ok'); };
+const isMonthKey = k => /^\d{4}-\d{2}$/.test(String(k || ''));
+const tsLabel = t => t && t.period === 'month' ? monthTitle(String(t.weekStart).slice(0, 7)) + ' (month)' : weekLabel(t.weekStart);
+const tsKey = t => t && t.period === 'month' ? String(t.weekStart).slice(0, 7) : t.weekStart;
+const nextMonthKey = (m, k) => { const d = new Date(m + '-15T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() + k); return d.toISOString().slice(0, 7); };
+function monthGridHtml(days, mdays, edit, rows) {
+  mdays = mdays || {}; rows = rows || ['Regular', 'Overtime'];
+  let ws = 'Monday'; try { ws = D().org.weekStart || 'Monday'; } catch (e) { /* public approval page */ }
+  const startMon = ws !== 'Sunday', dow = d => { const w = new Date(d + 'T12:00:00Z').getUTCDay(); return startMon ? (w + 6) % 7 : w; };
+  const names = startMon ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const cells = []; for (let i = 0; i < dow(days[0]); i++) cells.push(null); days.forEach(d => cells.push(d)); while (cells.length % 7) cells.push(null);
+  const dayTot = d => ['Regular', 'Overtime', 'Paid time off', 'Holiday'].reduce((s, r) => s + Number((mdays[d] || {})[r] || 0), 0);
+  const cell = d => {
+    if (!d) return '<td class="mg-empty"></td>';
+    const v = mdays[d] || {}, we = [5, 6].indexOf(dow(d)) >= 0 && startMon;
+    return '<td class="mg-day' + (we ? ' we' : '') + '"><div class="mg-n">' + Number(d.slice(8)) + '</div>' + (edit
+      ? rows.map(r => '<input name="md_' + d + '_' + r.replace(/\W/g, '') + '" type="number" inputmode="decimal" min="0" max="24" step="0.25" value="' + (v[r] || '') + '" placeholder="' + (r === 'Regular' ? 'hrs' : r === 'Overtime' ? 'OT' : r.slice(0, 3)) + '" title="' + esc(r) + ' on ' + esc(fmtDate(d)) + '" data-change="md-tot">').join('')
+      : (dayTot(d) ? '<b>' + dayTot(d) + 'h</b>' + (v.Overtime ? '<small> incl. ' + v.Overtime + ' OT</small>' : '') : '<span class="muted">–</span>')) + '</td>';
+  };
+  let html = '<div class="tblwrap"><table class="mgrid"><thead><tr>' + names.map(n => '<th>' + n + '</th>').join('') + '<th>Week</th></tr></thead><tbody>';
+  for (let i = 0; i < cells.length; i += 7) { const wk = cells.slice(i, i + 7); html += '<tr>' + wk.map(cell).join('') + '<td class="mg-wt" data-wt="' + i + '">' + wk.filter(Boolean).reduce((s, d) => s + dayTot(d), 0) + '</td></tr>'; }
+  return html + '</tbody></table></div>';
+}
+function mdaysFromForm(form) {
+  const out = {};
+  form.querySelectorAll('input[name^="md_"]').forEach(x => { const m = x.name.match(/^md_(\d{4}-\d{2}-\d{2})_(\w+)$/); if (!m || x.value === '') return; const r = { Regular: 'Regular', Overtime: 'Overtime', Paidtimeoff: 'Paid time off', Holiday: 'Holiday' }[m[2]]; const n = Number(x.value); if (r && n) { (out[m[1]] = out[m[1]] || {})[r] = n; } });
+  return out;
+}
+CHANGES['md-tot'] = el => {
+  const f = el.form, md = mdaysFromForm(f), tot = Object.keys(md).reduce((s, d) => s + Object.keys(md[d]).reduce((a, r) => a + md[d][r], 0), 0);
+  const t = f.querySelector('#md_total'); if (t) t.textContent = Math.round(tot * 100) / 100;
+};
+async function monthSheetPage(empId, m, mine) {
+  const G = await call('getTimesheet', { employeeId: empId, month: m }); S.cache.ms = G;
+  const t = G.timesheet, e = G.employee, edit = G.canEdit, en = t ? t.entries : { mdays: {} }, md = en.mdays || {}, totalOnly = en.totalOnly !== undefined;
+  const base = mine ? '#app/my-timesheet/' : '#app/timesheet/' + empId + '/';
+  const step = t && t.status === 'Submitted' ? (t.steps || [])[Number(t.stepIndex || 0)] : null, me = String(D().who.email).toLowerCase();
+  const canApprove = step && !mine && (String(step.email).toLowerCase() === me || (step.role === 'Manager' && can('timesheets.approve')) || can('timesheets.all')) && D().who.employeeId !== empId;
+  const thisMonth = (D().today || new Date().toISOString()).slice(0, 7);
+  return head(mine ? 'My timesheet' : e.name, (mine ? '' : idTag(e.code) + ' ') + esc(e.clientName || '') + ' · monthly timesheet',
+    '<div class="weeknav"><a class="btn ghost sm" href="' + base + nextMonthKey(m, -1) + '">' + ic('back') + '</a><b>' + esc(monthTitle(m)) + '</b><a class="btn ghost sm" href="' + base + nextMonthKey(m, 1) + '">' + ic('chev') + '</a>' +
+      (m !== thisMonth ? '<a class="btn ghost sm" href="' + base + thisMonth + '">This month</a>' : '') + '<a class="btn ghost sm" href="' + base + D().thisWeek + '">By week</a>' +
+      '<button class="btn sm" data-action="ts-upload" data-emp="' + empId + '">' + ic('upload') + 'Add from a timesheet file</button></div>') +
+    (t && t.dupFlag ? '<div class="banner bad">' + ic('alert') + '<div><b>Possible duplicate:</b> ' + esc(t.dupFlag) + (can('timesheets.all') || can('timesheets.approve') ? ' <button type="button" class="btn xs ghost" data-action="ts-unflag" data-id="' + t.id + '">Checked — not a duplicate</button>' : '') + '</div></div>' : '') +
+    (G.weekly && G.weekly.length && !t ? '<div class="banner warn">' + ic('alert') + '<div>Weekly timesheets already have hours in ' + esc(monthTitle(m)) + ' (' + G.weekly.map(w => esc(weekLabel(w.weekStart)) + ': ' + w.hours + ' h').join(', ') + '). A monthly timesheet would count them twice — use one or the other.</div></div>' : '') +
+    (t && t.status === 'Rejected' ? '<div class="banner bad">' + ic('alert') + '<div><b>Sent back:</b> ' + esc(t.rejectReason || '') + '</div></div>' : '') +
+    (t && t.status === 'Approved' ? '<div class="banner ok">' + ic('check') + '<div>Approved' + (t.approvedAt ? ' on ' + fmtDate(t.approvedAt) : '') + '.</div></div>' : '') +
+    '<form class="card" data-form="ms-save"><div class="card-h"><h3>' + ic('calendar') + monthTitle(m) + ' — ' + fmtDate(G.days[0]).replace(/, \d{4}$/, '') + ' to ' + fmtDate(G.days[G.days.length - 1]) + '</h3><div>' + (t ? statusChip(t.status) : chip('Not started', 'warn')) + '</div></div>' +
+      (totalOnly && !Object.keys(md).length ? '<div class="banner">' + ic('doc') + '<div><b>' + esc(en.totalOnly) + ' hours</b> for the month — the timesheet gives only the total, no hours per day. Days can be entered below when they are known.</div></div>' : '') +
+      monthGridHtml(G.days, md, edit) +
+      '<p><b>Total: <span id="md_total">' + (t ? t.totalHours : 0) + '</span> hours</b>' + (Object.keys(md).length ? ' <span class="muted">on ' + Object.keys(md).length + ' day(s) — days left empty are not counted</span>' : '') + '</p>' +
+      (edit ? '<div class="grid g3">' + field('Or the month\'s total only', inp('totalOnly', totalOnly ? en.totalOnly : '', 'type="number" min="0" max="744" step="0.25" placeholder="Use when the sheet has no daily hours"'), '', 'Leave empty when you enter days.') +
+        field('Notes for the approver', inp('notes', t ? t.notes : '', 'maxlength="500"')) + field('Attach the timesheet', '<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.heic,.webp,.xlsx,.xls,.csv,.doc,.docx">', '', t && t.hasFile ? 'Current file: ' + t.fileName : '') + '</div>' +
+        '<div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button><button class="btn" name="mode" value="submit"' + (G.days[0] > (D().today || '') ? ' disabled title="You can submit once the month has started"' : '') + '>' + ic('send') + 'Submit month</button></div>' : '') +
+      (t && t.hasFile ? '<p class="btns">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) + '</p>' : '') +
+      (t && (t.steps || []).length ? '<div class="steps">' + t.steps.map((s, i) => '<span class="step">' + (s.status === 'Approved' ? ic('check') : s.status === 'Rejected' ? ic('x') : ic('clock')) + (i + 1) + '. ' + esc(s.name || s.role) + ' (' + esc(s.role) + ')</span>').join('') + '</div>' : '') +
+    '</form>' + tsAiPanel(t, !mine && isStaff()) +
+    (canApprove ? '<div class="card"><h3>' + ic('check') + 'Your approval</h3><div class="btns"><button class="btn" data-action="ts-approve" data-id="' + t.id + '">' + ic('check') + 'Approve the month</button><button class="btn danger" data-action="ts-reject" data-id="' + t.id + '">Send back</button></div></div>' : '') +
+    (t && t.status === 'Submitted' && (mine || can('timesheets.all')) ? '<div class="card tight"><div class="btns"><span class="muted">Waiting for ' + esc(step ? (step.name || step.email) : '') + '.</span><button class="btn ghost sm" data-action="ts-resend" data-id="' + t.id + '">Resend approval email</button></div></div>' : '') +
+    (t && t.status === 'Approved' && can('timesheets.all') ? '<div class="card tight"><div class="btns"><button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '">Reopen this month</button></div></div>' : '');
+}
+FORMS['ms-save'] = async (v, form, submitter) => {
+  const G = S.cache.ms, mode = submitter && submitter.value || 'save', f = form.querySelector('[name=file]');
+  const md = mdaysFromForm(form), input = { employeeId: G.employee.id, month: G.month, notes: v.notes };
+  if (Object.keys(md).length) input.mdays = md; else if (v.totalOnly !== '' && v.totalOnly !== undefined) input.totalOnly = Number(v.totalOnly); else input.mdays = {};
+  if (f && f.files[0]) input.file = await readFile(f.files[0]);
+  if (mode === 'submit' && !Object.keys(md).length && !input.totalOnly && !input.file && !(G.timesheet && G.timesheet.hasFile)) throw new Error('Enter the hours for the days worked (or the month\'s total), or attach the timesheet.');
+  await call(mode === 'submit' ? 'submitTimesheet' : 'saveTimesheet', input);
+  toast(mode === 'submit' ? 'Month submitted' : 'Saved', 'ok'); await reloadCurrent();
+};
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
   copy: el => copy(el.dataset.text || ''),
