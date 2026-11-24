@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.63"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.64"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -108,6 +108,15 @@ form .grid{margin-bottom:14px}
 .card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}.card-h h3{margin:0}
 .empty{text-align:center;color:var(--mute);padding:26px 10px;font-size:14px}
 .banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;font-size:14px;margin-bottom:14px;background:var(--bluebg);color:#24508f}
+.banner.info{background:var(--bluebg);color:#1d4f91}
+.kv dd.ie{cursor:pointer;border-radius:7px;padding:2px 28px 2px 6px;margin:-2px -6px;position:relative;transition:background .12s}
+.kv dd.ie:hover,.kv dd.ie:focus{background:var(--tealbg);outline:none}.kv dd.ie .ie-pen{position:absolute;right:6px;top:3px;color:var(--teal);opacity:0;transition:opacity .12s}.kv dd.ie .ie-pen svg{width:14px;height:14px}
+.kv dd.ie:hover .ie-pen,.kv dd.ie:focus .ie-pen{opacity:1}.ie-add{display:inline-flex;align-items:center;gap:4px;font-weight:400}.ie-add svg{width:13px;height:13px}
+.kv dd.ie.editing{cursor:default;background:var(--tealbg);padding:6px;margin:-4px -6px}.kv dd.ie.saving{opacity:.6;pointer-events:none}
+.ie-ed{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ie-ed input,.ie-ed select{flex:1 1 130px;min-width:0;padding:6px 9px;font-size:14px;border:1px solid var(--line);border-radius:8px;background:#fff;font-family:inherit}
+.ie-ed input:focus,.ie-ed select:focus{outline:2px solid var(--teal);outline-offset:-1px}.ie-btns{display:inline-flex;gap:4px}.ie-btns svg{width:14px;height:14px;margin:0}
+.ie-tip{margin:-6px 0 10px;display:flex;align-items:center;gap:5px}.ie-tip svg{width:13px;height:13px}
+tr.pii-row{cursor:pointer}tr.pii-row:hover{background:var(--tealbg)}td.pii-pen{width:28px;color:var(--teal);opacity:0}tr.pii-row:hover td.pii-pen{opacity:1}td.pii-pen svg{width:14px;height:14px}
 .banner.warn{background:var(--amberbg);color:#7a520a}.banner.bad{background:var(--redbg);color:#8d2a23}.banner.ok{background:var(--greenbg);color:#14653c}
 
 .shell{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
@@ -1204,24 +1213,46 @@ PAGES.employee = async parts => {
     '<nav class="tabs">' + tabs.map(t => '<a href="#app/employee/' + e.id + (t[0] ? '/' + t[0] : '') + '" class="' + (tab === t[0] ? 'on' : '') + '">' + esc(t[0] === 'onboarding' && e.hireType === 'Existing' ? 'Records refresh' : t[1]) + (badge[t[0]] || '') + '</a>').join('') + '</nav>' + body(E);
 };
 function empProfile(E) {
-  const e = E.employee, kv = (k, v) => v === undefined || v === '' || v === null ? '' : '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>';
+  const e = E.employee, kv = (k, v) => v === undefined || v === '' || v === null ? '' : '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>', F = ieF, R = ieRow;
   const flowSteps = { Manager: [e.managerName || e.managerEmail], 'Client manager': [e.clientManagerName || e.clientManagerEmail], 'Manager, then client manager': [e.managerName || e.managerEmail, e.clientManagerName || e.clientManagerEmail], 'No approval needed': [] }[e.approvalFlow] || [];
-  return '<div class="grid g2"><div class="card"><h3>' + ic('briefcase') + 'Job</h3><dl class="kv">' + (e.middleName ? kv('Full legal name', esc([e.firstName, e.middleName, e.lastName].join(' '))) : '') + kv('Job title', esc(e.jobTitle)) + kv('Department', esc(e.department)) + kv('Employment', esc(e.employmentType)) +
+  const waF = (L('waFields') || {})[e.workAuth], wa = waF || {}, uses = k => !waF || !!waF[k], cur = e.currency || '', pay = e.payRate !== undefined;
+  const signedIn = E.member && E.member.signedIn;
+  return '<div class="grid g2"><div class="card"><h3>' + ic('briefcase') + 'Job</h3>' + (can('employees.edit') ? '<p class="hint ie-tip">' + ic('edit') + 'Click any value to change it.</p>' : '') + '<dl class="kv">' +
+    R('Full legal name', e.middleName ? esc([e.firstName, e.middleName, e.lastName].join(' ')) : esc(e.name), [F('firstName', 'text', e.firstName, 'First'), F('middleName', 'text', e.middleName, 'Middle (optional)'), F('lastName', 'text', e.lastName, 'Last')]) +
+    R('Job title', esc(e.jobTitle), [F('jobTitle', 'text', e.jobTitle, 'Job title')]) + R('Department', esc(e.department), [F('department', 'text', e.department, 'Department')]) +
+    R('Employment', esc(e.employmentType), [F('employmentType', 'select', e.employmentType, '', L('empTypes'))], { confirm: 'Changing W-2 / 1099 updates the onboarding checklist. Continue?' }) +
     (e.ssnLast4 || e.ssnStatus === 'Cleared' ? kv('Social Security no.', e.ssnLast4 ? '***-**-' + esc(e.ssnLast4) + ' ' + (e.ssnStatus === 'Verified' ? chip('Verified', 'ok') + ' <small class="muted">' + esc(e.ssnVerifiedBy || '') + '</small>' : chip('Entered by employee', 'warn')) +
       (can('onboarding.manage') ? ' ' + (e.ssnStatus !== 'Verified' ? '<button class="btn xs" data-action="ssn-verify" data-emp="' + e.id + '">Mark verified</button> ' : '') + '<button class="btn xs ghost" data-action="ssn-clear" data-emp="' + e.id + '" title="Removes it so the employee is asked again on the next form">Ask again</button>' : '')
       : '<span class="muted">Will be asked on the next form</span>') : '') +
-    (e.payRate !== undefined ? kv('Pay', esc(money(e.payRate, e.payType, e.currency)) + (e.payFrequency || D().org.payFrequency ? ' <small class="muted">· paid ' + esc(e.payFrequency || D().org.payFrequency) + '</small>' : '')) : '') +
-    (Number(e.perDiem) ? kv('Per diem', esc(money(e.perDiem, '', e.currency)) + ' per ' + esc(e.perDiemPer || 'day')) : '') +
-    (Number(e.healthReimb) ? kv('Health care reimbursement', esc(money(e.healthReimb, '', e.currency)) + ' per ' + esc(e.healthReimbPer || 'month')) : '') +
-    (Number(e.bonusRate) ? kv('Bonus', e.bonusType === '% of base pay' || !e.bonusType ? esc(e.bonusRate) + '% of base pay' : esc(money(e.bonusRate, '', e.currency)) + ' ' + esc({ 'Per hour worked': 'per hour worked', 'Fixed amount per year': 'per year', 'Fixed amount per quarter': 'per quarter', 'One-time': 'one-time' }[e.bonusType] || '')) : '') + kv('Start date', esc(fmtDate(e.startDate))) + kv('End date', esc(fmtDate(e.endDate))) +
-    kv('Manager', esc(e.managerName || '') + (e.managerEmail ? ' <small class="muted">' + esc(e.managerEmail) + '</small>' : '')) + (placementOf(e) === 'Internal' ? kv('Client', '<span class="muted">No client — works for us directly</span>') : kv('Client', esc(e.clientName)) + kv('Project', esc(e.projectName))) +
-    kv('Client manager', esc(e.clientManagerName || '') + (e.clientManagerEmail ? ' <small class="muted">' + esc(e.clientManagerEmail) + '</small>' : '')) + kv('Worksite', esc(e.worksite)) + '</dl></div>' +
-    '<div class="card"><h3>' + ic('clock') + 'Timesheets</h3><dl class="kv">' + kv('Timesheet', e.timesheetRequired === 'No' ? 'Not required' : (e.timesheetPeriod === 'Monthly' ? 'Monthly' : 'Weekly')) + kv('Approval', esc(e.approvalFlow)) +
+    (pay ? R('Pay', e.payRate === '' ? '' : esc(money(e.payRate, e.payType, e.currency)) + (e.payFrequency || D().org.payFrequency ? ' <small class="muted">· paid ' + esc(e.payFrequency || D().org.payFrequency) + '</small>' : ''),
+      [F('payRate', 'num', e.payRate, 'Rate' + (cur ? ' (' + cur + ')' : ''), null, 120), F('payType', 'select', e.payType || 'Hourly', '', [['Hourly', 'per hour'], ['Salary', 'per year']], 120),
+        F('payFrequency', 'select', e.payFrequency || '', '', [['', 'Company default' + (D().org.payFrequency ? ' (' + D().org.payFrequency + ')' : '')], 'weekly', 'bi-weekly', 'semi-monthly', 'monthly'], 170)]) : '') +
+    (pay ? R('Per diem', Number(e.perDiem) ? esc(money(e.perDiem, '', e.currency)) + ' per ' + esc(e.perDiemPer || 'day') : '', [F('perDiem', 'num', e.perDiem, 'Amount', null, 120), F('perDiemPer', 'select', e.perDiemPer || 'day', '', ['hour', 'day', 'week', 'month'].map(x => [x, 'per ' + x]), 130)], { hideEmpty: true }) : '') +
+    (pay ? R('Health care reimbursement', Number(e.healthReimb) ? esc(money(e.healthReimb, '', e.currency)) + ' per ' + esc(e.healthReimbPer || 'month') : '', [F('healthReimb', 'num', e.healthReimb, 'Amount', null, 120), F('healthReimbPer', 'select', e.healthReimbPer || 'month', '', ['month', 'pay period', 'year'].map(x => [x, 'per ' + x]), 140)], { hideEmpty: true }) : '') +
+    (pay ? R('Bonus', Number(e.bonusRate) ? (e.bonusType === '% of base pay' || !e.bonusType ? esc(e.bonusRate) + '% of base pay' : esc(money(e.bonusRate, '', e.currency)) + ' ' + esc({ 'Per hour worked': 'per hour worked', 'Fixed amount per year': 'per year', 'Fixed amount per quarter': 'per quarter', 'One-time': 'one-time' }[e.bonusType] || '')) : '',
+      [F('bonusRate', 'num', e.bonusRate, 'Rate or amount', null, 130), F('bonusType', 'select', e.bonusType || '% of base pay', '', ['% of base pay', 'Per hour worked', 'Fixed amount per year', 'Fixed amount per quarter', 'One-time'], 200)], { hideEmpty: true }) : '') +
+    R('Start date', esc(fmtDate(e.startDate)), [F('startDate', 'date', e.startDate)]) + R('End date', esc(fmtDate(e.endDate)), [F('endDate', 'date', e.endDate)]) +
+    R('Manager', esc(e.managerName || '') + (e.managerEmail ? ' <small class="muted">' + esc(e.managerEmail) + '</small>' : ''), [F('managerName', 'text', e.managerName, 'Name'), F('managerEmail', 'email', e.managerEmail, 'Email')]) +
+    (placementOf(e) === 'Internal' ? kv('Client', '<span class="muted">No client — works for us directly</span>') : R('Client', esc(e.clientName), [F('clientName', 'text', e.clientName, 'Client')]) + R('Project', esc(e.projectName), [F('projectName', 'text', e.projectName, 'Project')])) +
+    (placementOf(e) === 'Internal' ? '' : R('Client manager', esc(e.clientManagerName || '') + (e.clientManagerEmail ? ' <small class="muted">' + esc(e.clientManagerEmail) + '</small>' : ''), [F('clientManagerName', 'text', e.clientManagerName, 'Name'), F('clientManagerEmail', 'email', e.clientManagerEmail, 'Email')])) +
+    R('Worksite', esc(e.worksite), [F('worksite', 'text', e.worksite, 'Address or "Remote"')]) + '</dl></div>' +
+    '<div class="card"><h3>' + ic('clock') + 'Timesheets</h3><dl class="kv">' +
+    R('Timesheet', e.timesheetRequired === 'No' ? 'Not required' : (e.timesheetPeriod === 'Monthly' ? 'Monthly' : 'Weekly'), [F('_ts', 'select', e.timesheetRequired === 'No' ? 'Not required' : (e.timesheetPeriod || 'Weekly'), '', ['Weekly', 'Monthly', 'Not required'])]) +
+    R('Approval', esc(e.approvalFlow), [F('approvalFlow', 'select', e.approvalFlow, '', L('approvalFlows'))]) +
     (flowSteps.length ? kv('Approvers', flowSteps.map((n, i) => (i + 1) + '. ' + esc(n)).join('<br>')) : '') + '</dl>' +
-    (e.workAuth !== undefined ? '<h3 style="margin-top:16px">' + ic('passport') + 'Work authorization</h3><dl class="kv">' + kv('Status', esc(e.workAuth)) + kv(((L('waFields') || {})[e.workAuth] || {}).expiry || 'Valid until', expiryChip(e.workAuthExpiry)) + kv('I-94 admit until', expiryChip(e.i94Expiry)) +
-      kv(((L('waFields') || {})[e.workAuth] || {}).receipt || 'Receipt number', esc(e.receiptNumber)) + (((L('waFields') || {})[e.workAuth] || {}).note ? '<dt></dt><dd><small class="muted">' + esc(L('waFields')[e.workAuth].note) + '</small></dd>' : '') + kv('E-Verify case', esc(e.eVerifyCase) + (e.eVerifyStatus ? ' · ' + esc(e.eVerifyStatus) : '')) + '</dl>' : '') + '</div>' +
-    '<div class="card"><h3>' + ic('user') + 'Contact</h3><dl class="kv">' + kv('Work email', esc(e.email)) + kv('Personal email', esc(e.personalEmail)) + kv('Phone', esc(e.phone)) +
-    kv('Address', esc([e.address, e.city, e.state, e.zip].filter(Boolean).join(', '))) + kv('Emergency contact', esc([e.emergencyName, e.emergencyPhone].filter(Boolean).join(' · '))) + extraHtml(E.extra) + '</dl></div>' +
+    (e.workAuth !== undefined ? '<h3 style="margin-top:16px">' + ic('passport') + 'Work authorization</h3><dl class="kv">' +
+      R('Status', esc(e.workAuth), e.workAuth === 'Outside the U.S.' ? null : [F('workAuth', 'select', e.workAuth, '', (L('workAuth') || []).filter(x => x !== 'Outside the U.S.'))], { confirm: 'Changing the work authorization updates the onboarding checklist and the dates it needs. Continue?' }) +
+      (!uses('expiry') ? '' : R(wa.expiry || 'Valid until', e.workAuthExpiry ? expiryChip(e.workAuthExpiry) : '', [F('workAuthExpiry', 'date', e.workAuthExpiry)])) +
+      R('I-94 admit until', e.i94Expiry ? expiryChip(e.i94Expiry) : '', [F('i94Expiry', 'date', e.i94Expiry)], { hideEmpty: !uses('i94') }) +
+      R(wa.receipt || 'Receipt number', esc(e.receiptNumber), [F('receiptNumber', 'text', e.receiptNumber, 'e.g. IOE0123456789')], { hideEmpty: !uses('receipt') }) +
+      (wa.note ? '<dt></dt><dd><small class="muted">' + esc(wa.note) + '</small></dd>' : '') +
+      R('E-Verify case', esc(e.eVerifyCase) + (e.eVerifyStatus ? ' · ' + esc(e.eVerifyStatus) : ''), [F('eVerifyCase', 'text', e.eVerifyCase, 'Case number'), F('eVerifyStatus', 'text', e.eVerifyStatus, 'Status, e.g. Employment authorized')]) + '</dl>' : '') + '</div>' +
+    '<div class="card"><h3>' + ic('user') + 'Contact</h3><dl class="kv">' +
+    R('Work email', esc(e.email), [F('email', 'email', e.email, 'name@company.com')], { confirm: signedIn && e.email && E.member && E.member.email === e.email ? 'They sign in with ' + e.email + '. Their sign-in address does not change — only the work email on the record. Continue?' : '' }) +
+    R('Personal email', esc(e.personalEmail), [F('personalEmail', 'email', e.personalEmail, 'name@gmail.com')]) + R('Phone', esc(e.phone), [F('phone', 'tel', e.phone, 'Phone')]) +
+    R('Address', esc([e.address, e.city, e.state, e.zip].filter(Boolean).join(', ')), [F('address', 'text', e.address, 'Street'), F('city', 'text', e.city, 'City', null, 140), F('state', 'text', e.state, 'State', null, 70), F('zip', 'text', e.zip, 'ZIP', null, 90)]) +
+    R('Emergency contact', esc([e.emergencyName, e.emergencyPhone].filter(Boolean).join(' · ')), [F('emergencyName', 'text', e.emergencyName, 'Name'), F('emergencyPhone', 'tel', e.emergencyPhone, 'Phone')]) +
+    extraHtml(E.extra, can('employees.edit')) + '</dl></div>' +
     '<div class="card"><div class="card-h"><h3>' + ic('shield') + 'Portal access</h3>' + (can('employees.edit') && !(E.member && E.member.signedIn) ? '<button class="btn sm" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt || E.member ? 'Resend invitation' : 'Invite to portal') + '</button>' : '') + '</div>' +
       (E.member && can('employees.edit') ? '<p><button class="btn xs ghost" data-action="emp-signins" data-email="' + esc(E.member.email) + '">' + ic('lock') + 'Sign-in history</button></p>' : '') +
       (E.member && E.member.signedIn ? '<p>' + chip('Signed in', 'ok') + ' ' + esc(E.member.email) + ' · ' + esc(roleName(E.member.role)) + (E.member.lastLogin ? ' <small class="muted">· last signed in ' + esc(fmtWhen(E.member.lastLogin)) + '</small>' : '') + '</p>'
@@ -3662,14 +3693,15 @@ function extraFrom(v) {
   if (Object.keys(native).length) { out.native = native; out.nativeContacts = nativeContacts; }
   return out;
 }
-function extraHtml(x) {
+function extraHtml(x, edit) {
   if (!x) return '';
-  const kv = (k, v) => v ? '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>' : '', n = x.native || {};
+  const kv = (k, v, add) => !v && !(edit && add) ? '' : '<dt>' + esc(k) + '</dt><dd' + (edit ? ' class="ie" data-action="ie-extra" title="Click to change" tabindex="0"' : '') + '>' + (v || '<span class="muted ie-add">' + ic('plus') + 'Add</span>') + (edit ? '<span class="ie-pen">' + ic('edit') + '</span>' : '') + '</dd>', n = x.native || {};
   const person = c => esc([c.name, c.relation ? '(' + c.relation + ')' : '', c.phone, c.email].filter(Boolean).join(' · '));
   const refLine = c => esc([c.name, [c.title, c.company].filter(Boolean).join(', '), c.relation, c.phone, c.email].filter(Boolean).join(' · '));
-  const nat = n.country || n.address ? kv('Home-country address', esc([n.address, n.city, n.state, n.postal, n.country].filter(Boolean).join(', ')) + (n.phone ? '<br><small class="muted">' + esc(n.phone) + '</small>' : '')) : x.needsNative ? kv('Home-country address', '<span class="muted">Not given yet</span>') : '';
-  const nc = (x.nativeContacts || []).map((c, i) => kv(i ? '' : 'Home-country contact', person(c))).join('');
-  const rf = (x.references || []).map((c, i) => kv(i ? '' : 'References', refLine(c))).join('');
+  const nat = n.country || n.address ? kv('Home-country address', esc([n.address, n.city, n.state, n.postal, n.country].filter(Boolean).join(', ')) + (n.phone ? '<br><small class="muted">' + esc(n.phone) + '</small>' : ''))
+    : x.needsNative ? (edit ? kv('Home-country address', '', true) : kv('Home-country address', '<span class="muted">Not given yet</span>')) : '';
+  const nc = (x.nativeContacts || []).length ? x.nativeContacts.map((c, i) => kv(i ? '' : 'Home-country contact', person(c))).join('') : x.needsNative ? kv('Home-country contact', '', true) : '';
+  const rf = (x.references || []).length ? x.references.map((c, i) => kv(i ? '' : 'References', refLine(c))).join('') : kv('References', '', true);
   return nat + nc + rf;
 }
 
@@ -3679,27 +3711,55 @@ function sensitiveCard(E) {
     (can('employees.edit') ? '<button class="btn sm ghost" data-action="pii-edit" data-emp="' + esc(E.employee.id) + '">' + ic('edit') + 'Update</button>' : '') + '</div></div>' +
     '<p class="muted">SSN, passport, A-Number, I-94, visa, date and country of birth, citizenship — for H-1B, PERM and other filings. Shown masked; showing the full numbers is recorded in the audit log.</p></div>';
 }
-async function piiModal(empId, reveal, btn) {
-  const r = await busy(btn, call('getSensitiveInfo', { employeeId: empId, reveal: !!reveal }));
-  const row = (k, v, secret) => '<tr><td class="muted">' + esc(k) + '</td><td>' + (v ? '<b' + (secret && r.revealed ? ' style="font-family:monospace"' : '') + '>' + esc(v) + '</b>' : '<span class="muted">—</span>') + '</td></tr>';
-  openModal('Sensitive numbers', (r.revealed ? '<div class="banner warn">' + ic('eye') + '<div>Full numbers are shown — this view is recorded in the audit log. Close when done.</div></div>' : '') +
-    '<table class="tbl">' + row('Social Security number', r.ssn ? r.ssn + ' · ' + r.ssnStatus : '', true) + r.fields.map(f => row(f.label, f.date && f.value ? fmtDate(f.value) : f.value, f.secret)).join('') + '</table>' +
-    (r.updatedAt ? '<p class="hint">Last changed ' + esc(fmtWhen(r.updatedAt)) + ' by ' + esc(r.updatedBy) + '. Date of birth, A-Number, I-94 and passport come from the Form I-9 when not entered here.</p>' : '<p class="hint">Date of birth, A-Number, I-94 and passport come from the Form I-9 when not entered here.</p>') +
-    '<div class="foot-btns">' + (r.revealed ? '' : '<button type="button" class="btn ghost" data-action="pii-reveal" data-emp="' + esc(empId) + '">' + ic('eye') + 'Show full numbers</button>') +
-    (can('employees.edit') ? '<button type="button" class="btn ghost" data-action="pii-edit" data-emp="' + esc(empId) + '">' + ic('edit') + 'Update</button>' : '') + '<button type="button" class="btn" data-action="close-modal">Close</button></div>', true);
+async function piiModal(empId, reveal, btn, pre) {
+  const r = pre || await busy(btn, call('getSensitiveInfo', { employeeId: empId, reveal: !!reveal }));
+  const auto = !pre && r.canRead && r.unread && r.blanks && !(S.piiAuto = S.piiAuto || {})[empId];
+  const unreadTypes = (r.docs || []).filter(d => !d.read).map(d => d.type);
+  const src = f => f.source ? '<br><small class="muted">' + ic('file') + ' ' + esc(/^(Entered|Form I-9)/.test(f.source) ? f.source : 'from ' + f.source) + '</small>' : '';
+  const val = f => f.value ? '<b' + (f.secret && r.revealed ? ' style="font-family:monospace"' : '') + '>' + esc(f.date ? fmtDate(f.value) : f.value) + '</b>' + src(f)
+    : f.partial ? '<span class="muted">' + esc(f.partial) + '</span>' + src(f) + (r.canRead ? '<br><small class="muted">The full number is read from the document with “Read from documents”.</small>' : '')
+    : '<span class="muted">—</span>';
+  const edit = can('employees.edit');
+  const row = (label, html, key) => '<tr' + (edit ? ' class="pii-row" data-action="pii-edit" data-emp="' + esc(empId) + '" data-focus="' + esc(key) + '" title="Click to update"' : '') + '><td class="muted">' + esc(label) + '</td><td>' + html + '</td>' + (edit ? '<td class="pii-pen">' + ic('edit') + '</td>' : '') + '</tr>';
+  const notes = (r.notes || []).length ? '<div class="banner warn">' + ic('alert') + '<div>' + r.notes.map(esc).join('<br>') + '</div></div>' : '';
+  const filled = pre && (r.filled || []).length ? '<div class="banner ok">' + ic('check') + '<div>Filled from the documents: ' + esc(r.filled.join(', ')) + '.</div></div>' : '';
+  openModal('Sensitive numbers', '<div id="pii-box">' + (r.revealed ? '<div class="banner warn">' + ic('eye') + '<div>Full numbers are shown — this view is recorded in the audit log. Close when done.</div></div>' : '') +
+    (auto ? '<div class="banner info" id="pii-reading"><span class="spin"></span><div>Reading the blank numbers from the ' + esc(unreadTypes.join(', ')) + ' on file…</div></div>' : '') + filled + notes +
+    '<table class="tbl">' + row('Social Security number', r.ssn ? '<b' + (r.revealed ? ' style="font-family:monospace"' : '') + '>' + esc(r.ssn) + '</b><br><small class="muted">' + esc(r.ssnStatus) + '</small>' : '<span class="muted">—</span>', 'ssn') +
+    r.fields.map(f => row(f.label, val(f), f.key)).join('') + '</table>' +
+    '<p class="hint">' + (r.updatedAt ? 'Last changed ' + esc(fmtWhen(r.updatedAt)) + ' by ' + esc(r.updatedBy) + '. ' : '') + 'Blank numbers are taken from the Form I-9 and from the passport, I-94, visa, I-797, EAD and I-20 on file' +
+    ((r.docs || []).length ? ' (' + esc(r.docs.map(d => d.type).join(', ')) + ')' : ' — none are on file yet') + '. Numbers entered here are never overwritten.' + (edit ? ' Click a row to change it.' : '') + '</p>' +
+    '<div class="foot-btns">' + (r.canRead && (r.docs || []).length ? '<button type="button" class="btn ghost" data-action="pii-read" data-emp="' + esc(empId) + '" data-reveal="' + (r.revealed ? '1' : '') + '"' + (auto ? ' disabled' : '') + '>' + ic('refresh') + 'Read from documents</button>' : '') +
+    (r.revealed ? '' : '<button type="button" class="btn ghost" data-action="pii-reveal" data-emp="' + esc(empId) + '">' + ic('eye') + 'Show full numbers</button>') +
+    (edit ? '<button type="button" class="btn ghost" data-action="pii-edit" data-emp="' + esc(empId) + '">' + ic('edit') + 'Update</button>' : '') + '<button type="button" class="btn" data-action="close-modal">Close</button></div></div>', true);
+  if (auto) { S.piiAuto[empId] = 1; piiRead(empId, r.revealed, null, false); }
+}
+async function piiRead(empId, reveal, btn, again) {
+  try {
+    const r = await busy(btn, call('readSensitiveFromDocs', { employeeId: empId, reveal: !!reveal, again: !!again }));
+    if (!document.getElementById('pii-box')) { if ((r.filled || []).length) toast('Filled from documents: ' + r.filled.join(', '), 'ok'); return; }   // window closed meanwhile
+    piiModal(empId, reveal, null, r);
+  } catch (e) {
+    const b = document.getElementById('pii-reading');
+    if (b) { b.className = 'banner warn'; b.innerHTML = ic('alert') + '<div>' + esc((e && e.message) || 'The documents could not be read right now.') + '</div>'; } else toast((e && e.message) || 'The documents could not be read right now.', 'error');
+    const rb = document.querySelector('[data-action="pii-read"]'); if (rb) rb.disabled = false;
+  }
 }
 Object.assign(ACTIONS, {
   'pii-open': el => piiModal(el.dataset.emp, false, el),
+  'pii-read': el => piiRead(el.dataset.emp, !!el.dataset.reveal, el, true),
   'pii-reveal': el => { if (!confirm('Show the full numbers? This is recorded in the audit log.')) return; piiModal(el.dataset.emp, true, el); },
   'pii-edit': async el => {
     const r = await busy(el, call('getSensitiveInfo', { employeeId: el.dataset.emp, reveal: true }));
     openModal('Update sensitive numbers', '<form data-form="pii-save"><input type="hidden" name="employeeId" value="' + esc(el.dataset.emp) + '"><div class="grid g2">' +
       field('Social Security number', inp('ssn', '', smart('ssn', 'inputmode="numeric" autocomplete="off" placeholder="' + (r.ssn ? 'On file: ' + esc(r.ssn.replace(/^\d{3}-\d{2}/, '***-**')) + ' — type to replace' : 'XXX-XX-XXXX') + '"'))) + '<div></div>' +
-      r.fields.map(f => field(f.label, inp(f.key, f.value, (f.date ? 'type="date"' : 'maxlength="60"') + ' autocomplete="off"'))).join('') +
+      r.fields.map(f => field(f.label, inp(f.key, f.value, (f.date ? 'type="date"' : 'maxlength="60"') + ' autocomplete="off"' + (f.partial && !f.value ? ' placeholder="' + esc(f.partial) + '"' : '')), '', f.value && f.source && f.source !== 'Entered by HR' ? 'From ' + f.source : '')).join('') +
       '</div><p class="hint">Saved to a private file — the record keeps only the last 4. Every change is in the audit log.</p><div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Save</button></div></form>', true);
+    piiFocus(el.dataset.focus);
   }
 });
-FORMS['pii-save'] = async v => { if (!v.ssn) delete v.ssn; await call('saveSensitiveInfo', v); closeModal(); toast('Saved', 'ok'); };
+function piiFocus(key) { setTimeout(() => { const i = key && document.querySelector('.modal [name="' + key + '"]'); if (i) { i.focus(); i.select && i.select(); } }, 60); }
+FORMS['pii-save'] = async v => { if (!v.ssn) delete v.ssn; const r = await call('saveSensitiveInfo', v); toast('Saved', 'ok'); piiModal(v.employeeId, false, null, Object.assign(r, { notes: [], filled: [] })); };
 const isMonthKey = k => /^\d{4}-\d{2}$/.test(String(k || ''));
 const tsLabel = t => t && t.period === 'month' ? monthTitle(String(t.weekStart).slice(0, 7)) + ' (month)' : weekLabel(t.weekStart);
 const tsKey = t => t && t.period === 'month' ? String(t.weekStart).slice(0, 7) : t.weekStart;
@@ -3769,6 +3829,73 @@ FORMS['ms-save'] = async (v, form, submitter) => {
   await call(mode === 'submit' ? 'submitTimesheet' : 'saveTimesheet', input);
   toast(mode === 'submit' ? 'Month submitted' : 'Saved', 'ok'); await reloadCurrent();
 };
+function ieRow(label, html, fields, opt) {
+  opt = opt || {};
+  const empty = html === undefined || html === null || html === '';
+  if (!can('employees.edit') || !fields) return empty ? '' : '<dt>' + esc(label) + '</dt><dd>' + html + '</dd>';
+  if (empty && opt.hideEmpty) return '';
+  const spec = esc(JSON.stringify({ label: label, fields: fields, confirm: opt.confirm || '' }));
+  return '<dt>' + esc(label) + '</dt><dd class="ie" data-action="ie-open" data-ie="' + spec + '" title="Click to change" tabindex="0">' +
+    (empty ? '<span class="muted ie-add">' + ic('plus') + 'Add</span>' : html) + '<span class="ie-pen">' + ic('edit') + '</span></dd>';
+}
+const ieF = (k, t, v, ph, o, w) => ({ k: k, t: t || 'text', v: v === undefined || v === null ? '' : String(v), ph: ph || '', o: o || null, w: w || 0 });
+function ieEditor(spec) {
+  const one = f => {
+    const ph = f.ph ? ' placeholder="' + esc(f.ph) + '"' : '', st = f.w ? ' style="flex:0 1 ' + f.w + 'px"' : '', aria = ' aria-label="' + esc(f.ph || spec.label) + '"';
+    if (f.t === 'select') return '<select data-k="' + esc(f.k) + '"' + st + aria + '>' + (f.o || []).map(o => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(v) + '"' + (String(v) === f.v ? ' selected' : '') + '>' + esc(l) + '</option>'; }).join('') + '</select>';
+    return '<input data-k="' + esc(f.k) + '" type="' + (f.t === 'num' ? 'number" step="any" min="0' : f.t) + '" value="' + esc(f.v) + '"' + ph + st + aria + ' autocomplete="off">';
+  };
+  return '<div class="ie-ed">' + spec.fields.map(one).join('') + '<span class="ie-btns"><button type="button" class="btn xs" data-action="ie-save" title="Save (Enter)">' + ic('check') + '</button>' +
+    '<button type="button" class="btn xs ghost" data-action="ie-cancel" title="Cancel (Esc)">' + ic('x') + '</button></span></div>';
+}
+function ieClose(dd) { if (dd && dd._orig !== undefined) { dd.innerHTML = dd._orig; delete dd._orig; dd.classList.remove('editing'); dd.setAttribute('data-action', 'ie-open'); } }
+function iePatch(dd) {
+  const v = {}, spec = JSON.parse(dd.dataset.ie);
+  dd.querySelectorAll('[data-k]').forEach(i => { v[i.dataset.k] = i.value.trim(); });
+  spec.fields.forEach(f => { if (f.t === 'num') v[f.k] = v[f.k] === '' ? '' : Number(v[f.k]); });
+  if ('_ts' in v) { const p = v._ts; delete v._ts; if (p === 'Not required') v.timesheetRequired = 'No'; else { v.timesheetRequired = 'Yes'; v.timesheetPeriod = p; } }
+  return { spec: spec, patch: v, changed: spec.fields.some(f => String(v[f.k] === undefined ? '' : v[f.k]) !== f.v) || ('timesheetRequired' in v) };
+}
+async function ieSave(dd, btn) {
+  const p = iePatch(dd);
+  if (!p.changed) return ieClose(dd);
+  if (p.spec.confirm && !confirm(p.spec.confirm)) return;
+  dd.classList.add('saving');
+  try {
+    await busy(btn, call('updateEmployee', Object.assign({ id: S.cache.emp.employee.id }, p.patch)));
+    toast(p.spec.label + ' saved', 'ok');
+    await reloadCurrent();
+  } catch (e) {
+    dd.classList.remove('saving');
+    toast((e && e.message) || 'Could not save', 'error', 6000);
+    const i = dd.querySelector('[data-k]'); if (i) i.focus();
+  }
+}
+Object.assign(ACTIONS, {
+  'ie-open': el => {
+    if (el.classList.contains('editing')) return;
+    document.querySelectorAll('dd.ie.editing').forEach(ieClose);   // one at a time
+    const spec = JSON.parse(el.dataset.ie);
+    el._orig = el.innerHTML; el.classList.add('editing'); el.removeAttribute('data-action');
+    el.innerHTML = ieEditor(spec);
+    const i = el.querySelector('[data-k]'); if (i) { i.focus(); if (i.select) i.select(); }
+  },
+  'ie-save': el => ieSave(el.closest('dd.ie'), el),
+  'ie-cancel': el => ieClose(el.closest('dd.ie')),
+  'ie-extra': () => {
+    const E = S.cache.emp, e = E.employee;
+    openModal('Home country and references — ' + e.name, '<form data-form="ie-extra"><input type="hidden" name="id" value="' + esc(e.id) + '">' + extraFields(E.extra, (E.extra || {}).needsNative, false) +
+      '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Save</button></div></form>', true);
+  }
+});
+FORMS['ie-extra'] = async v => { const x = extraFrom(v); await call('updateEmployee', { id: v.id, extra: x || {} }); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); };
+document.addEventListener('keydown', ev => {
+  const dd = ev.target && ev.target.closest && ev.target.closest('dd.ie');
+  if (!dd) return;
+  if (!dd.classList.contains('editing')) { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target === dd) { ev.preventDefault(); const fn = ACTIONS[dd.dataset.action]; if (fn) fn(dd); } return; }
+  if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); ieClose(dd); }
+  else if (ev.key === 'Enter' && ev.target.tagName !== 'BUTTON') { ev.preventDefault(); ieSave(dd, dd.querySelector('[data-action="ie-save"]')); }
+});
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
   copy: el => copy(el.dataset.text || ''),
