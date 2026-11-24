@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.64"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.65"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1597,7 +1597,7 @@ FORMS['emp-invite'] = async v => ACTIONS['emp-invite-go']({ dataset: { id: v.emp
 const selectable = t => t.canDecide || (t.hasFile && can('timesheets.all'));
 const selHead = rows => rows.some(selectable) ? '<th class="sel"><input type="checkbox" data-bulk-all title="Select all weeks you can approve" aria-label="Select all"></th>' : '';
 const selCell = (rows, t) => rows.some(selectable) ? '<td class="sel">' + (selectable(t) ? '<input type="checkbox" name="tsSel" value="' + esc(t.id) + '" aria-label="Select ' + esc(weekLabel(t.weekStart)) + '">' : '') + '</td>' : '';
-const bulkBar = rows => rows.some(selectable) ? '<div class="bulkbar" id="bulkbar" hidden><b id="bulkn">0</b><span>selected</span>' + (rows.some(t => t.canDecide) ? '<button type="button" class="btn sm" data-action="ts-bulk" data-d="approve">' + ic('check') + 'Approve selected</button><button type="button" class="btn sm ghost" data-action="ts-bulk" data-d="reject">Send back selected</button>' : '') + (can('timesheets.all') || can('timesheets.approve') ? '<button type="button" class="btn sm ghost" data-action="ts-reread" data-bulk="1">' + ic('spark') + 'Read files again</button>' : '') + '<button type="button" class="btn sm ghost" data-action="ts-bulk-clear">Clear</button></div>' : '';
+const bulkBar = rows => rows.some(selectable) ? '<div class="bulkbar" id="bulkbar" hidden><b id="bulkn">0</b><span>selected</span>' + (rows.some(t => t.canDecide) ? '<button type="button" class="btn sm" data-action="ts-bulk" data-d="approve">' + ic('check') + 'Approve selected</button><button type="button" class="btn sm ghost" data-action="ts-bulk" data-d="reject">Send back selected</button>' : '') + (can('timesheets.all') || can('timesheets.approve') ? '<button type="button" class="btn sm ghost" data-action="ts-reread" data-bulk="1">' + ic('spark') + 'Read files again</button>' : '') + (can('timesheets.all') ? '<button type="button" class="btn sm ghost" data-action="to-month" data-bulk="1" title="A monthly sheet without hours per day that was filed on weeks">' + ic('calendar') + 'Move to month</button>' : '') + '<button type="button" class="btn sm ghost" data-action="ts-bulk-clear">Clear</button></div>' : '';
 function bulkSync() {
   const all = Array.from(document.querySelectorAll('input[name=tsSel]')), on = all.filter(x => x.checked), bar = $('bulkbar');
   if (bar) { bar.hidden = !on.length; $('bulkn').textContent = on.length; }
@@ -1631,10 +1631,11 @@ PAGES.timesheets = async (parts, p) => {
   if (!isStaff()) return go('#app/my-timesheet');
   if (p.view === 'month') return monthlyView(p);
   const wk = p.week || '', st = p.status || (wk ? '' : 'Submitted');
-  const [r, toAssign, inboxSt] = await Promise.all([call('listTimesheets', { weekStart: wk || undefined, status: st || undefined }), can('timesheets.all') ? call('listInboxToAssign').catch(() => []) : Promise.resolve([]),
-    can('timesheets.all') ? call('getTsInboxStatus').catch(() => null) : Promise.resolve(null)]);
+  const [r, toAssign, inboxSt, tm] = await Promise.all([call('listTimesheets', { weekStart: wk || undefined, status: st || undefined }), can('timesheets.all') ? call('listInboxToAssign').catch(() => []) : Promise.resolve([]),
+    can('timesheets.all') ? call('getTsInboxStatus').catch(() => null) : Promise.resolve(null), can('timesheets.all') ? call('findMonthlyAsWeeks', {}).catch(() => ({ groups: [] })) : Promise.resolve({ groups: [] })]);
   const assignEmps = toAssign.length ? await empChoices() : [];
   S.cache.tsList = r.timesheets;
+  const onWeeks = {}; tm.groups.forEach(g => g.weeks.forEach(w => { onWeeks[w.id] = g.month; }));
   const rows = r.timesheets.sort((a, b) => (b.mine - a.mine) || String(b.weekStart).localeCompare(String(a.weekStart)) || String(a.employeeName).localeCompare(String(b.employeeName)));
   const weeks = []; for (let i = 0; i < 10; i++) weeks.push(addDays(D().thisWeek, -7 * i));
   const inbox = D().org.timesheetInbox;
@@ -1645,11 +1646,11 @@ PAGES.timesheets = async (parts, p) => {
         '<div class="btns" style="margin-top:6px"><select style="width:auto"><option value="">Whose timesheet?</option>' + assignEmps.map(e => '<option value="' + e.id + '">' + esc(e.name) + '</option>').join('') + '</select>' +
         '<button class="btn xs" data-action="inbox-assign" data-id="' + esc(x.id) + '">Read and record</button><button class="btn xs ghost" data-action="inbox-dismiss" data-id="' + esc(x.id) + '">Not a timesheet</button></div></div></div>').join('') + '</div>' : '') +
     (inboxSt && inboxSt.on ? tsInboxStrip(inboxSt) : '') + (!(inboxSt && inboxSt.on) && inbox ? '<div class="banner">' + ic('mail') + '<div>Timesheets emailed to <b>' + esc(inbox) + '</b> are read ' + (inboxSt && inboxSt.cfg && !inboxSt.cfg.on ? 'only when emailed timesheets are turned on in Settings' : 'on your company\'s schedule') + '.</div></div>' : '') +
-    tsTabs('') + '<div class="card"><form class="filters" data-form="ts-filter"><select name="week"><option value="">Any week</option>' + opts(weeks.map(w => [w, weekLabel(w)]), wk) + '</select>' +
+    toMonthBanner(tm.groups) + tsTabs('') + '<div class="card"><form class="filters" data-form="ts-filter"><select name="week"><option value="">Any week</option>' + opts(weeks.map(w => [w, weekLabel(w)]), wk) + '</select>' +
     '<select name="status"><option value="">Any status</option>' + opts([['Draft', 'Draft'], ['Submitted', 'Submitted'], ['Approved', 'Approved'], ['Rejected', 'Rejected'], ['Flagged', 'Possible duplicates']], st) + '</select><button class="btn ghost sm">Show</button></form>' +
     (rows.length ? '<div class="tblwrap"><table class="tbl"><thead><tr>' + selHead(rows) + '<th>Employee</th><th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Waiting for</th><th></th></tr></thead><tbody>' +
       rows.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + t.employeeId + '/' + tsKey(t) + '">' + selCell(rows, t) + '<td><b>' + esc(t.employeeName) + '</b>' + (t.clientName ? '<br><small class="muted">' + esc(t.clientName) + '</small>' : '') + '</td>' +
-        '<td>' + esc(tsLabel(t)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + (t.source === 'Email' ? ' ' + chip('Emailed') : '') + (t.hasFile ? ' ' + chip('File') : '') + (t.dupFlag ? ' <span title="' + esc(t.dupFlag) + '">' + chip('Possible duplicate', 'bad') + '</span>' : '') + '</td>' +
+        '<td>' + esc(tsLabel(t)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + (t.source === 'Email' ? ' ' + chip('Emailed') : '') + (t.hasFile ? ' ' + chip('File') : '') + (t.dupFlag ? ' <span title="' + esc(t.dupFlag) + '">' + chip('Possible duplicate', 'bad') + '</span>' : '') + (onWeeks[t.id] ? ' <span title="A monthly timesheet (' + esc(monthTitle(onWeeks[t.id])) + ') filed on a week — use Review and move to months">' + chip('Monthly sheet on a week', 'warn') + '</span>' : '') + '</td>' +
         '<td class="hide-m"><small>' + esc(t.waitingFor || '') + '</small></td><td class="num">' + (t.mine ? '<div class="btns" style="justify-content:flex-end"><button class="btn xs" data-action="ts-approve" data-id="' + t.id + '">' + ic('check') + 'Approve</button><button class="btn xs danger" data-action="ts-reject" data-id="' + t.id + '">Reject</button></div>' : '') + '</td></tr>').join('') + '</tbody></table></div>' + bulkBar(rows)
       : '<div class="empty">No timesheets here.</div>') + '</div>' +
     (r.missing && r.missing.length ? '<div class="card"><div class="card-h"><h3>' + ic('alert') + 'Not submitted for ' + esc(weekLabel(wk)) + '</h3><span class="muted">' + r.missing.length + '</span></div>' +
@@ -1685,6 +1686,8 @@ async function timesheetPage(empId, week, mine) {
     '<button class="btn sm" data-action="ts-upload" data-emp="' + empId + '" title="Read a timesheet file (PDF, scan, photo or Excel — one week or a whole month) and record every week it covers">' + ic('upload') + 'Add from a file</button></div>') +
     (G.source === 'client' ? '<div class="banner">' + ic('doc') + '<div><b>' + esc(e.clientName || 'The client') + '\'s timesheet is the record of hours.</b> Attach the timesheet approved in ' + esc(e.clientName || 'the client') + '\'s system' + (edit ? ' — IntelliEmp reads the hours from it' + (G.readerAi ? '' : ' with its built-in reader') + '. Check them, then submit.' : '.') + '</div></div>' : '') +
     (t && t.dupFlag ? '<div class="banner bad">' + ic('alert') + '<div><b>Possible duplicate:</b> ' + esc(t.dupFlag) + (can('timesheets.all') || can('timesheets.approve') ? ' <button type="button" class="btn xs ghost" data-action="ts-unflag" data-id="' + t.id + '">Checked — not a duplicate</button>' : '') + '</div></div>' : '') +
+    (t && can('timesheets.all') && looksMonthly(t) ? '<div class="banner warn">' + ic('calendar') + '<div><b>This looks like a monthly timesheet filed on a week</b>' + (t.aiCheck && Number(t.aiCheck.fileHours) ? ' — the file shows ' + esc(t.aiCheck.fileHours) + ' hours' : '') + ', with no hours per day. Move it to the month: its weeks are removed and the month gets the file and the month\'s total. ' +
+      '<button type="button" class="btn xs" data-action="to-month" data-ids="' + esc(t.id) + '">' + ic('calendar') + 'Move to month</button></div></div>' : '') +
     (t && t.status === 'Rejected' ? '<div class="banner bad">' + ic('alert') + '<div><b>Sent back:</b> ' + esc(t.rejectReason || '') + ' — correct the hours and submit again.</div></div>' : '') +
     (t && t.status === 'Approved' ? '<div class="banner ok">' + ic('check') + '<div>Approved' + (t.approvedAt ? ' on ' + fmtDate(t.approvedAt) : '') + '. ' + (can('timesheets.all') ? 'Reopen it if hours must change.' : 'Ask payroll if anything must change.') + '</div></div>' : '') +
     '<form class="card" data-form="ts-save"><div class="card-h"><h3>' + ic('clock') + 'Hours</h3><div>' + (t ? statusChip(t.status) : chip('Not started', 'warn')) + (t && t.source === 'Email' ? ' ' + chip('Emailed') : '') + '</div></div>' +
@@ -3668,7 +3671,7 @@ FORMS['ts-reread'] = async v => {
     '<div class="tblwrap"><table class="tbl"><thead><tr><th>Employee</th><th>Week</th><th class="num">Before</th><th class="num">File</th><th class="num">Now</th><th>Result</th></tr></thead><tbody>' +
     all.map(x => '<tr><td>' + esc(x.employeeName || '') + '</td><td>' + esc(x.weekStart ? weekLabel(x.weekStart) : '') + '</td><td class="num">' + esc(x.before === undefined ? '' : x.before) + '</td><td class="num">' + esc(x.fileHours === null || x.fileHours === undefined ? '—' : x.fileHours) + (x.spread ? '<br><small class="muted">spread</small>' : '') + '</td><td class="num">' + esc(x.after === undefined ? '' : x.after) + '</td>' +
       '<td>' + (x.error ? '<span style="color:var(--red)">' + esc(x.error) + '</span>' : x.applied ? chip('Hours updated', 'ok') : x.why ? '<small class="muted">' + esc(x.why) + '</small>' : x.match ? chip('Matches', 'ok') : chip('Checked', '')) + (x.via ? '<br><small class="muted">' + esc(x.via) + '</small>' : '') + '</td></tr>').join('') + '</tbody></table></div>' +
-    '<div class="foot-btns"><button type="button" class="btn" data-action="close-modal">Done</button></div>', true);
+    '<div class="foot-btns">' + (all.some(x => x.toMonth) && can('timesheets.all') ? '<button type="button" class="btn ghost" data-action="to-month" data-ids="' + esc(all.filter(x => x.toMonth).map(x => x.id).join(',')) + '">' + ic('calendar') + 'Move ' + all.filter(x => x.toMonth).length + ' to month' + (all.filter(x => x.toMonth).length === 1 ? '' : 's') + '</button>' : '') + '<button type="button" class="btn" data-action="close-modal">Done</button></div>', true);
 };
 function extraFields(x, needsNative, required) {
   x = x || {}; const n = x.native || {}, nc = x.nativeContacts || [], rf = x.references || [];
@@ -3713,11 +3716,11 @@ function sensitiveCard(E) {
 }
 async function piiModal(empId, reveal, btn, pre) {
   const r = pre || await busy(btn, call('getSensitiveInfo', { employeeId: empId, reveal: !!reveal }));
-  const auto = !pre && r.canRead && r.unread && r.blanks && !(S.piiAuto = S.piiAuto || {})[empId];
+  const auto = !pre && r.canRead && r.aiOn && r.unread && r.blanks && !(S.piiAuto = S.piiAuto || {})[empId];
   const unreadTypes = (r.docs || []).filter(d => !d.read).map(d => d.type);
   const src = f => f.source ? '<br><small class="muted">' + ic('file') + ' ' + esc(/^(Entered|Form I-9)/.test(f.source) ? f.source : 'from ' + f.source) + '</small>' : '';
   const val = f => f.value ? '<b' + (f.secret && r.revealed ? ' style="font-family:monospace"' : '') + '>' + esc(f.date ? fmtDate(f.value) : f.value) + '</b>' + src(f)
-    : f.partial ? '<span class="muted">' + esc(f.partial) + '</span>' + src(f) + (r.canRead ? '<br><small class="muted">The full number is read from the document with “Read from documents”.</small>' : '')
+    : f.partial ? '<span class="muted">' + esc(f.partial) + '</span>' + src(f) + (r.canRead ? '<br><small class="muted">The full number is read from the document with “Read with AI from documents”.</small>' : '')
     : '<span class="muted">—</span>';
   const edit = can('employees.edit');
   const row = (label, html, key) => '<tr' + (edit ? ' class="pii-row" data-action="pii-edit" data-emp="' + esc(empId) + '" data-focus="' + esc(key) + '" title="Click to update"' : '') + '><td class="muted">' + esc(label) + '</td><td>' + html + '</td>' + (edit ? '<td class="pii-pen">' + ic('edit') + '</td>' : '') + '</tr>';
@@ -3729,7 +3732,7 @@ async function piiModal(empId, reveal, btn, pre) {
     r.fields.map(f => row(f.label, val(f), f.key)).join('') + '</table>' +
     '<p class="hint">' + (r.updatedAt ? 'Last changed ' + esc(fmtWhen(r.updatedAt)) + ' by ' + esc(r.updatedBy) + '. ' : '') + 'Blank numbers are taken from the Form I-9 and from the passport, I-94, visa, I-797, EAD and I-20 on file' +
     ((r.docs || []).length ? ' (' + esc(r.docs.map(d => d.type).join(', ')) + ')' : ' — none are on file yet') + '. Numbers entered here are never overwritten.' + (edit ? ' Click a row to change it.' : '') + '</p>' +
-    '<div class="foot-btns">' + (r.canRead && (r.docs || []).length ? '<button type="button" class="btn ghost" data-action="pii-read" data-emp="' + esc(empId) + '" data-reveal="' + (r.revealed ? '1' : '') + '"' + (auto ? ' disabled' : '') + '>' + ic('refresh') + 'Read from documents</button>' : '') +
+    '<div class="foot-btns">' + (r.canRead ? '<button type="button" class="btn ghost" data-action="pii-read" data-emp="' + esc(empId) + '" data-reveal="' + (r.revealed ? '1' : '') + '"' + (auto ? ' disabled' : '') + '>' + ic('spark') + 'Read with AI from documents</button>' : '') +
     (r.revealed ? '' : '<button type="button" class="btn ghost" data-action="pii-reveal" data-emp="' + esc(empId) + '">' + ic('eye') + 'Show full numbers</button>') +
     (edit ? '<button type="button" class="btn ghost" data-action="pii-edit" data-emp="' + esc(empId) + '">' + ic('edit') + 'Update</button>' : '') + '<button type="button" class="btn" data-action="close-modal">Close</button></div></div>', true);
   if (auto) { S.piiAuto[empId] = 1; piiRead(empId, r.revealed, null, false); }
@@ -3895,6 +3898,47 @@ document.addEventListener('keydown', ev => {
   if (!dd.classList.contains('editing')) { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target === dd) { ev.preventDefault(); const fn = ACTIONS[dd.dataset.action]; if (fn) fn(dd); } return; }
   if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); ieClose(dd); }
   else if (ev.key === 'Enter' && ev.target.tagName !== 'BUTTON') { ev.preventDefault(); ieSave(dd, dd.querySelector('[data-action="ie-save"]')); }
+});
+const TO_MONTH_NOTE = /month(ly)?['’]?s? total|total (hours )?for the (whole |entire )?month|whole month|entire month|spread evenly/i;
+const looksMonthly = t => !!t && t.period !== 'month' && t.hasFile && (Number(t.totalHours) > 80 || (t.aiCheck && !t.aiCheck.error && ((t.aiCheck.issues || []).some(i => TO_MONTH_NOTE.test(i)) || Number(t.aiCheck.fileHours) > 80)));
+function toMonthBanner(groups) {
+  if (!groups || !groups.length || !can('timesheets.all')) return '';
+  const n = groups.reduce((s, g) => s + g.weeks.length, 0), people = Array.from(new Set(groups.map(g => g.employeeName)));
+  return '<div class="banner warn">' + ic('calendar') + '<div><b>' + n + ' week' + (n === 1 ? '' : 's') + ' look like monthly timesheets filed on weeks</b> — ' + esc(people.slice(0, 3).join(', ') + (people.length > 3 ? ' and ' + (people.length - 3) + ' more' : '')) +
+    ' (' + esc(groups.slice(0, 4).map(g => monthTitle(g.month)).join(', ') + (groups.length > 4 ? '…' : '')) + '). A month sent without hours per day should be one monthly timesheet, not weeks. ' +
+    '<button type="button" class="btn xs" data-action="to-month" data-all="1">' + ic('calendar') + 'Review and move to months</button></div></div>';
+}
+async function toMonthModal(q, btn) {
+  const r = await busy(btn, call('findMonthlyAsWeeks', q || {}));
+  if (!r.groups.length) return toast(q && q.ids ? 'Those weeks have no file to move.' : 'Nothing to move — no monthly sheets on weeks.', '');
+  S.toMonth = r.groups;
+  const row = (g, i) => {
+    const bl = g.blocked.length;
+    return '<div class="card tight tm-g"><label class="check" style="margin:0"><input type="checkbox" name="g' + i + '"' + (bl ? ' disabled' : ' checked') + '> <b>' + esc(g.employeeName) + '</b> <small class="muted">' + esc(g.fileName || '') + '</small></label>' +
+      '<div class="grid g3" style="margin-top:8px">' + field('Month', '<input type="month" name="m' + i + '" value="' + esc(g.month) + '" max="' + esc(D().today ? D().today.slice(0, 7) : '') + '"' + (bl ? ' disabled' : '') + '>', '', g.monthGuessed ? 'Guessed from the weeks — check it' : 'From the subject or file name') +
+      field('Hours for the month', '<input type="number" step="0.01" min="0" max="744" name="h' + i + '" value="' + esc(g.hours) + '"' + (bl ? ' disabled' : '') + '>', '', g.fileHours ? 'The file shows ' + g.fileHours + ' · the weeks have ' + g.weeksTotal : 'The weeks have ' + g.weeksTotal) +
+      '<div><label>Weeks removed</label><div style="font-size:13px;line-height:1.6">' + g.weeks.map(w => esc(weekLabel(w.weekStart)) + ' · <b>' + esc(w.hours) + '</b> ' + statusChip(w.status)).join('<br>') + '</div></div></div>' +
+      '<p class="hint" style="margin:6px 0 0">Why: ' + esc(g.why.join('; ')) + '.' + (g.existingMonth ? ' ' + esc(monthTitle(g.month)) + ' already has a monthly timesheet (' + esc(g.existingMonth.status.toLowerCase()) + ', ' + esc(g.existingMonth.hours) + ' hours)' + (['Submitted', 'Approved'].indexOf(g.existingMonth.status) >= 0 ? ' — with the same hours the weeks are just removed.' : ' — it is updated.') : '') + '</p>' +
+      (bl ? '<div class="banner bad" style="margin:8px 0 0">' + ic('alert') + '<div>' + esc(g.blocked.join('; ')) + '.</div></div>' : '') + '</div>';
+  };
+  openModal('Move monthly timesheets off weeks', '<form data-form="to-month"><p class="muted">Each file below is one month\'s timesheet without hours per day. Its weeks are removed and the month gets the file and the month\'s total — no days are guessed. ' +
+    'If the weeks were waiting for approval, the month is sent for approval instead (the approver gets one request for the month). Approved weeks are left alone.</p>' + r.groups.map(row).join('') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + ic('calendar') + 'Move to months</button></div></form>', true);
+}
+FORMS['to-month'] = async v => {
+  const groups = (S.toMonth || []).map((g, i) => v['g' + i] ? { ids: g.weeks.map(w => w.id), month: v['m' + i], hours: Number(v['h' + i]) } : null).filter(Boolean);
+  if (!groups.length) return toast('Tick at least one.');
+  const r = await call('convertWeeksToMonth', { groups: groups });
+  const ok = r.results.filter(x => x.ok), bad = r.results.filter(x => !x.ok);
+  await reloadCurrent();
+  openModal('Moved to months', '<p>' + ok.length + ' moved' + (bad.length ? ' · <b style="color:var(--red)">' + bad.length + ' not moved</b>' : '') + '.</p><ul>' +
+    ok.map(x => '<li><b>' + esc(x.employeeName) + '</b> — ' + esc(monthTitle(x.month)) + ': ' + esc(x.hours) + ' hours, ' + esc(x.result) + '</li>').join('') +
+    bad.map(x => '<li style="color:var(--red)">' + esc(x.month ? monthTitle(x.month) + ': ' : '') + esc(x.error) + '</li>').join('') + '</ul>' +
+    '<div class="foot-btns">' + (ok.length ? '<button type="button" class="btn ghost" data-action="to-month-see">' + ic('calendar') + 'See by month</button>' : '') + '<button type="button" class="btn" data-action="close-modal">Done</button></div>');
+};
+Object.assign(ACTIONS, {
+  'to-month-see': () => { closeModal(); go('#app/timesheets?view=month'); },
+  'to-month': el => toMonthModal(el.dataset.all ? {} : el.dataset.bulk ? { ids: bulkIds() } : { ids: String(el.dataset.ids || '').split(',').filter(Boolean) }, el)
 });
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
