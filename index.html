@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.61"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.62"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1044,7 +1044,8 @@ Object.assign(ACTIONS, {
       const e = (S.cache.portal && S.cache.portal.employee) || (S.cache.emp && S.cache.emp.employee) || {};
       body += '<div class="grid g2">' + field('Home address', inp('address', e.address, 'required'), 'span2') + field('City', inp('city', e.city)) + field('State', inp('state', e.state, 'maxlength="40"')) +
         field('ZIP', inp('zip', e.zip, 'inputmode="numeric"')) + field('Mobile phone', inp('phone', e.phone, 'type="tel"')) + field('Personal email', inp('personalEmail', e.personalEmail, 'type="email"'), 'span2') +
-        field('Emergency contact name', inp('emergencyName', e.emergencyName, 'required')) + field('Emergency contact phone', inp('emergencyPhone', e.emergencyPhone, 'type="tel" required')) + '</div>';
+        field('Emergency contact name', inp('emergencyName', e.emergencyName, 'required')) + field('Emergency contact phone', inp('emergencyPhone', e.emergencyPhone, 'type="tel" required')) + '</div>' +
+        (function () { const X = (S.cache.portal && S.cache.portal.extra) || (S.cache.emp && S.cache.emp.extra) || {}; return extraFields(X, !!X.needsNative, true); })();
     } else if (t.category === 'ack') {
       body += '<div class="grid"><label class="check"><input type="checkbox" name="agree"> I have read and agree to this.</label>' + field('Type your full name as your signature', inp('signature', '', 'required')) + '</div>';
     } else if (t.category === 'hr') {
@@ -1070,7 +1071,7 @@ Object.assign(FORMS, {
     const t = findTask(v.taskId), f = form.querySelector('[name=file]');
     const input = { taskId: v.taskId, note: v.note };
     if (f && f.files && f.files[0]) { input.file = await readFile(f.files[0]); input.expiresOn = v.expiresOn; }
-    if (t.category === 'form') input.form = v;
+    if (t.category === 'form') { const x = extraFrom(v); if (x) v.extra = x; input.form = v; }
     if (t.category === 'ack') { input.signature = v.signature; input.agree = v.agree; }
     if (t.category === 'hr') { input.eVerifyCase = v.eVerifyCase; input.receiptNumber = v.receiptNumber; }
     const job = input.file ? null : call('submitTask', input), msg = t.category === 'upload' && !can('onboarding.manage') ? 'Uploaded — HR will review it.' : 'Saved';
@@ -1094,9 +1095,10 @@ ACTIONS['edit-profile'] = () => {
   const e = (S.cache.portal && S.cache.portal.employee) || {};
   openModal('Your details', '<form data-form="my-profile"><div class="grid g2">' + field('Home address', inp('address', e.address), 'span2') + field('City', inp('city', e.city)) + field('State', inp('state', e.state)) +
     field('ZIP', inp('zip', e.zip)) + field('Mobile phone', inp('phone', e.phone, 'type="tel"')) + field('Personal email', inp('personalEmail', e.personalEmail, 'type="email"'), 'span2') +
-    field('Emergency contact', inp('emergencyName', e.emergencyName)) + field('Emergency phone', inp('emergencyPhone', e.emergencyPhone, 'type="tel"')) + '</div><div class="foot-btns"><button class="btn">Save</button></div></form>');
+    field('Emergency contact', inp('emergencyName', e.emergencyName)) + field('Emergency phone', inp('emergencyPhone', e.emergencyPhone, 'type="tel"')) + '</div>' +
+    extraFields(S.cache.portal && S.cache.portal.extra, !!(S.cache.portal && S.cache.portal.extra && S.cache.portal.extra.needsNative), false) + '<div class="foot-btns"><button class="btn">Save</button></div></form>', true);
 };
-FORMS['my-profile'] = async v => { await call('updateMyProfile', v); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); };
+FORMS['my-profile'] = async v => { const x = extraFrom(v); if (x) v.extra = x; await call('updateMyProfile', v); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); };
 PAGES['my-documents'] = async () => {
   const P = await call('getMyPortal'); S.cache.portal = P;
   if (!P.employee) return head('Documents') + '<div class="card"><p>No employee record is linked to your account.</p></div>';
@@ -1216,7 +1218,7 @@ function empProfile(E) {
     (e.workAuth !== undefined ? '<h3 style="margin-top:16px">' + ic('passport') + 'Work authorization</h3><dl class="kv">' + kv('Status', esc(e.workAuth)) + kv(((L('waFields') || {})[e.workAuth] || {}).expiry || 'Valid until', expiryChip(e.workAuthExpiry)) + kv('I-94 admit until', expiryChip(e.i94Expiry)) +
       kv(((L('waFields') || {})[e.workAuth] || {}).receipt || 'Receipt number', esc(e.receiptNumber)) + (((L('waFields') || {})[e.workAuth] || {}).note ? '<dt></dt><dd><small class="muted">' + esc(L('waFields')[e.workAuth].note) + '</small></dd>' : '') + kv('E-Verify case', esc(e.eVerifyCase) + (e.eVerifyStatus ? ' · ' + esc(e.eVerifyStatus) : '')) + '</dl>' : '') + '</div>' +
     '<div class="card"><h3>' + ic('user') + 'Contact</h3><dl class="kv">' + kv('Work email', esc(e.email)) + kv('Personal email', esc(e.personalEmail)) + kv('Phone', esc(e.phone)) +
-    kv('Address', esc([e.address, e.city, e.state, e.zip].filter(Boolean).join(', '))) + kv('Emergency contact', esc([e.emergencyName, e.emergencyPhone].filter(Boolean).join(' · '))) + '</dl></div>' +
+    kv('Address', esc([e.address, e.city, e.state, e.zip].filter(Boolean).join(', '))) + kv('Emergency contact', esc([e.emergencyName, e.emergencyPhone].filter(Boolean).join(' · '))) + extraHtml(E.extra) + '</dl></div>' +
     '<div class="card"><div class="card-h"><h3>' + ic('shield') + 'Portal access</h3>' + (can('employees.edit') && !(E.member && E.member.signedIn) ? '<button class="btn sm" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt || E.member ? 'Resend invitation' : 'Invite to portal') + '</button>' : '') + '</div>' +
       (E.member && can('employees.edit') ? '<p><button class="btn xs ghost" data-action="emp-signins" data-email="' + esc(E.member.email) + '">' + ic('lock') + 'Sign-in history</button></p>' : '') +
       (E.member && E.member.signedIn ? '<p>' + chip('Signed in', 'ok') + ' ' + esc(E.member.email) + ' · ' + esc(roleName(E.member.role)) + (E.member.lastLogin ? ' <small class="muted">· last signed in ' + esc(fmtWhen(E.member.lastLogin)) + '</small>' : '') + '</p>'
@@ -1315,7 +1317,7 @@ function empTimesheets(E) {
       : '<div class="empty">No timesheets yet.</div>') + '</div>';
 }
 function empImmigration(E) {
-  return immHistoryHtml(E.immHistory, E.employee, can('immigration.manage')) + '<div class="card"><div class="card-h"><h3>' + ic('flag') + 'Immigration cases</h3>' + (can('immigration.manage') ? '<button class="btn sm" data-action="case-new" data-emp="' + E.employee.id + '">' + ic('plus') + 'Start a case</button>' : '') + '</div>' +
+  return sensitiveCard(E) + immHistoryHtml(E.immHistory, E.employee, can('immigration.manage')) + '<div class="card"><div class="card-h"><h3>' + ic('flag') + 'Immigration cases</h3>' + (can('immigration.manage') ? '<button class="btn sm" data-action="case-new" data-emp="' + E.employee.id + '">' + ic('plus') + 'Start a case</button>' : '') + '</div>' +
     ((E.cases || []).length ? '<div class="cases">' + E.cases.map(caseCard).join('') + '</div>' : '<div class="empty">No cases. Start one for an H-1B extension, transfer or amendment, PERM, I-140, I-485 or STEM OPT.</div>') + '</div>';
 }
 function empNotes(E) {
@@ -1340,7 +1342,11 @@ function empForm(e, mode) {
       field('Paid', sel('payFrequency', [['', 'Company default (' + (D().org.payFrequency || 'semi-monthly') + ')'], ['weekly', 'Weekly'], ['bi-weekly', 'Every two weeks (bi-weekly)'], ['semi-monthly', 'Twice a month (semi-monthly)'], ['monthly', 'Monthly']], e.payFrequency || '')) : '') +
     (can('confidential.view') ? field('', '<label class="check"><input type="checkbox" name="confidential"' + (e.confidential === 'Yes' ? ' checked' : '') + '> Confidential (executive) record — hidden from anyone without the "confidential records" power</label>', 'span2') : '') +
     (isNew ? '' : field('Status', sel('status', lists.empStatuses, e.status)) + field('End date', inp('endDate', e.endDate, 'type="date"'))) +
-    '</div><h4>Work authorization</h4>' + waBlock(e) +
+    '</div><h4>Contact</h4><div class="grid g3">' + field('Mobile phone', inp('phone', e.phone, 'type="tel"')) + field('Home address', inp('address', e.address), 'span2') +
+      field('City', inp('city', e.city)) + field('State', inp('state', e.state, 'maxlength="40"')) + field('ZIP', inp('zip', e.zip)) +
+      field('Emergency contact', inp('emergencyName', e.emergencyName)) + field('Emergency phone', inp('emergencyPhone', e.emergencyPhone, 'type="tel"')) + '</div>' +
+    extraFields(mode === 'edit' && S.cache.emp && S.cache.emp.employee && S.cache.emp.employee.id === e.id ? S.cache.emp.extra : null, /H-1B|OPT|TN|E-3|EAD|H-4|L-1|L-2|O-1/.test(e.workAuth || ''), false) +
+    '<h4>Work authorization</h4>' + waBlock(e) +
     '<h4>Manager, client and timesheet approval</h4><div class="grid g2">' +
     (D().org.federal ? field('', '<label class="check"><input type="checkbox" name="fedContract" value="Yes"' + (e.fedContract === 'Yes' ? ' checked' : '') + '> Works on a federal contract' + (D().org.everifyClause ? ' (adds the E-Verify case for existing employees)' : '') + '</label>', 'span2') : '') +
     field('Works at', sel('placement', [['Client', 'A client — placed on a client project'], ['Internal', 'Our company — no client (internal, bench, direct)']], placementOf(e), 'data-change="placement"'), 'span2') +
@@ -1458,10 +1464,10 @@ Object.assign(ACTIONS, {
   'doc-del': async el => { if (!confirm('Delete this document? The file is moved to the trash.')) return; await busy(el, call('deleteDocument', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); }
 });
 Object.assign(FORMS, {
-  'emp-create': async v => { const invite = v.invite, inviteTo = v.inviteTo, signIn = v.signIn; delete v.invite; delete v.inviteTo; delete v.signIn; const o = cleanEmp(v); o.hireType = v.hireType || ''; const r = await call('createEmployee', o); closeModal();
+  'emp-create': async v => { const invite = v.invite, inviteTo = v.inviteTo, signIn = v.signIn; delete v.invite; delete v.inviteTo; delete v.signIn; const x = extraFrom(v); const o = cleanEmp(v); if (x) o.extra = x; o.hireType = v.hireType || ''; const r = await call('createEmployee', o); closeModal();
     if (invite) { try { const to = inviteTo === 'work' && !o.email ? 'personal' : inviteTo === 'personal' && !o.personalEmail ? 'work' : inviteTo; await call('inviteEmployee', { employeeId: r.id, to: to === 'both' && !(o.email && o.personalEmail) ? (o.email ? 'work' : 'personal') : to, signIn: to === 'both' && o.email && o.personalEmail ? (signIn || 'work') : to === 'both' ? (o.email ? 'work' : 'personal') : to }); } catch (e) { fail(e); } }
     toast((o.employmentType === '1099 Contractor' ? 'Contractor added — W-9, agreement and payment details are on their checklist' : o.hireType === 'Existing' ? 'Existing employee added — records refresh list ready' : 'Employee added') + (invite ? ' and invited' : ''), 'ok'); S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); },
-  'emp-update': async v => { const o = Object.assign({}, v); ['payRate', 'perDiem', 'bonusRate', 'healthReimb'].forEach(k => { if (o[k] !== '' && o[k] !== undefined) o[k] = Number(o[k]); });
+  'emp-update': async v => { const x = extraFrom(v); const o = Object.assign({}, v); if (x) o.extra = x; ['payRate', 'perDiem', 'bonusRate', 'healthReimb'].forEach(k => { if (o[k] !== '' && o[k] !== undefined) o[k] = Number(o[k]); });
     if (can('confidential.view')) o.confidential = !!v.confidential; else delete o.confidential;
     o.hireType = v.hireType || '';
     const r = await call('updateEmployee', o); closeModal(); toast(r && r.checklistUpdated ? 'Saved — checklist updated for the new work authorization' : 'Saved', 'ok'); await reloadCurrent(); },
@@ -1516,7 +1522,8 @@ function showDocRead(r, files) {
 }
 FORMS['docs-create'] = async v => {
   const files = S.cache.docFiles.map((f, i) => Object.assign({}, f, { type: v['type_' + i], expiresOn: v['exp_' + i] }));
-  const emp = {}; Object.keys(v).filter(k => !/^(type|exp)_\d+$/.test(k) && ['invite', 'inviteTo', 'signIn'].indexOf(k) < 0).forEach(k => { emp[k] = v[k]; });
+  const x = extraFrom(v); const emp = {}; Object.keys(v).filter(k => !/^(type|exp)_\d+$/.test(k) && ['invite', 'inviteTo', 'signIn'].indexOf(k) < 0).forEach(k => { emp[k] = v[k]; });
+  if (x) emp.extra = x;
   await docJob('Creating ' + (emp.firstName || 'the employee') + ' and filing ' + files.length + ' document(s)', call('createEmployeeFromDocs', { employee: cleanEmp(emp), files: files, invite: !!v.invite, inviteTo: v.inviteTo, signIn: v.signIn }), async (r, here) => {
     if (here) closeModal(); toast('Employee added · ' + r.filed + ' document(s) filed' + (r.invite && r.invite.sent ? ' · invitation sent to ' + r.invite.email + (r.invite.copyTo ? ' and ' + r.invite.copyTo : '') : ''), 'ok');
     S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); });
@@ -3496,7 +3503,7 @@ function immHistoryHtml(H, emp, staff) {
   const stChip = st => chip(st, { Approved: 'ok', Pending: 'info', RFE: 'warn', Denied: 'bad', Withdrawn: '', Revoked: 'bad' }[st]);
   const today = D().today || new Date().toISOString().slice(0, 10);
   const pet = H.petitions.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Employer</th><th>Type</th><th>Receipt</th><th>Valid</th><th>Status</th><th></th></tr></thead><tbody>' +
-    H.petitions.map(p => '<tr><td><b>' + esc(p.employer) + '</b>' + (String(p.employer).toLowerCase() === String(H.company).toLowerCase() ? ' ' + chip('This employer', 'teal') : ' ' + chip('Prior employer')) +
+    H.petitions.map(p => '<tr><td><b>' + esc(p.employer) + '</b>' + (p.thisEmployer ? ' ' + chip('This employer', 'teal') : ' ' + chip('Prior employer')) +
       (p.jobTitle || p.worksite ? '<br><small class="muted">' + esc([p.jobTitle, p.worksite].filter(Boolean).join(' · ')) + '</small>' : '') + '</td>' +
       '<td>' + esc(p.classification) + (p.petitionType ? '<br><small class="muted">' + esc(p.petitionType) + '</small>' : '') + '</td><td><small>' + esc(p.receiptNumber || '—') + (p.lcaNumber ? '<br>LCA ' + esc(p.lcaNumber) : '') + '</small></td>' +
       '<td>' + (p.validFrom ? esc(fmtDate(p.validFrom)) + ' – ' + esc(fmtDate(p.validTo)) : '—') + (p.status === 'Approved' && p.validFrom <= today && p.validTo >= today ? '<br>' + chip('Current', 'ok') : p.validTo && p.validTo < today ? '<br><small class="muted">ended</small>' : '') + '</td>' +
@@ -3625,6 +3632,67 @@ FORMS['ts-reread'] = async v => {
       '<td>' + (x.error ? '<span style="color:var(--red)">' + esc(x.error) + '</span>' : x.applied ? chip('Hours updated', 'ok') : x.why ? '<small class="muted">' + esc(x.why) + '</small>' : x.match ? chip('Matches', 'ok') : chip('Checked', '')) + (x.via ? '<br><small class="muted">' + esc(x.via) + '</small>' : '') + '</td></tr>').join('') + '</tbody></table></div>' +
     '<div class="foot-btns"><button type="button" class="btn" data-action="close-modal">Done</button></div>', true);
 };
+function extraFields(x, needsNative, required) {
+  x = x || {}; const n = x.native || {}, nc = x.nativeContacts || [], rf = x.references || [];
+  const req = required && needsNative ? ' required' : '';
+  const nat = needsNative || n.country || n.address || nc.length ? '<h4>' + ic('globe') + ' Home country' + (needsNative ? '' : ' (optional)') + '</h4><p class="hint">Your permanent address and emergency contacts in your home country — needed for visa and immigration filings.</p><div class="grid g3">' +
+    field('Country', inp('nat_country', n.country, 'maxlength="60"' + req)) + field('Address', inp('nat_address', n.address, 'maxlength="200"' + req), 'span2') +
+    field('City', inp('nat_city', n.city)) + field('State / province', inp('nat_state', n.state)) + field('Postal code', inp('nat_postal', n.postal)) + field('Phone', inp('nat_phone', n.phone, 'type="tel"')) + '</div>' +
+    [0, 1].map(i => { const c = nc[i] || {}; return '<div class="grid g4">' + field(i ? 'Second contact (optional)' : 'Emergency contact in home country', inp('nc' + i + '_name', c.name, 'placeholder="Name"' + (i ? '' : req))) +
+      field(i ? '' : 'Relationship', inp('nc' + i + '_relation', c.relation, 'placeholder="e.g. Father"')) + field(i ? '' : 'Phone (with country code)', inp('nc' + i + '_phone', c.phone, 'type="tel" placeholder="+91 …"' + (i ? '' : req))) + field(i ? '' : 'Email', inp('nc' + i + '_email', c.email, 'type="email"')) + '</div>'; }).join('') : '';
+  const refs = '<h4>' + ic('users') + ' Professional references (optional)</h4><p class="hint">Up to two people who know your work — a former manager or client.</p>' +
+    [0, 1].map(i => { const c = rf[i] || {}; return '<div class="grid g3">' + field('Reference ' + (i + 1) + ' name', inp('rf' + i + '_name', c.name)) + field('Title', inp('rf' + i + '_title', c.title)) + field('Company', inp('rf' + i + '_company', c.company)) +
+      field('How they know you', inp('rf' + i + '_relation', c.relation, 'placeholder="e.g. Manager at Acme, 2021–2024"')) + field('Phone', inp('rf' + i + '_phone', c.phone, 'type="tel"')) + field('Email', inp('rf' + i + '_email', c.email, 'type="email"')) + '</div>'; }).join('');
+  return '<div class="extra-fields">' + nat + refs + '</div>';
+}
+function extraFrom(v) {
+  if (!Object.keys(v).some(k => /^(nat|nc\d|rf\d)_/.test(k))) return undefined;
+  const take = k => { const x = v[k]; delete v[k]; return x || ''; };
+  const native = {}; ['country', 'address', 'city', 'state', 'postal', 'phone'].forEach(k => { if (('nat_' + k) in v) native[k] = take('nat_' + k); });
+  const nativeContacts = [0, 1].map(i => { const c = {}; ['name', 'relation', 'phone', 'email'].forEach(k => { if (('nc' + i + '_' + k) in v) c[k] = take('nc' + i + '_' + k); }); return c; });
+  const references = [0, 1].map(i => { const c = {}; ['name', 'title', 'company', 'relation', 'phone', 'email'].forEach(k => { if (('rf' + i + '_' + k) in v) c[k] = take('rf' + i + '_' + k); }); return c; });
+  const out = { references: references };
+  if (Object.keys(native).length) { out.native = native; out.nativeContacts = nativeContacts; }
+  return out;
+}
+function extraHtml(x) {
+  if (!x) return '';
+  const kv = (k, v) => v ? '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>' : '', n = x.native || {};
+  const person = c => esc([c.name, c.relation ? '(' + c.relation + ')' : '', c.phone, c.email].filter(Boolean).join(' · '));
+  const refLine = c => esc([c.name, [c.title, c.company].filter(Boolean).join(', '), c.relation, c.phone, c.email].filter(Boolean).join(' · '));
+  const nat = n.country || n.address ? kv('Home-country address', esc([n.address, n.city, n.state, n.postal, n.country].filter(Boolean).join(', ')) + (n.phone ? '<br><small class="muted">' + esc(n.phone) + '</small>' : '')) : x.needsNative ? kv('Home-country address', '<span class="muted">Not given yet</span>') : '';
+  const nc = (x.nativeContacts || []).map((c, i) => kv(i ? '' : 'Home-country contact', person(c))).join('');
+  const rf = (x.references || []).map((c, i) => kv(i ? '' : 'References', refLine(c))).join('');
+  return nat + nc + rf;
+}
+
+function sensitiveCard(E) {
+  if (!can('pii.view')) return '';
+  return '<div class="card"><div class="card-h"><h3>' + ic('lock') + 'Sensitive numbers</h3><div class="btns"><button class="btn sm ghost" data-action="pii-open" data-emp="' + esc(E.employee.id) + '">' + ic('eye') + 'View</button>' +
+    (can('employees.edit') ? '<button class="btn sm ghost" data-action="pii-edit" data-emp="' + esc(E.employee.id) + '">' + ic('edit') + 'Update</button>' : '') + '</div></div>' +
+    '<p class="muted">SSN, passport, A-Number, I-94, visa, date and country of birth, citizenship — for H-1B, PERM and other filings. Shown masked; showing the full numbers is recorded in the audit log.</p></div>';
+}
+async function piiModal(empId, reveal, btn) {
+  const r = await busy(btn, call('getSensitiveInfo', { employeeId: empId, reveal: !!reveal }));
+  const row = (k, v, secret) => '<tr><td class="muted">' + esc(k) + '</td><td>' + (v ? '<b' + (secret && r.revealed ? ' style="font-family:monospace"' : '') + '>' + esc(v) + '</b>' : '<span class="muted">—</span>') + '</td></tr>';
+  openModal('Sensitive numbers', (r.revealed ? '<div class="banner warn">' + ic('eye') + '<div>Full numbers are shown — this view is recorded in the audit log. Close when done.</div></div>' : '') +
+    '<table class="tbl">' + row('Social Security number', r.ssn ? r.ssn + ' · ' + r.ssnStatus : '', true) + r.fields.map(f => row(f.label, f.date && f.value ? fmtDate(f.value) : f.value, f.secret)).join('') + '</table>' +
+    (r.updatedAt ? '<p class="hint">Last changed ' + esc(fmtWhen(r.updatedAt)) + ' by ' + esc(r.updatedBy) + '. Date of birth, A-Number, I-94 and passport come from the Form I-9 when not entered here.</p>' : '<p class="hint">Date of birth, A-Number, I-94 and passport come from the Form I-9 when not entered here.</p>') +
+    '<div class="foot-btns">' + (r.revealed ? '' : '<button type="button" class="btn ghost" data-action="pii-reveal" data-emp="' + esc(empId) + '">' + ic('eye') + 'Show full numbers</button>') +
+    (can('employees.edit') ? '<button type="button" class="btn ghost" data-action="pii-edit" data-emp="' + esc(empId) + '">' + ic('edit') + 'Update</button>' : '') + '<button type="button" class="btn" data-action="close-modal">Close</button></div>', true);
+}
+Object.assign(ACTIONS, {
+  'pii-open': el => piiModal(el.dataset.emp, false, el),
+  'pii-reveal': el => { if (!confirm('Show the full numbers? This is recorded in the audit log.')) return; piiModal(el.dataset.emp, true, el); },
+  'pii-edit': async el => {
+    const r = await busy(el, call('getSensitiveInfo', { employeeId: el.dataset.emp, reveal: true }));
+    openModal('Update sensitive numbers', '<form data-form="pii-save"><input type="hidden" name="employeeId" value="' + esc(el.dataset.emp) + '"><div class="grid g2">' +
+      field('Social Security number', inp('ssn', '', smart('ssn', 'inputmode="numeric" autocomplete="off" placeholder="' + (r.ssn ? 'On file: ' + esc(r.ssn.replace(/^\d{3}-\d{2}/, '***-**')) + ' — type to replace' : 'XXX-XX-XXXX') + '"'))) + '<div></div>' +
+      r.fields.map(f => field(f.label, inp(f.key, f.value, (f.date ? 'type="date"' : 'maxlength="60"') + ' autocomplete="off"'))).join('') +
+      '</div><p class="hint">Saved to a private file — the record keeps only the last 4. Every change is in the audit log.</p><div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Save</button></div></form>', true);
+  }
+});
+FORMS['pii-save'] = async v => { if (!v.ssn) delete v.ssn; await call('saveSensitiveInfo', v); closeModal(); toast('Saved', 'ok'); };
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
   copy: el => copy(el.dataset.text || ''),
