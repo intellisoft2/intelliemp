@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.70"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.71"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -343,6 +343,19 @@ input[type=file]::file-selector-button:hover{background:#f1f4f8}
 .sb .sb-kv{grid-template-columns:200px 1fr 200px 1fr}.sb-mask{letter-spacing:2px;color:#b8c3d1;user-select:none}.sb.shown{box-shadow:0 0 0 2px rgba(208,69,60,.18),var(--sh)}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em}
 @media (max-width:900px){.sb .sb-kv{grid-template-columns:170px 1fr}}
+.askbg{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;background:rgba(9,22,38,0);backdrop-filter:blur(0);transition:background .16s,backdrop-filter .16s}
+.askbg.show{background:rgba(9,22,38,.5);backdrop-filter:blur(3px)}
+.ask{width:100%;max-width:440px;background:#fff;border-radius:18px;padding:26px 26px 20px;box-shadow:0 30px 80px -20px rgba(9,22,38,.45);text-align:center;transform:translateY(10px) scale(.97);opacity:0;transition:transform .18s cubic-bezier(.2,.9,.3,1.2),opacity .16s}
+.askbg.show .ask{transform:none;opacity:1}
+.ask-ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;margin:0 auto 14px;background:var(--bluebg);color:var(--blue)}
+.ask-ic svg.i{width:26px;height:26px}
+.ask.danger .ask-ic{background:var(--redbg);color:var(--red)}.ask.warn .ask-ic{background:var(--amberbg);color:var(--amber)}.ask.ok .ask-ic{background:var(--greenbg);color:var(--green)}
+.ask h3{font-size:19px;margin:0 0 6px}.ask-b{color:var(--ink2);font-size:14.5px;line-height:1.55}
+.ask-note{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;font-size:12.5px;color:var(--mute);background:#f5f7fa;border-radius:9px;padding:7px 10px}.ask-note svg.i{width:14px;height:14px}
+.ask-btns{display:flex;gap:10px;margin-top:20px}.ask-btns .btn{flex:1;justify-content:center;padding:11px 14px}
+.btn.red,.btn.red:not(.ghost):not(.danger):not(.link){background:linear-gradient(180deg,#dc5a51,var(--red));box-shadow:0 1px 2px rgba(208,69,60,.3)}.btn.red:hover{background:#b93a32!important}
+@media (prefers-reduced-motion:reduce){.ask,.askbg{transition:none}}
+.ask-in{text-align:left;margin-top:16px}.ask-in input{font-size:16px;padding:11px 12px}
 </style>
 
 </head>
@@ -749,6 +762,30 @@ function deviceName() {
   const b = /Edg\//.test(u) ? 'Edge' : /OPR\//.test(u) ? 'Opera' : /Firefox\//.test(u) ? 'Firefox' : /Chrome\//.test(u) ? 'Chrome' : /Safari\//.test(u) ? 'Safari' : 'Browser';
   const o = /iPhone|iPad/.test(u) ? 'iPhone/iPad' : /Android/.test(u) ? 'Android' : /Windows/.test(u) ? 'Windows' : /Mac OS X/.test(u) ? 'Mac' : /Linux/.test(u) ? 'Linux' : '';
   return b + (o ? ' on ' + o : '');
+}
+function ask(o) {
+  if (typeof o === 'string') o = { title: o };
+  o = o || {};
+  const tone = o.tone || 'info', icon = o.icon || { danger: 'trash', warn: 'alert', ok: 'check', info: 'alert' }[tone];
+  return new Promise(resolve => {
+    const prev = document.activeElement, box = document.createElement('div');
+    box.className = 'askbg'; box.setAttribute('role', 'presentation');
+    box.innerHTML = '<div class="ask ' + esc(tone) + '" role="alertdialog" aria-modal="true" aria-labelledby="ask-t" aria-describedby="ask-b">' +
+      '<div class="ask-ic">' + ic(icon) + '</div><h3 id="ask-t">' + esc(o.title || 'Are you sure?') + '</h3>' +
+      (o.body ? '<div id="ask-b" class="ask-b">' + (o.html ? o.body : esc(o.body).replace(/\n/g, '<br>')) + '</div>' : '') +
+      (o.note ? '<div class="ask-note">' + ic('lock') + '<span>' + esc(o.note) + '</span></div>' : '') +
+      (o.input ? '<div class="ask-in"><label for="ask-in">' + esc(o.input.label || '') + '</label><input id="ask-in" type="' + esc(o.input.type || 'text') + '" value="' + esc(o.input.value || '') + '" placeholder="' + esc(o.input.placeholder || '') + '"' + (o.input.type === 'number' ? ' step="any" min="0"' : '') + ' autocomplete="off"></div>' : '') +
+      '<div class="ask-btns"><button type="button" class="btn ghost" data-ask="0">' + esc(o.cancel || 'Cancel') + '</button><button type="button" class="btn' + (tone === 'danger' ? ' red' : '') + '" data-ask="1">' + esc(o.ok || 'Continue') + '</button></div></div>';
+    const field = () => box.querySelector('#ask-in');
+    const finish = ok => { if (!o.input) return done(ok); if (!ok) return done(null); const f = field(), v = f.value.trim(); if (o.input.required && !v) { f.classList.add('need'); f.focus(); return; } done(v); };
+    const done = v => { document.removeEventListener('keydown', key, true); box.classList.remove('show'); setTimeout(() => box.remove(), 160); if (prev && prev.focus) try { prev.focus(); } catch (e) { /* gone */ } resolve(v); };
+    const key = ev => { if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); finish(false); } else if (ev.key === 'Enter' && !(ev.target && ev.target.dataset && ev.target.dataset.ask === '0')) { ev.preventDefault(); ev.stopPropagation(); finish(true); }
+      else if (ev.key === 'Tab') { const b = Array.from(box.querySelectorAll('input,button')), i = b.indexOf(document.activeElement); ev.preventDefault(); b[(i + (ev.shiftKey ? -1 : 1) + b.length) % b.length].focus(); } };
+    box.addEventListener('click', ev => { ev.stopPropagation(); const b = ev.target.closest('[data-ask]'); if (b) finish(b.dataset.ask === '1'); else if (ev.target === box) finish(false); });
+    document.addEventListener('keydown', key, true);
+    document.body.appendChild(box);
+    requestAnimationFrame(() => { box.classList.add('show'); const f = field(); if (f) { f.focus(); f.select(); } else { const okb = box.querySelector('[data-ask="1"]'); if (okb) okb.focus(); } });
+  });
 }
 function pubShell(inner) {
   return '<div class="pub"><div class="pub-top"><a href="#home" style="text-decoration:none">' + BRAND + '</a><div class="btns">' +
@@ -1645,7 +1682,7 @@ Object.assign(ACTIONS, {
   'doc-edit': el => { const d = (S.cache.emp.documents || []).find(x => x.id === el.dataset.id) || {};
     openModal('Edit document', '<form data-form="doc-update"><input type="hidden" name="id" value="' + d.id + '"><div class="grid g2">' + field('Type', '<select name=\"type\">' + docTypeOptions(personFor(d.employeeId), d.type, true) + '</select>', 'span2') + field('Issued', inp('issuedOn', d.issuedOn, 'type="date"')) +
       field('Expires', inp('expiresOn', d.expiresOn, 'type="date"')) + field('Status', sel('status', ['Received', 'Verified', 'Expired'], d.status)) + field('Notes', inp('notes', d.notes)) + '</div><div class="foot-btns"><button class="btn">Save</button></div></form>'); },
-  'doc-del': async el => { if (!confirm('Delete this document? The file is moved to the trash.')) return; await busy(el, call('deleteDocument', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); }
+  'doc-del': async el => { if (!await ask({ title: 'Delete this document?', body: 'The file is moved to the trash. Checklist items that used it go back to waiting.', ok: 'Delete document', tone: 'danger' })) return; await busy(el, call('deleteDocument', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); }
 });
 Object.assign(FORMS, {
   'emp-create': async v => { const invite = v.invite, inviteTo = v.inviteTo, signIn = v.signIn; delete v.invite; delete v.inviteTo; delete v.signIn; const x = extraFrom(v); const o = cleanEmp(v); if (x) o.extra = x; o.hireType = v.hireType || ''; const r = await call('createEmployee', o); closeModal();
@@ -1717,8 +1754,8 @@ ACTIONS['emp-signins'] = async el => {
   const r = await busy(el, call('getSignInActivity', { email: el.dataset.email }));
   openModal('Sign-in history — ' + el.dataset.email, signInRows(r.events) + (can('audit.view') ? '<p class="hint"><a href="#app/audit?view=signins&who=' + encodeURIComponent(el.dataset.email) + '">Everyone\'s sign-ins →</a></p>' : ''), true);
 };
-ACTIONS['ssn-verify'] = async el => { if (!confirm('Mark the Social Security number as verified (you checked the card, E-Verify or Form I-9 documents)?')) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'verify' })); toast('Marked verified', 'ok'); await reloadCurrent(); };
-ACTIONS['ssn-clear'] = async el => { if (!confirm('Remove the Social Security number on file? The employee will be asked for it again on their next form. Signed forms keep the number they were signed with.')) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'clear' })); toast('Removed — they will be asked again', 'ok'); await reloadCurrent(); };
+ACTIONS['ssn-verify'] = async el => { if (!await ask({ title: 'Mark the SSN as verified?', body: 'Confirm you checked it against the Social Security card, E-Verify or the Form I-9 documents. Your name and the time are recorded.', ok: 'Mark verified', tone: 'ok' })) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'verify' })); toast('Marked verified', 'ok'); await reloadCurrent(); };
+ACTIONS['ssn-clear'] = async el => { if (!await ask({ title: 'Ask for the SSN again?', body: 'The number on file is removed and the employee is asked for it on their next form. Forms already signed keep the number they were signed with.', ok: 'Remove and ask again', tone: 'warn' })) return; await busy(el, call('setSsnStatus', { employeeId: el.dataset.emp, action: 'clear' })); toast('Removed — they will be asked again', 'ok'); await reloadCurrent(); };
 
 function inviteChoice(def) {
   return '<div class="invite-choice"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="check"><input type="checkbox" name="invite" checked> Email them an invitation to the portal now, to</label>' +
@@ -1768,7 +1805,7 @@ Object.assign(ACTIONS, {
     const ids = bulkIds(); if (!ids.length) return toast('Select weeks first.');
     if (el.dataset.d === 'reject') return openModal('Send back ' + ids.length + ' week(s)', '<form data-form="ts-bulk-reject"><input type="hidden" name="ids" value="' + esc(ids.join(',')) + '">' + field('What needs to change? (sent to each employee)', '<textarea name="note" rows="3" required maxlength="500"></textarea>') + '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn danger">Send back</button></div></form>');
     const flagged = ids.filter(id => (S.cache.tsList || []).some(t => t.id === id && t.dupFlag)).length;
-    if (!confirm('Approve ' + ids.length + ' timesheet week(s)?' + (flagged ? '\n\n' + flagged + ' of them ' + (flagged === 1 ? 'is' : 'are') + ' flagged as a possible duplicate — check before approving.' : ''))) return;
+    if (!await ask({ title: 'Approve ' + ids.length + ' timesheet' + (ids.length === 1 ? '' : 's') + '?', body: 'Each employee is told their timesheet is approved, and the hours go to payroll.' + (flagged ? '\n\n' + flagged + ' of them ' + (flagged === 1 ? 'is' : 'are') + ' flagged as a possible duplicate — check before approving.' : ''), ok: 'Approve ' + ids.length, tone: flagged ? 'warn' : 'ok' })) return;
     const r = await busy(el, call('approveTimesheets', { ids: ids, decision: 'approve' }));
     await reloadCurrent(); bulkDone(r, 'approved');
   },
@@ -1883,7 +1920,7 @@ FORMS['ts-save'] = async (v, form, submitter) => {
     try { const a = await tsAiRead(form, submitter); if (!a) return; if (a.rows) { toast('Hours filled from the file — check them and press Submit again.', 'ok', 6000); return; } if (a.totalOnly) input.totalOnly = a.totalOnly; } catch (e) { fail(e); }
   }
   if (mode === 'submit' && !total && !input.totalOnly && S.cache.tsAi && S.cache.tsAi.totalOnly) input.totalOnly = S.cache.tsAi.totalOnly;
-  if (mode === 'submit' && !total && input.file && !input.totalOnly) { const n = prompt('Total hours on the attached timesheet?'); if (n === null) return; input.totalOnly = Number(n); }
+  if (mode === 'submit' && !total && input.file && !input.totalOnly) { const n = await ask({ title: 'How many hours are on the timesheet?', body: 'No hours were entered and none could be read from the attached file. Type the total shown on it.', input: { label: 'Total hours', type: 'number', placeholder: 'e.g. 40', required: true }, ok: 'Submit with these hours', icon: 'clock' }); if (n === null) return; input.totalOnly = Number(n); }
   const r = await call(mode === 'submit' ? 'submitTimesheet' : 'saveTimesheet', input);
   toast(mode === 'submit' ? (r.clientApproved && r.timesheet.status === 'Approved' ? 'Submitted and approved — per ' + (G.employee.clientName || 'the client') + '\'s approved timesheet' : r.clientApproved ? 'Submitted — client approval taken from the attached timesheet; your manager has been emailed' : r.timesheet.status === 'Approved' ? 'Submitted and approved' : 'Submitted — the approver has been emailed') : 'Draft saved', 'ok', 6000);
   if (S.db) loadDb().catch(() => {});
@@ -2023,7 +2060,7 @@ Object.assign(ACTIONS, {
 Object.assign(ACTIONS, {
   'inbox-assign': async el => { const sel0 = el.closest('.alert').querySelector('select'); if (!sel0.value) return toast('Choose the employee first.');
     const r = await busy(el, call('assignInboxTimesheet', { id: el.dataset.id, employeeId: sel0.value })); tsWeeksModal(r.employeeId, r); },
-  'inbox-dismiss': async el => { if (!confirm('Dismiss this file? It is not a timesheet for anyone here.')) return; await busy(el, call('dismissInboxTimesheet', { id: el.dataset.id })); await reloadCurrent(); }
+  'inbox-dismiss': async el => { if (!await ask({ title: 'Dismiss this file?', body: 'It is set aside as not a timesheet for anyone here. Nothing is recorded.', ok: 'Dismiss', tone: 'warn' })) return; await busy(el, call('dismissInboxTimesheet', { id: el.dataset.id })); await reloadCurrent(); }
 });
 function tsWeeksModal(emp, r) {
   S.cache.tsUp = { emp: emp, r: r };
@@ -2107,7 +2144,7 @@ Object.assign(ACTIONS, {
       field('Valid from', inp('validFrom', c.validFrom, 'type="date"')) + field('Valid to', inp('validTo', c.validTo, 'type="date"')) + field('Attorney', inp('attorney', c.attorney), 'span2') +
       field('Note shown to the employee', inp('employeeNote', c.employeeNote), 'span2') + field('Internal notes', area('notes', c.notes), 'span2') + '</div>' +
       '<label class="check"><input type="checkbox" name="visibleToEmployee"' + (c.visibleToEmployee === 'No' ? '' : ' checked') + '> Visible to the employee</label><div class="foot-btns"><button class="btn">Save</button></div></form>', true); },
-  'case-del': async () => { if (!confirm('Delete this case and its history?')) return; await call('deleteCase', S.cache.case.id); toast('Deleted', 'ok'); go('#app/immigration'); },
+  'case-del': async () => { if (!await ask({ title: 'Delete this case?', body: 'The case, its stages and its history are removed. This cannot be undone.', ok: 'Delete case', tone: 'danger' })) return; await call('deleteCase', S.cache.case.id); toast('Deleted', 'ok'); go('#app/immigration'); },
   'stage-edit': el => { const c = S.cache.case, s = c.stages.find(x => x.key === el.dataset.key);
     const decision = s.key === 'decision', filed = s.key === 'filed';
     openModal(s.label, '<form data-form="stage-update"><input type="hidden" name="key" value="' + esc(s.key) + '"><div class="grid g2">' + field('Status', sel('status', L('stageStatuses'), s.status === 'Pending' ? 'Done' : s.status)) + field('Date', inp('date', s.date || todayIso(), 'type="date"')) +
@@ -2151,7 +2188,7 @@ function resForm(r) {
 Object.assign(ACTIONS, {
   'res-new': () => openModal('Add a resource', resForm()),
   'res-edit': el => openModal('Edit resource', resForm(S.cache.res.find(r => r.id === el.dataset.id))),
-  'res-del': async el => { if (!confirm('Remove this resource?')) return; await call('deleteResource', el.dataset.id); toast('Removed', 'ok'); await reloadCurrent(); },
+  'res-del': async el => { if (!await ask({ title: 'Remove this resource?', body: 'Employees will no longer see it.', ok: 'Remove', tone: 'danger' })) return; await call('deleteResource', el.dataset.id); toast('Removed', 'ok'); await reloadCurrent(); },
   'res-file': async el => saveB64(await busy(el, call('getResourceFile', el.dataset.id)))
 });
 FORMS['res-save'] = async (v, form) => { const f = form.querySelector('[name=file]').files[0]; if (f) v.file = await readFile(f); delete v.tag; v.appliesTo = Array.from(form.querySelectorAll('[name=tag]:checked')).map(x => x.value); await call('saveResource', v); closeModal(); toast('Saved', 'ok'); await reloadCurrent(); };
@@ -2247,7 +2284,7 @@ FORMS['org-save'] = async v => { v.waiveSalariedTs = !!v.waiveSalariedTs; v.clie
 Object.assign(ACTIONS, {
   'mfa-policy': async el => { await busy(el, call('updateMfaPolicy', { require: !!el.dataset.on })); toast('Saved', 'ok'); await refresh(); },
   'int-key': async el => {
-    if (D().org.integration.connected && !confirm('Create a new key? IntelliHire stops sending hires until you paste the new key there.')) return;
+    if (D().org.integration.connected && !await ask({ title: 'Create a new key?', body: 'The current key stops working at once. IntelliHire stops sending new hires until you paste the new key there.', ok: 'Create new key', tone: 'warn' })) return;
     const r = await busy(el, call('newIntegrationKey'));
     openModal('IntelliHire company key', '<p>Copy this key now — it is shown only once.</p><div class="code">' + esc(r.key) + '</div><div class="btns" style="margin-top:10px"><button class="btn" data-action="copy" data-text="' + esc(r.key) + '">Copy key</button></div>' +
       '<p class="hint">In IntelliHire: Settings → IntelliEmp → paste the key and the IntelliEmp address (' + esc(location.origin || 'https://employee.intellisoft-tech.com') + ').</p>');
@@ -2370,7 +2407,7 @@ Object.assign(ACTIONS, {
   },
   'tsp-dismiss': async el => { await busy(el, call('assignTsCompany', { id: el.dataset.id, dismiss: true })); toast('Dismissed', 'ok'); await reloadCurrent(); }
 });
-ACTIONS['plat-org'] = async el => { if (!confirm(el.dataset.s === 'Suspended' ? 'Suspend this company? Its people cannot sign in.' : 'Reactivate this company?')) return; await call('platformSetOrgStatus', { id: el.dataset.id, status: el.dataset.s }); toast('Saved', 'ok'); await renderApp(); };
+ACTIONS['plat-org'] = async el => { if (!await ask(el.dataset.s === 'Suspended' ? { title: 'Suspend this company?', body: 'Nobody at this company can sign in until it is reactivated. Their records are kept.', ok: 'Suspend', tone: 'danger' } : { title: 'Reactivate this company?', body: 'Its people can sign in again.', ok: 'Reactivate', tone: 'ok' })) return; await call('platformSetOrgStatus', { id: el.dataset.id, status: el.dataset.s }); toast('Saved', 'ok'); await renderApp(); };
 
 function powersCard(P) {
   if (!P) return '';
@@ -2383,7 +2420,7 @@ function powersCard(P) {
       ((r.defaults.indexOf(c.key) >= 0) !== (r.caps.indexOf(c.key) >= 0) ? ' style="outline:2px solid var(--amber,#f59e0b);outline-offset:1px" title="Changed from the standard"' : '') + '></td>').join('') + '</tr>').join('') +
     '</tbody></table></div><p class="hint">Employees always see only their own onboarding, documents, timesheets and immigration status.</p></form>';
 }
-ACTIONS['powers-reset'] = async el => { if (!confirm('Put the ' + roleName(el.dataset.role) + ' role back to its standard powers?')) return; await busy(el, call('saveRolePowers', { role: el.dataset.role, reset: true })); toast('Reset', 'ok'); S.db = null; await refresh(); };
+ACTIONS['powers-reset'] = async el => { if (!await ask({ title: 'Reset the ' + roleName(el.dataset.role) + ' role?', body: 'Its powers go back to the standard set. Powers added for individual people are kept.', ok: 'Reset role', tone: 'warn' })) return; await busy(el, call('saveRolePowers', { role: el.dataset.role, reset: true })); toast('Reset', 'ok'); S.db = null; await refresh(); };
 
 Object.assign(ACTIONS, {
   'ts-rule-apply': async el => {
@@ -2858,7 +2895,7 @@ const corpForm = (d, types) => '<div class="grid g2">' + field('Type', sel('type
 Object.assign(ACTIONS, {
   'corp-add': () => openModal('Add a corporate document', '<form data-form="corp-upload">' + corpForm({}, S.cache.profile.lists.corpDocTypes) + '<div class="foot-btns"><button class="btn">Upload</button></div></form>'),
   'corp-edit': el => { const d = S.cache.corp.find(x => x.id === el.dataset.id); openModal('Edit document', '<form data-form="corp-update"><input type="hidden" name="id" value="' + d.id + '">' + corpForm(d, S.cache.profile.lists.corpDocTypes) + '<div class="foot-btns"><button class="btn">Save</button></div></form>'); },
-  'corp-del': async el => { if (!confirm('Delete this document? The file is moved to the trash.')) return; await busy(el, call('deleteCorpDoc', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); },
+  'corp-del': async el => { if (!await ask({ title: 'Delete this company document?', body: 'The file is moved to the trash.', ok: 'Delete document', tone: 'danger' })) return; await busy(el, call('deleteCorpDoc', el.dataset.id)); toast('Deleted', 'ok'); await reloadCurrent(); },
   'corp-open': el => docMode() === 'view' ? viewFile('corp', el.dataset.id, el) : getFile('corp', el.dataset.id, el),
   'corp-ai': async el => { S.reading = Object.assign(S.reading || {}, { [el.dataset.id]: 1 }); const d = (S.cache.corp || []).find(x => x.id === el.dataset.id); await reloadCurrent(); readInBackground(el.dataset.id, d ? d.fileName : 'the document'); },
   'corp-review': el => { const d = (S.cache.corp || []).find(x => x.id === el.dataset.id); if (d && d.ai) corpReview([storedRead(d)]); },
@@ -2905,7 +2942,7 @@ ACTIONS['tpl-edit'] = el => {
     '<p class="hint">Already-signed documents never change. Unsigned confidentiality agreements and handbook acknowledgments are regenerated with the new text when the employee next opens them.</p>' +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="tpl-draft-preview" data-k="' + t.kind + '">Preview these edits</button>' + (t.custom ? '<button type="button" class="btn ghost" data-action="tpl-reset" data-k="' + t.kind + '">Reset to the standard text</button>' : '') + '<button class="btn">Save template</button></div></form>', true);
 };
-ACTIONS['tpl-reset'] = async el => { if (!confirm('Go back to the standard text?')) return; await call('saveTemplate', { kind: el.dataset.k, reset: true }); closeModal(); toast('Reset', 'ok'); await reloadCurrent(); };
+ACTIONS['tpl-reset'] = async el => { if (!await ask({ title: 'Use the standard text?', body: 'Your changes to this template are replaced by the standard text.', ok: 'Use standard text', tone: 'warn' })) return; await call('saveTemplate', { kind: el.dataset.k, reset: true }); closeModal(); toast('Reset', 'ok'); await reloadCurrent(); };
 FORMS['tpl-save'] = async v => { await call('saveTemplate', v); closeModal(); toast('Template saved', 'ok'); await reloadCurrent(); };
 
 const docBox = html => '<div class="agreement" style="max-height:52vh;overflow:auto;border:1px solid var(--line,#e2e8f0);border-radius:10px;padding:18px 22px;background:#fff;font-family:Georgia,serif;font-size:14.5px;line-height:1.55;color:#111">' + html + '</div>';
@@ -2930,7 +2967,7 @@ async function openSignTask(t, btn) {
 Object.assign(ACTIONS, {
   'handbook-open': el => docMode() === 'download' ? getFile('handbook', '', el) : viewFile('handbook', '', el),
   'offer-decline': el => openModal('Decline the offer', '<form data-form="offer-decline"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '"><div class="grid">' + field('Reason (sent to HR)', area('reason', '', 'required')) + '</div><div class="foot-btns"><button class="btn danger">Decline</button></div></form>'),
-  'agreement-void': async el => { const why = prompt('Reason for withdrawing (kept in the record):'); if (why === null) return; await busy(el, call('voidAgreement', { id: el.dataset.id, reason: why })); closeModal(); toast('Withdrawn', 'ok'); await reloadCurrent(); },
+  'agreement-void': async el => { const why = await ask({ title: 'Withdraw this agreement?', body: 'The signer can no longer sign it. The reason is kept with the record.', input: { label: 'Reason', placeholder: 'e.g. Sent to the wrong person', required: true }, ok: 'Withdraw agreement', tone: 'danger' }); if (why === null) return; await busy(el, call('voidAgreement', { id: el.dataset.id, reason: why })); closeModal(); toast('Withdrawn', 'ok'); await reloadCurrent(); },
   'offer-prep': el => offerModal(el.dataset.emp),
   'offer-paper': el => { closeModal(); const t = findTask(el.dataset.task); if (t) ACTIONS['task-do']({ dataset: { id: t.id, paper: '1' } }); }
 });
@@ -3022,7 +3059,7 @@ FORMS['tpl-create'] = async v => {
   if (v.kind === 'offer') { closeModal(); return offerModal(v.employeeId); }
   let r;
   try { r = await call('sendAgreementFor', { kind: v.kind, employeeId: v.employeeId }); }
-  catch (e) { if (e.code === 'ALREADY' && confirm(e.message + ' Ask them to sign it again?')) r = await call('sendAgreementFor', { kind: v.kind, employeeId: v.employeeId, again: true }); else throw e; }
+  catch (e) { if (e.code === 'ALREADY' && await ask({ title: 'Ask them to sign it again?', body: e.message, ok: 'Send again', tone: 'warn' })) r = await call('sendAgreementFor', { kind: v.kind, employeeId: v.employeeId, again: true }); else throw e; }
   S.cache.templates = null;
   openModal('Sent for signature', '<div class="banner ok">' + ic('check') + '<div><b>' + esc(r.title) + '</b> was sent to <b>' + esc(r.name) + '</b>' + (r.email ? ' (' + esc(r.email) + ')' : '') + '.</div></div>' +
     '<p>' + (r.invited ? 'They did not have a portal account yet, so they were also invited — they set a password from the email, then sign.' : 'They got an email with a link to review and sign it in the portal.') + '</p>' +
@@ -3122,7 +3159,7 @@ ACTIONS['en-add'] = () => { const b = $('en-body'); if (!b) return; const e = $(
 ACTIONS['en-del'] = el => { el.closest('tr').remove(); toast('Removed — "Save company profile" to keep the change', 'ok'); };
 
 ACTIONS['offer-duties'] = async el => { const f = el.closest('form'), t = f.querySelector('[name=jobTitle]').value, a = f.querySelector('[name=responsibilities]');
-  if (a.value.trim() && !confirm('Replace the responsibilities with the suggestions for "' + t + '"?')) return;
+  if (a.value.trim() && !await ask({ title: 'Replace the responsibilities?', body: 'What is typed now is replaced by the suggestions for "' + t + '".', ok: 'Replace', tone: 'warn' })) return;
   a.value = (await busy(el, call('suggestDuties', { jobTitle: t }))).text; };
 const FILL_KEYS = { i9s1: 'i9', w4: 'w4', dd: 'dd', local: 'local' };
 const isFillTask = t => !!FILL_KEYS[t.key] && (t.category === 'fill' || t.category === 'upload');
@@ -3675,7 +3712,7 @@ Object.assign(ACTIONS, {
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn danger">Send back</button></div></form>'),
   'inv-paid': el => openModal('Mark invoice ' + el.dataset.n + ' paid', '<form data-form="inv-paid"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '"><div class="grid g2">' + field('Paid on', inp('paidOn', today(), 'type="date" required')) +
     field('Reference (optional)', inp('reference', '', 'maxlength="60" placeholder="ACH / check number"')) + '</div><div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Mark paid</button></div></form>'),
-  'inv-1099': async el => { const y = prompt('Form 1099-NEC totals for which year?', el.dataset.y); if (!y) return; const r = await busy(el, call('export1099Totals', { year: y }));
+  'inv-1099': async el => { const y = await ask({ title: 'Form 1099-NEC totals', body: 'Totals paid to each contractor for the year, ready for Form 1099-NEC.', input: { label: 'Tax year', type: 'number', value: el.dataset.y, required: true }, ok: 'Show totals', icon: 'doc' }); if (!y) return; const r = await busy(el, call('export1099Totals', { year: y }));
     download(r.name, r.csv, 'text/csv'); toast(r.count + ' contractor(s) paid in ' + y + ' · Form 1099-NEC is required at $' + r.threshold.toLocaleString() + ' or more', 'ok', 8000); }
 });
 FORMS['inv-reject'] = async v => { await call('decideInvoice', { id: v.id, decision: 'reject', note: v.note }); closeModal(); toast('Sent back to the contractor', 'ok'); await reloadCurrent(); };
@@ -3758,7 +3795,7 @@ Object.assign(ACTIONS, {
     openModal((el.dataset.id ? 'Edit ' : 'Add ') + (k === 'petition' ? 'an approval (I-797)' : 'an I-94 entry'), '<form data-form="imm-save"><input type="hidden" name="kind" value="' + k + '"><input type="hidden" name="id" value="' + esc(el.dataset.id || '') + '"><div class="grid g2">' + body +
       (isStaff() && can('immigration.manage') ? field('Notes (HR only)', '<textarea name="notes" rows="2">' + esc(r.notes || '') + '</textarea>', 'span2') : '') + '</div><div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Save</button></div></form>', true);
   },
-  'imm-del': async el => { if (!confirm('Remove this entry from the history?')) return; await busy(el, call('deleteImmRecord', { employeeId: (S.cache.imm || {}).empId, id: el.dataset.id })); toast('Removed', 'ok'); await reloadCurrent(); }
+  'imm-del': async el => { if (!await ask({ title: 'Remove this entry?', body: 'It is taken out of the immigration history and the H-1B time count.', ok: 'Remove', tone: 'danger' })) return; await busy(el, call('deleteImmRecord', { employeeId: (S.cache.imm || {}).empId, id: el.dataset.id })); toast('Removed', 'ok'); await reloadCurrent(); }
 });
 FORMS['imm-save'] = async v => {
   const o = Object.assign({ employeeId: (S.cache.imm || {}).empId }, v); if (!o.id) delete o.id; if (!o.i94Number) delete o.i94Number;
@@ -3798,7 +3835,7 @@ const tsmSel = () => Array.from(document.querySelectorAll('input[name=tsmSel]:ch
 Object.assign(ACTIONS, {
   'tsm-approve': async el => {
     const ids = el.dataset.bulk ? tsmSel() : [el.dataset.emp]; if (!ids.length) return toast('Tick the people first.');
-    const M = S.cache.monthly; if (!confirm('Approve every submitted week of ' + monthTitle(M.month) + ' for ' + ids.length + ' ' + (ids.length === 1 ? 'person' : 'people') + '?')) return;
+    const M = S.cache.monthly; if (!await ask({ title: 'Approve ' + monthTitle(M.month) + '?', body: 'Every submitted timesheet in ' + monthTitle(M.month) + ' for ' + ids.length + ' ' + (ids.length === 1 ? 'person' : 'people') + ' is approved. Timesheets flagged as possible duplicates are left for you to check.', ok: 'Approve the month', tone: 'ok' })) return;
     const r = await busy(el, call('approveMonth', { month: M.month, employeeIds: ids })); await reloadCurrent(); bulkDone(r, 'approved');
   },
   'tsm-reread': el => {
@@ -3816,7 +3853,7 @@ Object.assign(ACTIONS, {
   },
   'ts-reread': el => rereadModal(el.dataset.bulk ? bulkIds() : String(el.dataset.ids || '').split(',').filter(Boolean)),
   'cal-submit': async el => {
-    const C = S.cache.cal; if (!confirm('Submit every week of ' + monthTitle(el.dataset.m) + ' that has hours?')) return;
+    const C = S.cache.cal; if (!await ask({ title: 'Submit ' + monthTitle(el.dataset.m) + '?', body: 'Every week of ' + monthTitle(el.dataset.m) + ' that has hours is sent for approval.', ok: 'Submit weeks', tone: 'info' })) return;
     const r = await busy(el, call('submitMonth', { employeeId: C.empId, month: el.dataset.m }));
     toast(r.submitted.length + ' week(s) submitted' + (r.skipped.length ? ' · ' + r.skipped.length + ' skipped' : ''), 'ok', 6000);
     if (r.skipped.length) openModal('Submitted ' + r.submitted.length + ' week(s)', '<p>Not submitted:</p><ul>' + r.skipped.map(x => '<li><b>' + esc(weekLabel(x.weekStart)) + '</b> — ' + esc(x.why) + '</li>').join('') + '</ul><div class="foot-btns"><button type="button" class="btn" data-action="close-modal">OK</button></div>');
@@ -3928,7 +3965,7 @@ async function piiRead(empId, reveal, btn, again) {
 Object.assign(ACTIONS, {
   'pii-open': el => piiModal(el.dataset.emp, false, el),
   'pii-read': el => piiRead(el.dataset.emp, !!el.dataset.reveal, el, true),
-  'pii-reveal': el => { if (!confirm('Show the full numbers? This is recorded in the audit log.')) return; piiModal(el.dataset.emp, true, el); },
+  'pii-reveal': async el => { if (!await ask({ title: 'Show the full numbers?', body: 'SSN, passport, A-Number, I-94 and visa numbers are shown in full. Make sure nobody else can see your screen.', note: 'Recorded in the audit log with your name and the time.', ok: 'Show full numbers', tone: 'warn', icon: 'eye' })) return; piiModal(el.dataset.emp, true, el); },
   'pii-edit': async el => {
     const r = await busy(el, call('getSensitiveInfo', { employeeId: el.dataset.emp, reveal: true }));
     openModal('Update sensitive numbers', '<form data-form="pii-save"><input type="hidden" name="employeeId" value="' + esc(el.dataset.emp) + '"><div class="grid g2">' +
@@ -3972,7 +4009,7 @@ function sbHide(id) {
 }
 Object.assign(ACTIONS, {
   'sb-show': async el => {
-    if (!confirm('Show the sensitive information? This is recorded in the audit log.')) return;
+    if (!await ask({ title: 'Show sensitive information?', body: 'SSN, passport, date of birth and immigration numbers are shown in full for one minute, then hidden again. Make sure nobody else can see your screen.', note: 'Recorded in the audit log with your name and the time.', ok: 'Show for 1 minute', tone: 'warn', icon: 'eye' })) return;
     const id = el.dataset.emp, r = await busy(el, call('getSensitiveInfo', { employeeId: id, reveal: true }));
     const c = document.getElementById('sb-' + id); if (!c) return;
     c.classList.add('shown'); c.querySelector('.sb-body').innerHTML = sbRows(r);
@@ -4045,7 +4082,7 @@ Object.assign(ACTIONS, {
     let n = 0; f.querySelectorAll('.mc:not(.we):not(.mc-x):not(.future) .mc-h').forEach(i => { if (!i.value) { i.value = h; n++; } });
     msRefresh(f); toast(n ? 'Filled ' + n + ' empty weekday' + (n === 1 ? '' : 's') + ' with ' + h + ' h — adjust any day off' : 'Every weekday already has hours', n ? 'ok' : '');
   },
-  'md-clear': el => { const f = el.closest('form'); if (!confirm('Clear the hours on every day?')) return; f.querySelectorAll('input[name^="md_"]').forEach(i => { i.value = ''; }); msRefresh(f); }
+  'md-clear': async el => { const f = el.closest('form'); if (!await ask({ title: 'Clear every day?', body: 'All hours and overtime entered on this month are emptied. Nothing is saved until you click Save draft.', ok: 'Clear all days', tone: 'warn' })) return; f.querySelectorAll('input[name^="md_"]').forEach(i => { i.value = ''; }); msRefresh(f); }
 });
 async function monthSheetPage(empId, m, mine) {
   const G = await call('getTimesheet', { employeeId: empId, month: m }); S.cache.ms = G;
@@ -4137,7 +4174,7 @@ function iePatch(dd) {
 async function ieSave(dd, btn) {
   const p = iePatch(dd);
   if (!p.changed) return ieClose(dd);
-  if (p.spec.confirm && !confirm(p.spec.confirm)) return;
+  if (p.spec.confirm && !await ask({ title: 'Save this change?', body: p.spec.confirm.replace(/ Continue\?$/, ''), ok: 'Save change', tone: 'warn' })) return;
   dd.classList.add('saving');
   try {
     await busy(btn, call('updateEmployee', Object.assign({ id: S.cache.emp.employee.id }, p.patch)));
