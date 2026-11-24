@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.68"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.70"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -331,6 +331,18 @@ input[type=file]::file-selector-button:hover{background:#f1f4f8}
 @media (max-width:760px){.mc-head,.mc-row{grid-template-columns:repeat(7,minmax(0,1fr))}.mc-wh,.mc-wt{display:none!important}.mc{min-height:70px;padding:5px}.mcal.edit .mc-h{height:30px;font-size:13px;padding:2px}.mc-n em{display:none}.ms-bigrow input{width:140px;font-size:36px}}
 .per-chip{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);background:#eef2f6;border-radius:6px;padding:1px 6px;margin-right:4px;vertical-align:1px}.per-chip svg.i{width:12px;height:12px}.per-chip.m{background:var(--tealbg);color:var(--teal2)}
 .tabs a{display:inline-flex;align-items:center;gap:6px}.tabs a svg.i{width:16px;height:16px}
+.ie-lock{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--mute);font:600 12.5px var(--font);padding:5px 10px;border-radius:20px;cursor:pointer;transition:all .15s}
+.ie-lock svg.i{width:14px;height:14px}.ie-lock:hover{color:var(--ink);border-color:#cfd8e3}
+.ie-card.unlocked .ie-lock{background:var(--amberbg);border-color:#f0dcae;color:#8a5d06}
+.ie-card:not(.unlocked) .ie-tip{display:none}.ie-card .card-h{margin-bottom:6px}
+.ie-card:not(.unlocked) .kv dd.ie{cursor:default;background:none!important}.ie-card:not(.unlocked) .kv dd.ie .ie-pen{display:none}
+.ie-card:not(.unlocked) .kv dd.ie .ie-add{opacity:.55}.ie-card:not(.unlocked) .kv dd.ie .ie-add svg{display:none}
+.ie-card.unlocked{box-shadow:0 0 0 2px rgba(201,138,18,.25),var(--sh)}
+@keyframes nudge{0%,100%{transform:none}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.ie-lock.nudge{animation:nudge .45s;border-color:var(--teal);color:var(--teal2)}
+.sb .sb-kv{grid-template-columns:200px 1fr 200px 1fr}.sb-mask{letter-spacing:2px;color:#b8c3d1;user-select:none}.sb.shown{box-shadow:0 0 0 2px rgba(208,69,60,.18),var(--sh)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em}
+@media (max-width:900px){.sb .sb-kv{grid-template-columns:170px 1fr}}
 </style>
 
 </head>
@@ -1072,7 +1084,7 @@ async function employeeHome() {
   const e = P.employee, pr = P.progress || { pct: 0 }, open = (P.checklist || []).filter(t => ['Pending', 'Rejected'].indexOf(t.status) >= 0 && t.owner !== 'hr');
   const tsOf = wk => (P.timesheets || []).find(t => t.weekStart === wk);
   const started = wk => !e.startDate || e.startDate <= addDays(wk, 6);
-  const tsCard = (wk, label) => { const t = tsOf(wk); if (!t && (!started(wk) || e.timesheetRequired === 'No')) return ''; return '<div class="stat" data-action="nav" data-href="#app/my-timesheet/' + wk + '"><b style="font-size:18px">' + (t ? statusChip(t.status) : chip('Not started', 'warn')) + '</b><span>' + esc(label) + ' · ' + esc(weekLabel(wk)) + (t ? ' · ' + esc(t.totalHours) + ' h' : '') + '</span></div>'; };
+  const tsCard = (wk, label) => { const t = tsOf(wk); if (!t && (!started(wk) || (e.tsNeed ? !e.tsNeed.required : e.timesheetRequired === 'No'))) return ''; return '<div class="stat" data-action="nav" data-href="#app/my-timesheet/' + wk + '"><b style="font-size:18px">' + (t ? statusChip(t.status) : chip('Not started', 'warn')) + '</b><span>' + esc(label) + ' · ' + esc(weekLabel(wk)) + (t ? ' · ' + esc(t.totalHours) + ' h' : '') + '</span></div>'; };
   return head('Hi ' + esc(e.firstName), esc(e.jobTitle || '') + (e.clientName ? ' · ' + esc(e.clientName) : '') + ' ' + idTag(e.code)) +
     alertsBanner(P.alerts) +
     (e.status === 'Onboarding' || (e.hireType === 'Existing' && pr.done < pr.total) ? '<div class="card"><div class="card-h"><h3>' + ic('check') + (e.hireType === 'Existing' ? 'Update your records' : 'Your onboarding') + '</h3><span class="muted">' + pr.done + ' of ' + pr.total + ' done</span></div>' +
@@ -1312,7 +1324,7 @@ function empProfile(E) {
   const flowSteps = { Manager: [e.managerName || e.managerEmail], 'Client manager': [e.clientManagerName || e.clientManagerEmail], 'Manager, then client manager': [e.managerName || e.managerEmail, e.clientManagerName || e.clientManagerEmail], 'No approval needed': [] }[e.approvalFlow] || [];
   const waF = (L('waFields') || {})[e.workAuth], wa = waF || {}, uses = k => !waF || !!waF[k], cur = e.currency || '', pay = e.payRate !== undefined;
   const signedIn = E.member && E.member.signedIn;
-  return '<div class="grid g2"><div class="card"><h3>' + ic('briefcase') + 'Job</h3>' + (can('employees.edit') ? '<p class="hint ie-tip">' + ic('edit') + 'Click any value to change it.</p>' : '') + '<dl class="kv">' +
+  return '<div class="grid g2">' + ieCard(e.id, 'job', ic('briefcase') + 'Job') + '<dl class="kv">' +
     R('Full legal name', e.middleName ? esc([e.firstName, e.middleName, e.lastName].join(' ')) : esc(e.name), [F('firstName', 'text', e.firstName, 'First'), F('middleName', 'text', e.middleName, 'Middle (optional)'), F('lastName', 'text', e.lastName, 'Last')]) +
     R('Job title', esc(e.jobTitle), [F('jobTitle', 'text', e.jobTitle, 'Job title')]) + R('Department', esc(e.department), [F('department', 'text', e.department, 'Department')]) +
     R('Employment', esc(e.employmentType), [F('employmentType', 'select', e.employmentType, '', L('empTypes'))], { confirm: 'Changing W-2 / 1099 updates the onboarding checklist. Continue?' }) +
@@ -1331,8 +1343,8 @@ function empProfile(E) {
     (placementOf(e) === 'Internal' ? kv('Client', '<span class="muted">No client — works for us directly</span>') : R('Client', esc(e.clientName), [F('clientName', 'text', e.clientName, 'Client')]) + R('Project', esc(e.projectName), [F('projectName', 'text', e.projectName, 'Project')])) +
     (placementOf(e) === 'Internal' ? '' : R('Client manager', esc(e.clientManagerName || '') + (e.clientManagerEmail ? ' <small class="muted">' + esc(e.clientManagerEmail) + '</small>' : ''), [F('clientManagerName', 'text', e.clientManagerName, 'Name'), F('clientManagerEmail', 'email', e.clientManagerEmail, 'Email')])) +
     R('Worksite', esc(e.worksite), [F('worksite', 'text', e.worksite, 'Address or "Remote"')]) + '</dl></div>' +
-    '<div class="card"><h3>' + ic('clock') + 'Timesheets</h3><dl class="kv">' +
-    R('Timesheet', e.timesheetRequired === 'No' ? 'Not required' : (e.timesheetPeriod === 'Monthly' ? 'Monthly' : 'Weekly'), [F('_ts', 'select', e.timesheetRequired === 'No' ? 'Not required' : (e.timesheetPeriod || 'Weekly'), '', ['Weekly', 'Monthly', 'Not required'])]) +
+    ieCard(e.id, 'ts', ic('clock') + 'Timesheets') + '<dl class="kv">' +
+    R('Timesheet', tsNeedText(e), [F('timesheetRequired', 'select', e.timesheetRequired === 'Yes' || e.timesheetRequired === 'No' ? e.timesheetRequired : '', '', tsReqOpts(e), 230), F('timesheetPeriod', 'select', e.timesheetPeriod || 'Weekly', '', [['Weekly', 'Weekly'], ['Monthly', 'Monthly']], 120)]) +
     R('Approval', esc(e.approvalFlow), [F('approvalFlow', 'select', e.approvalFlow, '', L('approvalFlows'))]) +
     (flowSteps.length ? kv('Approvers', flowSteps.map((n, i) => (i + 1) + '. ' + esc(n)).join('<br>')) : '') + '</dl>' +
     (e.workAuth !== undefined ? '<h3 style="margin-top:16px">' + ic('passport') + 'Work authorization</h3><dl class="kv">' +
@@ -1342,7 +1354,7 @@ function empProfile(E) {
       R(wa.receipt || 'Receipt number', esc(e.receiptNumber), [F('receiptNumber', 'text', e.receiptNumber, 'e.g. IOE0123456789')], { hideEmpty: !uses('receipt') }) +
       (wa.note ? '<dt></dt><dd><small class="muted">' + esc(wa.note) + '</small></dd>' : '') +
       R('E-Verify case', esc(e.eVerifyCase) + (e.eVerifyStatus ? ' · ' + esc(e.eVerifyStatus) : ''), [F('eVerifyCase', 'text', e.eVerifyCase, 'Case number'), F('eVerifyStatus', 'text', e.eVerifyStatus, 'Status, e.g. Employment authorized')]) + '</dl>' : '') + '</div>' +
-    '<div class="card"><h3>' + ic('user') + 'Contact</h3><dl class="kv">' +
+    ieCard(e.id, 'contact', ic('user') + 'Contact') + '<dl class="kv">' +
     R('Work email', esc(e.email), [F('email', 'email', e.email, 'name@company.com')], { confirm: signedIn && e.email && E.member && E.member.email === e.email ? 'They sign in with ' + e.email + '. Their sign-in address does not change — only the work email on the record. Continue?' : '' }) +
     R('Personal email', esc(e.personalEmail), [F('personalEmail', 'email', e.personalEmail, 'name@gmail.com')]) + R('Phone', esc(e.phone), [F('phone', 'tel', e.phone, 'Phone')]) +
     R('Address', esc([e.address, e.city, e.state, e.zip].filter(Boolean).join(', ')), [F('address', 'text', e.address, 'Street'), F('city', 'text', e.city, 'City', null, 140), F('state', 'text', e.state, 'State', null, 70), F('zip', 'text', e.zip, 'ZIP', null, 90)]) +
@@ -1353,7 +1365,7 @@ function empProfile(E) {
       (E.member && E.member.signedIn ? '<p>' + chip('Signed in', 'ok') + ' ' + esc(E.member.email) + ' · ' + esc(roleName(E.member.role)) + (E.member.lastLogin ? ' <small class="muted">· last signed in ' + esc(fmtWhen(E.member.lastLogin)) + '</small>' : '') + '</p>'
         : e.invitedAt || E.member ? '<p>' + chip('Invited — not signed in yet', 'warn') + ' ' + (E.member ? esc(E.member.email) : '') + (e.invitedAt ? ' <small class="muted">· sent ' + esc(fmtWhen(e.invitedAt)) + '</small>' : '') + '</p><p class="hint">Resend if the email was missed or the code expired — you can pick the work email, the personal email or both.</p>'
         : '<p class="muted">Not invited yet.</p>') +
-    '<dl class="kv">' + kv('Added', esc(fmtDate(e.createdAt)) + ' by ' + esc(e.createdBy || '')) + kv('Source', esc(e.source)) + '</dl></div></div>';
+    '<dl class="kv">' + kv('Added', esc(fmtDate(e.createdAt)) + ' by ' + esc(e.createdBy || '')) + kv('Source', esc(e.source)) + '</dl></div></div>' + sensitiveBox(E);
 }
 function empOnboarding(E) {
   const pr = E.progress || { pct: 0, done: 0, total: 0 }, hr = can('onboarding.manage');
@@ -1467,7 +1479,7 @@ function empTimesheets(E) {
     weeks.map(t => '<tr class="click" data-action="nav" data-href="' + base + t.weekStart + '">' + selCell(weeks, t) + '<td><b>' + esc(weekLabel(t.weekStart)) + '</b></td><td class="num"><b>' + esc(t.totalHours) + '</b></td><td>' + statusChip(t.status) + (t.dupFlag ? ' ' + chip('Check', 'bad') : '') + '</td><td class="hide-m"><small class="muted">' + esc(t.source || '') + (t.hasFile ? ' · file' : '') + '</small></td></tr>').join('') + '</tbody></table></div>' + bulkBar(weeks)
     : '<div class="empty">' + ic('clock') + '<p>No weekly timesheets' + (monthly ? ' — ' + esc(e.firstName || 'they') + ' fill in monthly timesheets.' : ' yet.') + '</p></div>';
   const tile = (l, v, sub) => '<div class="ms-tile"><span>' + l + '</span><b>' + v + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</div>';
-  return '<div class="ms-tiles">' + tile('Timesheet', monthly ? 'Monthly' : 'Weekly', e.timesheetRequired === 'No' ? 'not required' : 'how they submit') + tile('Hours in ' + yr, ytd, 'all timesheets') +
+  return '<div class="ms-tiles">' + tile('Timesheet', e.tsNeed && !e.tsNeed.required ? 'Not required' : monthly ? 'Monthly' : 'Weekly', e.tsNeed && !e.tsNeed.required ? esc(e.tsNeed.why) : 'how they submit') + tile('Hours in ' + yr, ytd, 'all timesheets') +
       tile('Waiting for approval', pending, pending ? 'submitted' : 'nothing pending') + tile('Last submitted', last ? esc(fmtDate(last.submittedAt).replace(/, \d{4}$/, '')) : '—', last ? esc(tsLabel(last)) : (drafts ? drafts + ' draft(s)' : '')) + '</div>' +
     '<div class="card"><div class="card-h"><div class="seg" role="tablist">' +
       '<label><input type="radio" name="emp_tsv" value="month" data-change="emp-tsv" data-emp="' + e.id + '"' + (view === 'month' ? ' checked' : '') + '><span>' + ic('calendar') + 'Monthly <em>' + months.length + '</em></span></label>' +
@@ -1519,7 +1531,7 @@ function empForm(e, mode) {
     '<div class="span2 grid g2" data-client-only' + (placementOf(e) === 'Internal' ? ' hidden' : '') + '>' +
     field('Client', inp('clientName', e.clientName)) + field('Project', inp('projectName', e.projectName)) + field('Client manager name', inp('clientManagerName', e.clientManagerName)) + field('Client manager email', inp('clientManagerEmail', e.clientManagerEmail, 'type="email"')) + '</div>' +
     field('Who approves timesheets', sel('approvalFlow', approvalOpts(placementOf(e), isNew), e.approvalFlow || '')) +
-    field('Timesheet', sel('timesheetRequired', [['Yes', 'Required'], ['No', 'Not required (salaried, no client)']], e.timesheetRequired || 'Yes')) +
+    field('Timesheets', sel('timesheetRequired', tsReqOpts(e), e.timesheetRequired === 'Yes' || e.timesheetRequired === 'No' ? e.timesheetRequired : ''), '', 'Company rule: full-time salaried employees with no client do not file timesheets' + (D().org.waiveSalariedTs === false ? ' — turned off in Settings, so everyone files them' : '') + '; hourly, part-time and client placements do.') +
     field('Timesheet period', sel('timesheetPeriod', [['Weekly', 'Weekly — submitted each week'], ['Monthly', 'Monthly — one submission a month (client or invoice is monthly)']], e.timesheetPeriod || 'Weekly'), '', 'Hours are still entered by week; monthly people get one reminder after the month ends and submit the whole month at once.') +
     field('Record of hours', sel('timesheetSource', hoursOpts(placementOf(e)), e.timesheetSource || '')) + field('Worksite address', inp('worksite', e.worksite), 'span2') + '</div>';
 }
@@ -1535,6 +1547,13 @@ function waBlock(e) {
       '<p class="hint">No Form I-9, W-4, U.S. state forms or E-Verify. The checklist asks for ' + (country === 'IN' ? 'PAN, Aadhaar, UAN and the bank account (IFSC)' : country === 'SG' ? 'NRIC/FIN, CPF residency and the bank account' : 'their tax ID and bank account') + ', ID and education documents. Coming to the U.S. later (L-1, H-1B)? Open a case under Immigration.</p></div>';
   }
   return '<div id="wa-wrap"><div class="grid g3">' + cSel + '</div>' + waBlockUs(e) + '</div>';
+}
+function tsRuleWaives(e) { return D().org.waiveSalariedTs !== false && e.employmentType === 'W2 Full-time (salary)' && e.payType !== 'Hourly' && (e.placement === 'Internal' || (!e.placement && !e.clientName && !e.clientManagerEmail)); }
+function tsReqOpts(e) { return [['', 'Company rule — ' + (tsRuleWaives(e || {}) ? 'not required (salaried, no client)' : 'required')], ['Yes', 'Required'], ['No', 'Not required']]; }
+function tsNeedText(e) {
+  const n = e.tsNeed || { required: e.timesheetRequired !== 'No' };
+  return n.required ? (e.timesheetPeriod === 'Monthly' ? 'Monthly' : 'Weekly') + (n.setting === 'Yes' ? ' <small class="muted">· required for this person</small>' : '')
+    : 'Not required <small class="muted">· ' + esc(n.setting === 'No' ? 'waived for this person' : 'full-time salaried, no client') + '</small>';
 }
 function placementOf(e) { return e.placement || (e.clientName || e.clientManagerEmail ? 'Client' : (e.id ? 'Internal' : 'Client')); }
 function approvalOpts(pl, isNew) {
@@ -2190,6 +2209,7 @@ PAGES.settings = async () => {
     '<form class="card" data-form="org-save">' +
     '<h3>' + ic('clock') + 'Timesheets</h3><div class="grid g3">' + field('Week starts on', sel('weekStart', ['Monday', 'Sunday'], o.weekStart)) + field('Default approval for new employees', sel('defaultApproval', L('approvalFlows'), o.defaultApproval)) +
     field('Reminder day', sel('reminderDay', ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday'], o.reminderDay), '', 'Employees who have not submitted get a reminder that morning; another on Monday for last week.') + '</div>' +
+    '<label class="check"><input type="checkbox" name="waiveSalariedTs"' + (o.waiveSalariedTs !== false ? ' checked' : '') + '> Full-time salaried employees who work for us directly (no client) do not file timesheets. Hourly, part-time, 1099 contractors and anyone placed at a client always do. You can still require or waive timesheets for any one person on their profile. <button type="button" class="btn xs ghost" data-action="ts-rule-apply">Apply to current employees…</button></label>' +
     '<label class="check"><input type="checkbox" name="clientTimesheetRequired"' + (o.clientTimesheetRequired ? ' checked' : '') + '> For people placed at a client, the client-approved timesheet is the record of hours (it must be attached to submit)</label>' +
     '<label class="check"><input type="checkbox" name="acceptClientApproval"' + (o.acceptClientApproval ? ' checked' : '') + '> When the attached client timesheet shows it was approved in the client\'s system and the hours match, count that as the client manager\'s approval</label><h3 style="margin-top:18px">' + ic('doc') + 'Documents</h3><div class="grid g2">' +
     field('Document buttons for HR and staff', sel('docAccessStaff', DOC_ACCESS_OPTS, (o.docAccess || {}).staff || 'both')) +
@@ -2223,7 +2243,7 @@ function complianceCard(o) {
 CHANGES['emp-type'] = el => { const b = el.form.querySelector('[data-fed-only]'); if (b) b.hidden = el.value === 'Commercial'; };
 FORMS['org-compliance'] = async v => { await call('updateOrgSettings', { employerType: v.employerType, everifyClause: !!v.everifyClause }); toast('Compliance profile saved — open checklists updated', 'ok'); await loadDb(); await reloadCurrent(); };
 const DOC_ACCESS_OPTS = [['both', 'View and Download'], ['view', 'View only (no downloads)'], ['download', 'Download only']];
-FORMS['org-save'] = async v => { v.clientTimesheetRequired = !!v.clientTimesheetRequired; v.acceptClientApproval = !!v.acceptClientApproval; await call('updateOrgSettings', v); toast('Saved', 'ok'); await refresh(); };
+FORMS['org-save'] = async v => { v.waiveSalariedTs = !!v.waiveSalariedTs; v.clientTimesheetRequired = !!v.clientTimesheetRequired; v.acceptClientApproval = !!v.acceptClientApproval; await call('updateOrgSettings', v); toast('Saved', 'ok'); await refresh(); };
 Object.assign(ACTIONS, {
   'mfa-policy': async el => { await busy(el, call('updateMfaPolicy', { require: !!el.dataset.on })); toast('Saved', 'ok'); await refresh(); },
   'int-key': async el => {
@@ -2364,6 +2384,22 @@ function powersCard(P) {
     '</tbody></table></div><p class="hint">Employees always see only their own onboarding, documents, timesheets and immigration status.</p></form>';
 }
 ACTIONS['powers-reset'] = async el => { if (!confirm('Put the ' + roleName(el.dataset.role) + ' role back to its standard powers?')) return; await busy(el, call('saveRolePowers', { role: el.dataset.role, reset: true })); toast('Reset', 'ok'); S.db = null; await refresh(); };
+
+Object.assign(ACTIONS, {
+  'ts-rule-apply': async el => {
+    const r = await busy(el, call('applyTsRule', { preview: true }));
+    if (!r.people.length) return toast(r.ruleOff ? 'The rule is off — turn it on and save first.' : 'Nothing to change — everyone already follows the rule.', '');
+    openModal('Apply the timesheet rule to current employees', '<form data-form="ts-rule-apply"><p class="muted">These full-time salaried employees have no client but were set to file timesheets. Ticked people stop filing them (no reminders, not counted as missing). Untick anyone who should keep filing — for example to track paid time off.</p>' +
+      '<div class="tblwrap"><table class="tbl"><thead><tr><th></th><th>Employee</th><th>Job</th><th>Timesheet</th></tr></thead><tbody>' +
+      r.people.map(p => '<tr><td class="sel"><input type="checkbox" name="ids" value="' + esc(p.id) + '" checked></td><td><b>' + esc(p.name) + '</b> ' + idTag(p.code) + '</td><td><small>' + esc(p.jobTitle || '') + '</small></td><td><small class="muted">' + esc(p.period || 'Weekly') + ' · required today</small></td></tr>').join('') +
+      '</tbody></table></div><div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Stop timesheets for the ticked people</button></div></form>', true);
+  }
+});
+FORMS['ts-rule-apply'] = async (v, form) => {
+  const ids = Array.from(form.querySelectorAll('input[name=ids]:checked')).map(x => x.value);
+  if (!ids.length) return toast('Tick at least one person.');
+  const r = await call('applyTsRule', { ids: ids }); closeModal(); toast(r.changed + ' employee(s) no longer file timesheets', 'ok'); await reloadCurrent();
+};
 const QR = (() => {
   const BLOCKS = [null, [10, [[1, 16]]], [16, [[1, 28]]], [26, [[1, 44]]], [18, [[2, 32]]], [24, [[2, 43]]], [16, [[4, 27]]], [18, [[4, 31]]],
     [22, [[2, 38], [2, 39]]], [22, [[3, 36], [2, 37]]], [26, [[4, 43], [1, 44]]]];
@@ -3904,6 +3940,47 @@ Object.assign(ACTIONS, {
 });
 function piiFocus(key) { setTimeout(() => { const i = key && document.querySelector('.modal [name="' + key + '"]'); if (i) { i.focus(); i.select && i.select(); } }, 60); }
 FORMS['pii-save'] = async v => { if (!v.ssn) delete v.ssn; const r = await call('saveSensitiveInfo', v); toast('Saved', 'ok'); piiModal(v.employeeId, false, null, Object.assign(r, { notes: [], filled: [] })); };
+
+const SB_ROWS = [['ssn', 'Social Security number'], ['passportNumber', 'Passport number'], ['passportCountry', 'Passport issued by'], ['passportExpiry', 'Passport expires'], ['citizenship', 'Country of citizenship'],
+  ['countryOfBirth', 'Country of birth'], ['dateOfBirth', 'Date of birth'], ['aNumber', 'A-Number / USCIS #'], ['i94Number', 'Latest I-94 number'], ['visaNumber', 'Visa foil number'], ['visaExpiry', 'Visa stamp expires'], ['sevisId', 'SEVIS ID']];
+function sensitiveBox(E) {
+  if (!can('pii.view')) return '';
+  const id = E.employee.id;
+  return '<div class="card sb" id="sb-' + esc(id) + '"><div class="card-h"><h3>' + ic('lock') + 'Sensitive information</h3><div class="btns">' +
+    '<button type="button" class="btn sm ghost" data-action="sb-show" data-emp="' + esc(id) + '">' + ic('eye') + 'Show</button>' +
+    (can('employees.edit') ? '<button type="button" class="btn sm ghost" data-action="pii-edit" data-emp="' + esc(id) + '">' + ic('edit') + 'Update</button>' : '') + '</div></div>' +
+    '<p class="hint" style="margin-top:-4px">Hidden by default. Showing it is recorded in the audit log and it hides itself again after a minute.</p>' +
+    '<div class="sb-body">' + sbRows(null) + '</div></div>';
+}
+function sbRows(r) {
+  const f = {}; if (r) r.fields.forEach(x => { f[x.key] = x; });
+  const val = k => {
+    if (!r) return '<span class="sb-mask">••••••••</span>';
+    if (k === 'ssn') return r.ssn ? '<b class="mono">' + esc(r.ssn) + '</b> <small class="muted">' + esc(r.ssnStatus) + '</small>' : '<span class="muted">—</span>';
+    const x = f[k] || {};
+    return x.value ? '<b' + (x.secret ? ' class="mono"' : '') + '>' + esc(x.date ? fmtDate(x.value) : x.value) + '</b>' + (x.source ? ' <small class="muted">· ' + esc(/^(Entered|Form I-9)/.test(x.source) ? x.source : 'from ' + x.source) + '</small>' : '')
+      : x.partial ? '<span class="muted">' + esc(x.partial) + '</span>' : '<span class="muted">—</span>';
+  };
+  return '<dl class="kv sb-kv">' + SB_ROWS.map(([k, l]) => '<dt>' + esc(l) + '</dt><dd>' + val(k) + '</dd>').join('') + '</dl>';
+}
+const sbTimers = {};
+function sbHide(id) {
+  const c = document.getElementById('sb-' + id); clearTimeout(sbTimers[id]);
+  if (!c) return;
+  c.classList.remove('shown'); c.querySelector('.sb-body').innerHTML = sbRows(null);
+  const b = c.querySelector('[data-action="sb-hide"]'); if (b) { b.dataset.action = 'sb-show'; b.innerHTML = ic('eye') + 'Show'; }
+}
+Object.assign(ACTIONS, {
+  'sb-show': async el => {
+    if (!confirm('Show the sensitive information? This is recorded in the audit log.')) return;
+    const id = el.dataset.emp, r = await busy(el, call('getSensitiveInfo', { employeeId: id, reveal: true }));
+    const c = document.getElementById('sb-' + id); if (!c) return;
+    c.classList.add('shown'); c.querySelector('.sb-body').innerHTML = sbRows(r);
+    el.dataset.action = 'sb-hide'; el.innerHTML = ic('eye') + 'Hide';
+    clearTimeout(sbTimers[id]); sbTimers[id] = setTimeout(() => sbHide(id), 60000);
+  },
+  'sb-hide': el => sbHide(el.dataset.emp)
+});
 const isMonthKey = k => /^\d{4}-\d{2}$/.test(String(k || ''));
 const tsLabel = t => t && t.period === 'month' ? monthTitle(String(t.weekStart).slice(0, 7)) + ' (month)' : weekLabel(t.weekStart);
 const tsKey = t => t && t.period === 'month' ? String(t.weekStart).slice(0, 7) : t.weekStart;
@@ -4032,6 +4109,13 @@ function ieRow(label, html, fields, opt) {
   return '<dt>' + esc(label) + '</dt><dd class="ie" data-action="ie-open" data-ie="' + spec + '" title="Click to change" tabindex="0">' +
     (empty ? '<span class="muted ie-add">' + ic('plus') + 'Add</span>' : html) + '<span class="ie-pen">' + ic('edit') + '</span></dd>';
 }
+function ieCard(empId, key, title) {
+  const edit = can('employees.edit'), open = edit && ((S.ui.ieOpen || {})[empId + '|' + key]);
+  return '<div class="card ie-card' + (open ? ' unlocked' : '') + '" data-iecard="' + esc(empId + '|' + key) + '"><div class="card-h"><h3>' + title + '</h3>' +
+    (edit ? '<button type="button" class="ie-lock" data-action="ie-lock" aria-pressed="' + (open ? 'true' : 'false') + '" title="' + (open ? 'Lock — stop editing' : 'Unlock to edit') + '">' + ic(open ? 'edit' : 'lock') + '<span>' + (open ? 'Editing — lock' : 'Locked') + '</span></button>' : '') + '</div>' +
+    (edit ? '<p class="hint ie-tip">' + ic('edit') + 'Click a value to change it. Lock when done.</p>' : '');
+}
+const ieUnlocked = el => { const c = el && el.closest && el.closest('.ie-card'); return !c || c.classList.contains('unlocked'); };
 const ieF = (k, t, v, ph, o, w) => ({ k: k, t: t || 'text', v: v === undefined || v === null ? '' : String(v), ph: ph || '', o: o || null, w: w || 0 });
 function ieEditor(spec) {
   const one = f => {
@@ -4048,7 +4132,7 @@ function iePatch(dd) {
   dd.querySelectorAll('[data-k]').forEach(i => { v[i.dataset.k] = i.value.trim(); });
   spec.fields.forEach(f => { if (f.t === 'num') v[f.k] = v[f.k] === '' ? '' : Number(v[f.k]); });
   if ('_ts' in v) { const p = v._ts; delete v._ts; if (p === 'Not required') v.timesheetRequired = 'No'; else { v.timesheetRequired = 'Yes'; v.timesheetPeriod = p; } }
-  return { spec: spec, patch: v, changed: spec.fields.some(f => String(v[f.k] === undefined ? '' : v[f.k]) !== f.v) || ('timesheetRequired' in v) };
+  return { spec: spec, patch: v, changed: spec.fields.some(f => String(v[f.k] === undefined ? '' : v[f.k]) !== f.v) || (spec.fields.some(f => f.k === '_ts') && 'timesheetRequired' in v) };
 }
 async function ieSave(dd, btn) {
   const p = iePatch(dd);
@@ -4065,8 +4149,17 @@ async function ieSave(dd, btn) {
     const i = dd.querySelector('[data-k]'); if (i) i.focus();
   }
 }
+function ieNudge(el) { const b = el.closest('.ie-card').querySelector('.ie-lock'); if (b) { b.classList.remove('nudge'); void b.offsetWidth; b.classList.add('nudge'); } }
 Object.assign(ACTIONS, {
+  'ie-lock': el => {
+    const c = el.closest('.ie-card'), open = !c.classList.contains('unlocked'), key = c.dataset.iecard;
+    if (!open) c.querySelectorAll('dd.ie.editing').forEach(ieClose);
+    c.classList.toggle('unlocked', open); (S.ui.ieOpen = S.ui.ieOpen || {})[key] = open;
+    el.setAttribute('aria-pressed', open ? 'true' : 'false'); el.title = open ? 'Lock — stop editing' : 'Unlock to edit';
+    el.innerHTML = ic(open ? 'edit' : 'lock') + '<span>' + (open ? 'Editing — lock' : 'Locked') + '</span>';
+  },
   'ie-open': el => {
+    if (!ieUnlocked(el)) return ieNudge(el);
     if (el.classList.contains('editing')) return;
     document.querySelectorAll('dd.ie.editing').forEach(ieClose);   // one at a time
     const spec = JSON.parse(el.dataset.ie);
@@ -4076,7 +4169,8 @@ Object.assign(ACTIONS, {
   },
   'ie-save': el => ieSave(el.closest('dd.ie'), el),
   'ie-cancel': el => ieClose(el.closest('dd.ie')),
-  'ie-extra': () => {
+  'ie-extra': el => {
+    if (!ieUnlocked(el)) return ieNudge(el);
     const E = S.cache.emp, e = E.employee;
     openModal('Home country and references — ' + e.name, '<form data-form="ie-extra"><input type="hidden" name="id" value="' + esc(e.id) + '">' + extraFields(E.extra, (E.extra || {}).needsNative, false) +
       '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Save</button></div></form>', true);
@@ -4090,6 +4184,7 @@ document.addEventListener('keydown', ev => {
   if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); ieClose(dd); }
   else if (ev.key === 'Enter' && ev.target.tagName !== 'BUTTON') { ev.preventDefault(); ieSave(dd, dd.querySelector('[data-action="ie-save"]')); }
 });
+window.addEventListener('hashchange', () => { S.ui.ieOpen = {}; });
 const TO_MONTH_NOTE = /month(ly)?['’]?s? total|total (hours )?for the (whole |entire )?month|whole month|entire month|spread evenly/i;
 const looksMonthly = t => !!t && t.period !== 'month' && t.hasFile && (Number(t.totalHours) > 80 || (t.aiCheck && !t.aiCheck.error && ((t.aiCheck.issues || []).some(i => TO_MONTH_NOTE.test(i)) || Number(t.aiCheck.fileHours) > 80)));
 function toMonthBanner(groups) {
