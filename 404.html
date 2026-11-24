@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.66"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.67"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -236,6 +236,99 @@ pre.viewer.text{overflow:auto;padding:14px;white-space:pre-wrap;font-size:13px;m
 .backlink{display:inline-flex;align-items:center;gap:4px;font-weight:600;font-size:14px;color:var(--teal-d,#0f766e);text-decoration:none;margin:-4px 0 10px}.backlink:hover{text-decoration:underline}.backlink svg{width:16px;height:16px}
 .inbox-strip{align-items:center}.inbox-strip .btns{flex-shrink:0}
 .inv-issues{font-size:12px;color:#b45309;margin-top:4px;max-width:260px}
+
+
+:root{--sh:0 1px 2px rgba(15,28,43,.05),0 6px 20px -6px rgba(15,28,43,.08);--sh2:0 2px 4px rgba(15,28,43,.05),0 18px 40px -12px rgba(15,28,43,.18);--r:14px}
+.card{border-color:#e6ebf1}
+.btn{box-shadow:0 1px 2px rgba(15,28,43,.08);transition:background .15s,box-shadow .15s,transform .08s,border-color .15s}
+.btn:not(.ghost):not(.danger):not(.link){background:linear-gradient(180deg,#22c2af,var(--teal));box-shadow:0 1px 2px rgba(20,144,127,.25),inset 0 1px 0 rgba(255,255,255,.18)}
+.btn:not(.ghost):not(.danger):not(.link):hover{background:linear-gradient(180deg,var(--teal),var(--teal2));box-shadow:0 4px 12px -2px rgba(20,144,127,.35)}
+.btn:active:not(:disabled){transform:translateY(1px)}.btn.link{box-shadow:none}
+.btn:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.btn.ghost:hover{border-color:#cfd8e3}
+input:hover:not(:focus):not([type=checkbox]):not([type=radio]),select:hover:not(:focus),textarea:hover:not(:focus){border-color:#b9c5d3}
+input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=file]::file-selector-button{font:600 13px var(--font);border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:7px;padding:5px 10px;margin-right:10px;cursor:pointer}
+input[type=file]::file-selector-button:hover{background:#f1f4f8}
+.tbl tr.click:hover td{background:#f5faf9}.tbl tr.click td:first-child{position:relative}
+.tbl tr.click:hover td:first-child::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--teal)}
+.tabs a{transition:color .15s,border-color .15s}.tabs a:hover{color:var(--ink)}
+.banner{border:1px solid rgba(61,123,220,.15)}.banner.warn{border-color:rgba(201,138,18,.2)}.banner.bad{border-color:rgba(208,69,60,.2)}.banner.ok{border-color:rgba(29,154,91,.2)}
+.empty svg.i{width:30px;height:30px;color:#b8c3d1;display:block;margin:0 auto 6px}.empty p{margin:0}
+.chip{letter-spacing:.01em}
+
+
+.seg{display:inline-flex;background:#eef2f6;border-radius:11px;padding:3px;gap:2px}
+.seg label{margin:0;cursor:pointer}.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--ink2);transition:background .15s,color .15s,box-shadow .15s}
+.seg span svg.i{width:16px;height:16px}.seg span em{font-style:normal;font-size:11.5px;background:#dde4ec;color:var(--ink2);border-radius:20px;padding:0 7px;line-height:18px}
+.seg input:checked+span{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,28,43,.12)}.seg input:checked+span em{background:var(--tealbg);color:var(--teal2)}
+.seg input:focus-visible+span{outline:2px solid var(--teal);outline-offset:1px}
+
+.switch{display:inline-flex;align-items:center;gap:8px;margin:0;font-size:13.5px;font-weight:600;color:var(--ink2);cursor:pointer}
+.switch input{position:absolute;opacity:0}.switch i{width:34px;height:20px;border-radius:20px;background:#cfd8e3;position:relative;transition:background .15s}
+.switch i::after{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}
+.switch input:checked+i{background:var(--teal)}.switch input:checked+i::after{transform:translateX(14px)}.switch input:focus-visible+i{outline:2px solid var(--teal);outline-offset:2px}
+
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1.5px dashed #c6d1dd;border-radius:12px;padding:14px;text-align:center;cursor:pointer;background:#fafcfd;font-weight:500;color:var(--ink2);min-height:84px;transition:border-color .15s,background .15s;margin:0}
+.drop:hover{border-color:var(--teal);background:var(--tealbg)}.drop input{position:absolute;opacity:0;width:1px;height:1px}.drop svg.i{color:var(--teal)}.drop small{font-weight:400}
+
+
+.ms-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.ms-tile{background:#fff;border:1px solid #e6ebf1;border-radius:14px;padding:14px 16px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:2px;min-width:0}
+.ms-tile>span{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mute)}
+.ms-tile>b{font:800 26px/1.15 var(--head);color:var(--ink);letter-spacing:-.02em}.ms-tile>small{font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-tile.main{background:linear-gradient(135deg,#0f2a40,#14425a 60%,#137a6f);border:0;color:#fff}.ms-tile.main>span{color:#9fd8cf}.ms-tile.main>b{color:#fff;font-size:30px}.ms-tile.main>small{color:#bfe3dd}
+.ms-st{padding:3px 0}
+
+.ms-nav{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:3px}
+.ms-nav .btn{border:0;box-shadow:none}.ms-nav b{min-width:128px;text-align:center;font-family:var(--head)}
+.ms-card{padding:22px}
+.ms-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.ms-top h3{margin:0;display:flex;align-items:center;gap:8px;font-size:19px}.ms-top p{margin:2px 0 0}
+.ms.mode-total .ms-days,.ms.mode-day .ms-total{display:none}
+.ms-total{padding:8px 0 18px}
+.ms-bigin{max-width:440px;margin:6px auto;text-align:center;background:linear-gradient(180deg,#f7fbfb,#fff);border:1px solid #e1ece9;border-radius:16px;padding:22px}
+.ms-bigin label{font-size:14px;color:var(--ink2)}.ms-bigrow{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:6px 0 8px}
+.ms-bigrow input{width:190px;font:800 44px/1.1 var(--head);text-align:center;border:0;border-bottom:2px solid #cfe5e1;border-radius:0;background:transparent;padding:4px 0;box-shadow:none!important}
+.ms-bigrow input:focus{border-bottom-color:var(--teal)}.ms-bigrow span{font-size:16px;color:var(--mute);font-weight:600}
+.ms-bigro{text-align:center;padding:12px}.ms-bigro b{display:block;font:800 52px/1 var(--head);color:var(--ink)}.ms-bigro>span{color:var(--ink2);font-weight:600}
+.ms-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;background:#f7f9fb;border:1px solid #edf1f5;border-radius:12px}
+.ms-fill{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--ink2);margin-right:auto}.ms-fill input{width:62px;padding:5px 8px;text-align:center;font-weight:700}
+
+.mcal{border:1px solid #e3e9f0;border-radius:14px;overflow:hidden;background:#fff}
+.mc-head,.mc-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) 78px}
+.mc-head>div{padding:9px 10px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);background:#f7f9fb;border-bottom:1px solid #e3e9f0}
+.mc-head>div.we{color:#9aa7b8}.mc-head .mc-wh{text-align:center}
+.mc-row+.mc-row .mc,.mc-row+.mc-row .mc-wt{border-top:1px solid #edf1f5}
+.mc{padding:8px 9px 9px;border-right:1px solid #edf1f5;min-height:86px;display:flex;flex-direction:column;gap:5px;position:relative;transition:background .15s}
+.mc.we{background:#fafbfc}.mc-x{background:repeating-linear-gradient(135deg,#fbfcfd,#fbfcfd 6px,#f4f6f9 6px,#f4f6f9 12px)}
+.mc.has{background:#f2fbf9}.mc.has .mc-n span{background:var(--teal);color:#fff}
+.mc.today{box-shadow:inset 0 0 0 2px var(--teal)}.mc.future{opacity:.72}
+.mc-n{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--ink2)}
+.mc-n span{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:7px;padding:0 4px;transition:background .15s}
+.mc-n em{font-style:normal;font-size:10.5px;font-weight:700;color:var(--teal2);text-transform:uppercase;letter-spacing:.04em}
+.mcal.edit .mc-h{height:34px;padding:4px 6px;text-align:center;font-weight:700;font-size:15px;border-color:#dde4ec;background:#fff}
+.mcal.edit .mc-h::placeholder{color:#c3ccd7;font-weight:400}
+.mc-ot{display:none;align-items:center;gap:5px;margin:0;font-size:11px;font-weight:700;color:var(--amber)}.ms.show-ot .mc-ot{display:flex}
+.mc-ot input{height:26px;padding:2px 5px;font-size:13px;text-align:center;border-color:#f0dfb9;background:#fffcf5}
+.mc-ro{font-size:15px;margin-top:auto}.mc-ro b{font:800 19px var(--head)}.mc-ro small{color:var(--mute);margin-left:1px}.mc-ro.none{color:#c3ccd7}
+.mc-otro{display:block;font-size:11px;font-weight:700;color:var(--amber)}
+.mc-wt{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f7f9fb}.mc-wt b{font:800 18px var(--head)}.mc-wt small{font-size:11px;color:var(--mute)}
+.ms-more{margin-top:18px}.ms-more textarea{min-height:84px}
+.ms-file{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;padding:10px 12px;border:1px solid #edf1f5;border-radius:12px;background:#fafcfd}.ms-file>span{font-weight:600;margin-right:auto}
+.ms-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ms-step{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:20px;background:#f1f4f8;font-size:13px;font-weight:600;color:var(--ink2)}.ms-step small{font-weight:500;color:var(--mute)}
+.ms-step.ok{background:var(--greenbg);color:var(--green)}.ms-step.bad{background:var(--redbg);color:var(--red)}.ms-step.now{background:var(--amberbg);color:var(--amber)}.ms-step svg.i{width:15px;height:15px}
+.ms-arrow{width:16px;height:2px;background:#d5dde6;border-radius:2px}
+.ms-bar{position:sticky;bottom:12px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:20px -6px -6px;padding:12px 14px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1px solid #e3e9f0;border-radius:14px;box-shadow:var(--sh2)}
+.ms-bar b{font:800 22px var(--head)}
+.ms-approve{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-left:4px solid var(--teal)}.ms-approve h3{display:flex;align-items:center;gap:7px;margin:0}.ms-approve p{margin:2px 0 0}
+
+.ts-when{display:flex;align-items:center;gap:11px}.ts-cal{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:44px;height:44px;border-radius:11px;background:var(--tealbg);color:var(--teal2);line-height:1.05;flex:none}
+.ts-cal b{font:800 14px var(--head);text-transform:uppercase}.ts-cal small{font-size:10.5px;color:var(--teal2)}
+.ts-list td small svg.i{width:13px;height:13px;vertical-align:-2px}
+@media (max-width:900px){.ms-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.mc-head,.mc-row{grid-template-columns:repeat(7,minmax(0,1fr))}.mc-wh,.mc-wt{display:none!important}.mc{min-height:70px;padding:5px}.mcal.edit .mc-h{height:30px;font-size:13px;padding:2px}.mc-n em{display:none}.ms-bigrow input{width:140px;font-size:36px}}
 </style>
 
 </head>
@@ -1345,11 +1438,47 @@ function empDocuments(E) {
     docsTable(E.documents || [], hr, E.checklist, E.employee.id) + '<p class="hint">Files are private: only the employee and HR can open them; payroll sees W-4, state withholding and direct-deposit forms. Identity, immigration and bank documents lock once verified. Every view, download and unlock is recorded in the audit log.</p></div>';
 }
 function empTimesheets(E) {
-  const ts = E.timesheets || [];
-  return '<div class="card"><div class="card-h"><h3>' + ic('clock') + 'Recent weeks</h3><div class="btns">' + (can('timesheets.all') || D().who.employeeId === E.employee.id ? '<button class="btn sm" data-action="ts-upload" data-emp="' + E.employee.id + '">' + ic('upload') + 'Add from a timesheet file</button>' : '') + '<a class="btn sm ghost" href="#app/timesheet/' + E.employee.id + '/' + D().thisWeek + '">Open this week</a></div></div>' +
-    (ts.length ? '<table class="tbl"><thead><tr>' + selHead(ts) + '<th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Source</th></tr></thead><tbody>' + ts.map(t => '<tr class="click" data-action="nav" data-href="#app/timesheet/' + E.employee.id + '/' + tsKey(t) + '">' + selCell(ts, t) + '<td>' + esc(tsLabel(t)) + '</td><td class="num">' + esc(t.totalHours) + '</td><td>' + statusChip(t.status) + '</td><td class="hide-m">' + esc(t.source || '') + (t.hasFile ? ' · file' : '') + '</td></tr>').join('') + '</tbody></table>' + bulkBar(ts)
-      : '<div class="empty">No timesheets yet.</div>') + '</div>';
+  const all = E.timesheets || [], e = E.employee, months = all.filter(t => t.period === 'month'), weeks = all.filter(t => t.period !== 'month');
+  const monthly = e.timesheetPeriod === 'Monthly' || (months.length && !weeks.length);
+  const view = (S.ui.empTsView && S.ui.empTsView[e.id]) || (monthly ? 'month' : 'week');
+  const edit = can('timesheets.all') || D().who.employeeId === e.id, base = '#app/timesheet/' + e.id + '/';
+  const r2 = n => Math.round(n * 100) / 100, yr = (D().today || '').slice(0, 4);
+  const pending = all.filter(t => t.status === 'Submitted').length, drafts = all.filter(t => t.status === 'Draft' || t.status === 'Rejected').length;
+  const ytd = r2(all.filter(t => String(t.weekStart).slice(0, 4) === yr).reduce((s2, t) => s2 + Number(t.totalHours || 0), 0));
+  const last = all.filter(t => t.submittedAt).sort((x, y) => String(y.submittedAt).localeCompare(String(x.submittedAt)))[0];
+  const byMonth = {};
+  months.forEach(t => { byMonth[String(t.weekStart).slice(0, 7)] = { m: String(t.weekStart).slice(0, 7), t: t, hours: Number(t.totalHours || 0) }; });
+  weeks.forEach(t => { const m = String(addDays(t.weekStart, 3)).slice(0, 7); if (byMonth[m] && byMonth[m].t) { byMonth[m].alsoWeeks = (byMonth[m].alsoWeeks || 0) + 1; return; } const x = byMonth[m] = byMonth[m] || { m: m, weeks: [], hours: 0 }; x.weeks.push(t); x.hours += Number(t.totalHours || 0); });
+  const mrows = Object.keys(byMonth).sort().reverse().map(k => byMonth[k]);
+  const mDetail = x => {
+    if (x.t) { const en = x.t.entries || {}, nd = Object.keys(en.mdays || {}).length; return en.totalOnly !== undefined && !nd ? 'Month total only' : nd + ' day' + (nd === 1 ? '' : 's') + ' with hours'; }
+    const st = Array.from(new Set(x.weeks.map(w => w.status)));
+    return x.weeks.length + ' weekly timesheet' + (x.weeks.length === 1 ? '' : 's') + (st.length === 1 ? '' : ' · mixed');
+  };
+  const mStatus = x => x.t ? statusChip(x.t.status) : (() => { const st = Array.from(new Set(x.weeks.map(w => w.status))); return st.length === 1 ? statusChip(st[0]) : st.map(z => statusChip(z)).join(' '); })();
+  const monthTable = mrows.length ? '<div class="tblwrap"><table class="tbl ts-list"><thead><tr><th>Month</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Detail</th><th class="hide-m">Source</th></tr></thead><tbody>' +
+    mrows.map(x => '<tr class="click" data-action="nav" data-href="' + (x.t ? base + x.m : base + x.weeks.slice().sort((p, q) => String(p.weekStart).localeCompare(String(q.weekStart)))[0].weekStart) + '"><td><div class="ts-when"><span class="ts-cal"><b>' + esc(monthTitle(x.m).slice(0, 3)) + '</b><small>' + x.m.slice(0, 4) + '</small></span><div><b>' + esc(monthTitle(x.m)) + '</b>' +
+      (x.t ? '' : '<br><small class="muted">from weekly timesheets</small>') + (x.alsoWeeks ? '<br><small style="color:var(--amber)">' + ic('alert') + ' also ' + x.alsoWeeks + ' weekly timesheet' + (x.alsoWeeks === 1 ? '' : 's') + '</small>' : '') + '</div></div></td>' +
+      '<td class="num"><b>' + r2(x.hours) + '</b></td><td>' + mStatus(x) + (x.t && x.t.dupFlag ? ' ' + chip('Check', 'bad') : '') + '</td><td class="hide-m"><small class="muted">' + esc(mDetail(x)) + '</small></td><td class="hide-m"><small class="muted">' + esc(x.t ? (x.t.source || '') + (x.t.hasFile ? ' · file' : '') : '') + '</small></td></tr>').join('') + '</tbody></table></div>'
+    : '<div class="empty">' + ic('calendar') + '<p>No monthly timesheets yet.</p></div>';
+  const weekTable = weeks.length ? '<div class="tblwrap"><table class="tbl ts-list"><thead><tr>' + selHead(weeks) + '<th>Week</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Source</th></tr></thead><tbody>' +
+    weeks.map(t => '<tr class="click" data-action="nav" data-href="' + base + t.weekStart + '">' + selCell(weeks, t) + '<td><b>' + esc(weekLabel(t.weekStart)) + '</b></td><td class="num"><b>' + esc(t.totalHours) + '</b></td><td>' + statusChip(t.status) + (t.dupFlag ? ' ' + chip('Check', 'bad') : '') + '</td><td class="hide-m"><small class="muted">' + esc(t.source || '') + (t.hasFile ? ' · file' : '') + '</small></td></tr>').join('') + '</tbody></table></div>' + bulkBar(weeks)
+    : '<div class="empty">' + ic('clock') + '<p>No weekly timesheets' + (monthly ? ' — ' + esc(e.firstName || 'they') + ' fill in monthly timesheets.' : ' yet.') + '</p></div>';
+  const tile = (l, v, sub) => '<div class="ms-tile"><span>' + l + '</span><b>' + v + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</div>';
+  return '<div class="ms-tiles">' + tile('Timesheet', monthly ? 'Monthly' : 'Weekly', e.timesheetRequired === 'No' ? 'not required' : 'how they submit') + tile('Hours in ' + yr, ytd, 'all timesheets') +
+      tile('Waiting for approval', pending, pending ? 'submitted' : 'nothing pending') + tile('Last submitted', last ? esc(fmtDate(last.submittedAt).replace(/, \d{4}$/, '')) : '—', last ? esc(tsLabel(last)) : (drafts ? drafts + ' draft(s)' : '')) + '</div>' +
+    '<div class="card"><div class="card-h"><div class="seg" role="tablist">' +
+      '<label><input type="radio" name="emp_tsv" value="month" data-change="emp-tsv" data-emp="' + e.id + '"' + (view === 'month' ? ' checked' : '') + '><span>' + ic('calendar') + 'Monthly <em>' + months.length + '</em></span></label>' +
+      '<label><input type="radio" name="emp_tsv" value="week" data-change="emp-tsv" data-emp="' + e.id + '"' + (view === 'week' ? ' checked' : '') + '><span>' + ic('clock') + 'Weekly <em>' + weeks.length + '</em></span></label></div>' +
+      '<div class="btns">' + (edit ? '<button class="btn sm" data-action="ts-upload" data-emp="' + e.id + '">' + ic('upload') + 'Add from a timesheet file</button>' : '') +
+      '<a class="btn sm ghost" href="' + base + (view === 'month' ? (D().today || '').slice(0, 7) : D().thisWeek) + '">' + (view === 'month' ? 'Open this month' : 'Open this week') + '</a></div></div>' +
+      '<div class="ts-pane" data-pane="month"' + (view === 'month' ? '' : ' hidden') + '>' + monthTable + '</div><div class="ts-pane" data-pane="week"' + (view === 'week' ? '' : ' hidden') + '>' + weekTable + '</div></div>';
 }
+CHANGES['emp-tsv'] = el => {
+  (S.ui.empTsView = S.ui.empTsView || {})[el.dataset.emp] = el.value;
+  document.querySelectorAll('.ts-pane').forEach(p => { p.hidden = p.dataset.pane !== el.value; });
+  const a = el.closest('.card').querySelector('.card-h a.btn'); if (a) { a.textContent = el.value === 'month' ? 'Open this month' : 'Open this week'; a.href = '#app/timesheet/' + el.dataset.emp + '/' + (el.value === 'month' ? (D().today || '').slice(0, 7) : D().thisWeek); }
+};
 function empImmigration(E) {
   return sensitiveCard(E) + immHistoryHtml(E.immHistory, E.employee, can('immigration.manage')) + '<div class="card"><div class="card-h"><h3>' + ic('flag') + 'Immigration cases</h3>' + (can('immigration.manage') ? '<button class="btn sm" data-action="case-new" data-emp="' + E.employee.id + '">' + ic('plus') + 'Start a case</button>' : '') + '</div>' +
     ((E.cases || []).length ? '<div class="cases">' + E.cases.map(caseCard).join('') + '</div>' : '<div class="empty">No cases. Start one for an H-1B extension, transfer or amendment, PERM, I-140, I-485 or STEM OPT.</div>') + '</div>';
@@ -3778,66 +3907,116 @@ const tsKey = t => t && t.period === 'month' ? String(t.weekStart).slice(0, 7) :
 const nextMonthKey = (m, k) => { const d = new Date(m + '-15T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() + k); return d.toISOString().slice(0, 7); };
 function monthGridHtml(days, mdays, edit, rows) {
   mdays = mdays || {}; rows = rows || ['Regular', 'Overtime'];
-  let ws = 'Monday'; try { ws = D().org.weekStart || 'Monday'; } catch (e) { /* public approval page */ }
+  let ws = 'Monday', today = ''; try { ws = D().org.weekStart || 'Monday'; today = D().today || ''; } catch (e) { /* public approval page */ }
   const startMon = ws !== 'Sunday', dow = d => { const w = new Date(d + 'T12:00:00Z').getUTCDay(); return startMon ? (w + 6) % 7 : w; };
   const names = startMon ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const isWe = d => { const w = new Date(d + 'T12:00:00Z').getUTCDay(); return w === 0 || w === 6; };
   const cells = []; for (let i = 0; i < dow(days[0]); i++) cells.push(null); days.forEach(d => cells.push(d)); while (cells.length % 7) cells.push(null);
   const dayTot = d => ['Regular', 'Overtime', 'Paid time off', 'Holiday'].reduce((s, r) => s + Number((mdays[d] || {})[r] || 0), 0);
+  const r2 = n => Math.round(n * 100) / 100;
   const cell = d => {
-    if (!d) return '<td class="mg-empty"></td>';
-    const v = mdays[d] || {}, we = [5, 6].indexOf(dow(d)) >= 0 && startMon;
-    return '<td class="mg-day' + (we ? ' we' : '') + '"><div class="mg-n">' + Number(d.slice(8)) + '</div>' + (edit
-      ? rows.map(r => '<input name="md_' + d + '_' + r.replace(/\W/g, '') + '" type="number" inputmode="decimal" min="0" max="24" step="0.25" value="' + (v[r] || '') + '" placeholder="' + (r === 'Regular' ? 'hrs' : r === 'Overtime' ? 'OT' : r.slice(0, 3)) + '" title="' + esc(r) + ' on ' + esc(fmtDate(d)) + '" data-change="md-tot">').join('')
-      : (dayTot(d) ? '<b>' + dayTot(d) + 'h</b>' + (v.Overtime ? '<small> incl. ' + v.Overtime + ' OT</small>' : '') : '<span class="muted">–</span>')) + '</td>';
+    if (!d) return '<div class="mc mc-x" aria-hidden="true"></div>';
+    const v = mdays[d] || {}, tot = dayTot(d), cls = 'mc' + (isWe(d) ? ' we' : '') + (d === today ? ' today' : '') + (tot ? ' has' : '') + (d > today && today ? ' future' : '');
+    const n = '<div class="mc-n"><span>' + Number(d.slice(8)) + '</span>' + (d === today ? '<em>Today</em>' : '') + '</div>';
+    if (!edit) return '<div class="' + cls + '">' + n + (tot ? '<div class="mc-ro"><b>' + r2(tot) + '</b><small>h</small>' + (v.Overtime ? '<span class="mc-otro">' + v.Overtime + ' OT</span>' : '') + '</div>' : '<div class="mc-ro none">—</div>') + '</div>';
+    return '<div class="' + cls + '">' + n +
+      '<input class="mc-h" name="md_' + d + '_Regular" type="number" inputmode="decimal" min="0" max="24" step="0.25" value="' + (v.Regular || '') + '" placeholder="–" aria-label="Hours on ' + esc(fmtDate(d)) + '" data-change="md-tot">' +
+      (rows.indexOf('Overtime') >= 0 ? '<label class="mc-ot"><span>OT</span><input name="md_' + d + '_Overtime" type="number" inputmode="decimal" min="0" max="24" step="0.25" value="' + (v.Overtime || '') + '" aria-label="Overtime on ' + esc(fmtDate(d)) + '" data-change="md-tot"></label>' : '') + '</div>';
   };
-  let html = '<div class="tblwrap"><table class="mgrid"><thead><tr>' + names.map(n => '<th>' + n + '</th>').join('') + '<th>Week</th></tr></thead><tbody>';
-  for (let i = 0; i < cells.length; i += 7) { const wk = cells.slice(i, i + 7); html += '<tr>' + wk.map(cell).join('') + '<td class="mg-wt" data-wt="' + i + '">' + wk.filter(Boolean).reduce((s, d) => s + dayTot(d), 0) + '</td></tr>'; }
-  return html + '</tbody></table></div>';
+  let html = '<div class="mcal' + (edit ? ' edit' : '') + '"><div class="mc-head">' + names.map((x, i) => '<div class="' + ((startMon ? i > 4 : i === 0 || i === 6) ? 'we' : '') + '">' + x + '</div>').join('') + '<div class="mc-wh">Week</div></div>';
+  for (let i = 0; i < cells.length; i += 7) {
+    const wk = cells.slice(i, i + 7), wt = r2(wk.filter(Boolean).reduce((s, d) => s + dayTot(d), 0));
+    html += '<div class="mc-row">' + wk.map(cell).join('') + '<div class="mc-wt"><b data-wt="' + i + '">' + wt + '</b><small>hrs</small></div></div>';
+  }
+  return html + '</div>';
 }
 function mdaysFromForm(form) {
   const out = {};
   form.querySelectorAll('input[name^="md_"]').forEach(x => { const m = x.name.match(/^md_(\d{4}-\d{2}-\d{2})_(\w+)$/); if (!m || x.value === '') return; const r = { Regular: 'Regular', Overtime: 'Overtime', Paidtimeoff: 'Paid time off', Holiday: 'Holiday' }[m[2]]; const n = Number(x.value); if (r && n) { (out[m[1]] = out[m[1]] || {})[r] = n; } });
   return out;
 }
-CHANGES['md-tot'] = el => {
-  const f = el.form, md = mdaysFromForm(f), tot = Object.keys(md).reduce((s, d) => s + Object.keys(md[d]).reduce((a, r) => a + md[d][r], 0), 0);
-  const t = f.querySelector('#md_total'); if (t) t.textContent = Math.round(tot * 100) / 100;
+function msRefresh(form) {
+  if (!form) return;
+  const md = mdaysFromForm(form), r2 = n => Math.round(n * 100) / 100;
+  let tot = 0, ot = 0; Object.keys(md).forEach(d => { Object.keys(md[d]).forEach(r => { tot += md[d][r]; if (r === 'Overtime') ot += md[d][r]; }); });
+  const set = (id, v) => { const x = form.querySelector('#' + id); if (x) x.textContent = v; };
+  const mode = (form.querySelector('[name=emode]') || {}).value;
+  if (mode === 'total') { const t = Number((form.querySelector('[name=totalOnly]') || {}).value || 0); tot = t; set('md_days', '—'); set('md_ot', '—'); }
+  else { set('md_days', Object.keys(md).length); set('md_ot', r2(ot)); }
+  set('md_total', r2(tot)); set('md_total2', r2(tot));
+  form.querySelectorAll('.mc-row').forEach(row => {
+    let s = 0; row.querySelectorAll('input[name^="md_"]').forEach(i => { s += Number(i.value) || 0; });
+    const b = row.querySelector('[data-wt]'); if (b) b.textContent = r2(s);
+  });
+  form.querySelectorAll('.mc').forEach(c => { const has = Array.from(c.querySelectorAll('input')).some(i => Number(i.value) > 0); c.classList.toggle('has', has); });
+}
+CHANGES['md-tot'] = el => msRefresh(el.form);
+CHANGES['md-mode'] = el => {
+  const f = el.form; f.querySelector('[name=emode]').value = el.value;
+  f.classList.toggle('mode-total', el.value === 'total'); f.classList.toggle('mode-day', el.value !== 'total');
+  if (el.value === 'total') { const t = f.querySelector('[name=totalOnly]'); if (t && !t.value) { const md = mdaysFromForm(f); const s = Object.keys(md).reduce((a, d) => a + Object.keys(md[d]).reduce((x, r) => x + md[d][r], 0), 0); if (s) t.value = Math.round(s * 100) / 100; } setTimeout(() => t && t.focus(), 30); }
+  msRefresh(f);
 };
+CHANGES['md-ot'] = el => el.form.classList.toggle('show-ot', el.checked);
+Object.assign(ACTIONS, {
+  'md-fill': el => {
+    const f = el.closest('form'), h = Number((f.querySelector('#md_fillh') || {}).value || 8);
+    if (!(h > 0 && h <= 24)) return toast('Hours per day must be between 0 and 24.', 'error');
+    let n = 0; f.querySelectorAll('.mc:not(.we):not(.mc-x):not(.future) .mc-h').forEach(i => { if (!i.value) { i.value = h; n++; } });
+    msRefresh(f); toast(n ? 'Filled ' + n + ' empty weekday' + (n === 1 ? '' : 's') + ' with ' + h + ' h — adjust any day off' : 'Every weekday already has hours', n ? 'ok' : '');
+  },
+  'md-clear': el => { const f = el.closest('form'); if (!confirm('Clear the hours on every day?')) return; f.querySelectorAll('input[name^="md_"]').forEach(i => { i.value = ''; }); msRefresh(f); }
+});
 async function monthSheetPage(empId, m, mine) {
   const G = await call('getTimesheet', { employeeId: empId, month: m }); S.cache.ms = G;
-  const t = G.timesheet, e = G.employee, edit = G.canEdit, en = t ? t.entries : { mdays: {} }, md = en.mdays || {}, totalOnly = en.totalOnly !== undefined;
+  const t = G.timesheet, e = G.employee, edit = G.canEdit, en = t ? t.entries : { mdays: {} }, md = en.mdays || {}, totalOnly = en.totalOnly !== undefined && !Object.keys(md).length;
   const base = mine ? '#app/my-timesheet/' : '#app/timesheet/' + empId + '/';
   const step = t && t.status === 'Submitted' ? (t.steps || [])[Number(t.stepIndex || 0)] : null, me = String(D().who.email).toLowerCase();
   const canApprove = step && !mine && (String(step.email).toLowerCase() === me || (step.role === 'Manager' && can('timesheets.approve')) || can('timesheets.all')) && D().who.employeeId !== empId;
-  const thisMonth = (D().today || new Date().toISOString()).slice(0, 7);
-  return head(mine ? 'My timesheet' : e.name, (mine ? '' : idTag(e.code) + ' ') + esc(e.clientName || '') + ' · monthly timesheet',
-    '<div class="weeknav"><a class="btn ghost sm" href="' + base + nextMonthKey(m, -1) + '">' + ic('back') + '</a><b>' + esc(monthTitle(m)) + '</b><a class="btn ghost sm" href="' + base + nextMonthKey(m, 1) + '">' + ic('chev') + '</a>' +
-      (m !== thisMonth ? '<a class="btn ghost sm" href="' + base + thisMonth + '">This month</a>' : '') + '<a class="btn ghost sm" href="' + base + D().thisWeek + '">By week</a>' +
-      '<button class="btn sm" data-action="ts-upload" data-emp="' + empId + '">' + ic('upload') + 'Add from a timesheet file</button></div>') +
+  const thisMonth = (D().today || new Date().toISOString()).slice(0, 7), mode = totalOnly ? 'total' : 'day';
+  const workdays = G.days.filter(d => { const w = new Date(d + 'T12:00:00Z').getUTCDay(); return w > 0 && w < 6; }).length;
+  const otTot = Object.keys(md).reduce((s, d) => s + Number(md[d].Overtime || 0), 0), hasOt = otTot > 0;
+  const total = t ? Number(t.totalHours || 0) : 0, daysWith = Object.keys(md).length;
+  const tile = (label, val, id, sub, cls) => '<div class="ms-tile' + (cls ? ' ' + cls : '') + '"><span>' + label + '</span><b' + (id ? ' id="' + id + '"' : '') + '>' + val + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</div>';
+  const stepsHtml = t && (t.steps || []).length ? '<div class="ms-flow">' + t.steps.map((s, i) => '<span class="ms-step ' + (s.status === 'Approved' ? 'ok' : s.status === 'Rejected' ? 'bad' : i === Number(t.stepIndex || 0) && t.status === 'Submitted' ? 'now' : '') + '">' +
+    (s.status === 'Approved' ? ic('check') : s.status === 'Rejected' ? ic('x') : ic('clock')) + esc(s.name || s.role) + ' <small>' + esc(s.role) + '</small></span>').join('<i class="ms-arrow"></i>') + '</div>' : '';
+  return head(mine ? 'My timesheet' : e.name, (mine ? '' : idTag(e.code) + ' ') + esc(e.clientName || '') + (e.clientName ? ' · ' : '') + 'monthly timesheet',
+    '<div class="ms-nav"><a class="btn ghost sm" href="' + base + nextMonthKey(m, -1) + '" aria-label="Previous month">' + ic('back') + '</a><b>' + esc(monthTitle(m)) + '</b><a class="btn ghost sm" href="' + base + nextMonthKey(m, 1) + '" aria-label="Next month">' + ic('chev') + '</a></div>' +
+      (m !== thisMonth ? '<a class="btn ghost sm" href="' + base + thisMonth + '">This month</a>' : '') + '<a class="btn ghost sm" href="' + base + D().thisWeek + '">' + ic('clock') + 'By week</a>' +
+      (edit ? '<button class="btn sm" data-action="ts-upload" data-emp="' + empId + '">' + ic('upload') + 'Add from a file</button>' : '')) +
     (t && t.dupFlag ? '<div class="banner bad">' + ic('alert') + '<div><b>Possible duplicate:</b> ' + esc(t.dupFlag) + (can('timesheets.all') || can('timesheets.approve') ? ' <button type="button" class="btn xs ghost" data-action="ts-unflag" data-id="' + t.id + '">Checked — not a duplicate</button>' : '') + '</div></div>' : '') +
     (G.weekly && G.weekly.length && !t ? '<div class="banner warn">' + ic('alert') + '<div>Weekly timesheets already have hours in ' + esc(monthTitle(m)) + ' (' + G.weekly.map(w => esc(weekLabel(w.weekStart)) + ': ' + w.hours + ' h').join(', ') + '). A monthly timesheet would count them twice — use one or the other.</div></div>' : '') +
     (t && t.status === 'Rejected' ? '<div class="banner bad">' + ic('alert') + '<div><b>Sent back:</b> ' + esc(t.rejectReason || '') + '</div></div>' : '') +
-    (t && t.status === 'Approved' ? '<div class="banner ok">' + ic('check') + '<div>Approved' + (t.approvedAt ? ' on ' + fmtDate(t.approvedAt) : '') + '.</div></div>' : '') +
-    '<form class="card" data-form="ms-save"><div class="card-h"><h3>' + ic('calendar') + monthTitle(m) + ' — ' + fmtDate(G.days[0]).replace(/, \d{4}$/, '') + ' to ' + fmtDate(G.days[G.days.length - 1]) + '</h3><div>' + (t ? statusChip(t.status) : chip('Not started', 'warn')) + '</div></div>' +
-      (totalOnly && !Object.keys(md).length ? '<div class="banner">' + ic('doc') + '<div><b>' + esc(en.totalOnly) + ' hours</b> for the month — the timesheet gives only the total, no hours per day. Days can be entered below when they are known.</div></div>' : '') +
-      monthGridHtml(G.days, md, edit) +
-      '<p><b>Total: <span id="md_total">' + (t ? t.totalHours : 0) + '</span> hours</b>' + (Object.keys(md).length ? ' <span class="muted">on ' + Object.keys(md).length + ' day(s) — days left empty are not counted</span>' : '') + '</p>' +
-      (edit ? '<div class="grid g3">' + field('Or the month\'s total only', inp('totalOnly', totalOnly ? en.totalOnly : '', 'type="number" min="0" max="744" step="0.25" placeholder="Use when the sheet has no daily hours"'), '', 'Leave empty when you enter days.') +
-        field('Notes for the approver', inp('notes', t ? t.notes : '', 'maxlength="500"')) + field('Attach the timesheet', '<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.heic,.webp,.xlsx,.xls,.csv,.doc,.docx">', '', t && t.hasFile ? 'Current file: ' + t.fileName : '') + '</div>' +
-        '<div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button><button class="btn" name="mode" value="submit"' + (G.days[0] > (D().today || '') ? ' disabled title="You can submit once the month has started"' : '') + '>' + ic('send') + 'Submit month</button></div>' : '') +
-      (t && t.hasFile ? '<p class="btns">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) + '</p>' : '') +
-      (t && (t.steps || []).length ? '<div class="steps">' + t.steps.map((s, i) => '<span class="step">' + (s.status === 'Approved' ? ic('check') : s.status === 'Rejected' ? ic('x') : ic('clock')) + (i + 1) + '. ' + esc(s.name || s.role) + ' (' + esc(s.role) + ')</span>').join('') + '</div>' : '') +
-    '</form>' + tsAiPanel(t, !mine && isStaff()) +
-    (canApprove ? '<div class="card"><h3>' + ic('check') + 'Your approval</h3><div class="btns"><button class="btn" data-action="ts-approve" data-id="' + t.id + '">' + ic('check') + 'Approve the month</button><button class="btn danger" data-action="ts-reject" data-id="' + t.id + '">Send back</button></div></div>' : '') +
+    '<form class="ms ' + (mode === 'total' ? 'mode-total' : 'mode-day') + (hasOt ? ' show-ot' : '') + '" data-form="ms-save"><input type="hidden" name="emode" value="' + mode + '">' +
+      '<div class="ms-tiles">' + tile('Total hours', total, 'md_total', mode === 'total' ? 'month total' : 'this month', 'main') +
+        tile('Days with hours', mode === 'total' ? '—' : daysWith, 'md_days', 'of ' + workdays + ' weekdays') + tile('Overtime', mode === 'total' ? '—' : otTot, 'md_ot', 'hours') +
+        '<div class="ms-tile"><span>Status</span><div class="ms-st">' + (t ? statusChip(t.status) : chip('Not started', 'warn')) + '</div><small>' + (step ? 'with ' + esc(step.name || step.email) : t && t.status === 'Approved' && t.approvedAt ? 'on ' + esc(fmtDate(t.approvedAt)) : t && t.submittedAt ? 'sent ' + esc(fmtDate(t.submittedAt)) : 'not submitted yet') + '</small></div></div>' +
+      '<div class="card ms-card"><div class="ms-top"><div><h3>' + ic('calendar') + esc(monthTitle(m)) + '</h3><p class="muted">' + esc(fmtDate(G.days[0]).replace(/, \d{4}$/, '')) + ' – ' + esc(fmtDate(G.days[G.days.length - 1])) + '</p></div>' +
+        (edit ? '<div class="seg" role="radiogroup" aria-label="How to enter the hours"><label><input type="radio" name="_mode" value="day" data-change="md-mode"' + (mode === 'day' ? ' checked' : '') + '><span>' + ic('calendar') + 'Hours by day</span></label>' +
+          '<label><input type="radio" name="_mode" value="total" data-change="md-mode"' + (mode === 'total' ? ' checked' : '') + '><span>' + ic('clock') + 'Month total only</span></label></div>' : '') + '</div>' +
+        '<div class="ms-total">' + (edit ? '<div class="ms-bigin"><label for="ms_tot">Total hours for ' + esc(monthTitle(m)) + '</label><div class="ms-bigrow"><input id="ms_tot" name="totalOnly" type="number" min="0" max="744" step="0.25" value="' + (totalOnly ? esc(en.totalOnly) : '') + '" placeholder="0" data-change="md-tot"><span>hours</span></div>' +
+          '<p class="hint">For a timesheet that shows only the month\'s total. No hours are put on days — they can be entered later under <b>Hours by day</b>.</p></div>'
+          : '<div class="ms-bigro"><b>' + esc(totalOnly ? en.totalOnly : total) + '</b><span>hours for ' + esc(monthTitle(m)) + '</span><p class="muted">The timesheet gives only the month\'s total — no hours per day.</p></div>') + '</div>' +
+        '<div class="ms-days">' + (edit ? '<div class="ms-tools"><div class="ms-fill"><span>Fill empty weekdays with</span><input id="md_fillh" type="number" min="0" max="24" step="0.25" value="8" aria-label="Hours per weekday"><span>h</span><button type="button" class="btn sm ghost" data-action="md-fill">' + ic('spark') + 'Fill</button></div>' +
+          '<label class="switch"><input type="checkbox" data-change="md-ot"' + (hasOt ? ' checked' : '') + '><i></i>Overtime</label><button type="button" class="btn sm ghost" data-action="md-clear">' + ic('trash') + 'Clear</button></div>' : '') +
+          monthGridHtml(G.days, md, edit) + '<p class="hint" style="margin-top:10px">Days left empty are not counted — add them when they are known.</p></div>' +
+        (edit ? '<div class="grid g2 ms-more">' + field('Notes for the approver', '<textarea name="notes" maxlength="500" rows="2" placeholder="Anything the approver should know">' + esc(t ? t.notes || '' : '') + '</textarea>') +
+          '<div><label>Timesheet file</label><label class="drop"><input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.heic,.webp,.xlsx,.xls,.csv,.doc,.docx" data-change="ms-file">' + ic('upload') + '<span id="ms_fname">' + (t && t.hasFile ? 'Replace <b>' + esc(t.fileName) + '</b>' : 'Choose the signed timesheet') + '</span><small>PDF, photo, scan or spreadsheet</small></label></div></div>' : '') +
+        (t && t.hasFile ? '<div class="ms-file">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) + '</div>' : '') + stepsHtml +
+        (edit ? '<div class="ms-bar"><div><span class="muted">Total</span> <b id="md_total2">' + total + '</b> <span class="muted">hours</span></div><div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button><button class="btn" name="mode" value="submit"' + (G.days[0] > (D().today || '') ? ' disabled title="You can submit once the month has started"' : '') + '>' + ic('send') + 'Submit ' + esc(monthTitle(m).split(' ')[0]) + '</button></div></div>' : '') +
+      '</div></form>' + tsAiPanel(t, !mine && isStaff()) +
+    (canApprove ? '<div class="card ms-approve"><div><h3>' + ic('check') + 'Your approval</h3><p class="muted">' + esc(e.name) + ' · ' + esc(monthTitle(m)) + ' · <b>' + total + ' hours</b></p></div><div class="btns"><button class="btn" data-action="ts-approve" data-id="' + t.id + '">' + ic('check') + 'Approve ' + total + ' hours</button><button class="btn danger" data-action="ts-reject" data-id="' + t.id + '">Send back</button></div></div>' : '') +
     (t && t.status === 'Submitted' && (mine || can('timesheets.all')) ? '<div class="card tight"><div class="btns"><span class="muted">Waiting for ' + esc(step ? (step.name || step.email) : '') + '.</span><button class="btn ghost sm" data-action="ts-resend" data-id="' + t.id + '">Resend approval email</button></div></div>' : '') +
-    (t && t.status === 'Approved' && can('timesheets.all') ? '<div class="card tight"><div class="btns"><button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '">Reopen this month</button></div></div>' : '');
+    (t && t.status === 'Approved' && can('timesheets.all') ? '<div class="card tight"><div class="btns"><span class="muted">Approved' + (t.approvedAt ? ' on ' + esc(fmtDate(t.approvedAt)) : '') + '.</span><button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '">Reopen this month</button></div></div>' : '');
 }
+CHANGES['ms-file'] = el => { const n = document.getElementById('ms_fname'); if (n && el.files[0]) n.innerHTML = '<b>' + esc(el.files[0].name) + '</b> — attached when you save'; };
 FORMS['ms-save'] = async (v, form, submitter) => {
   const G = S.cache.ms, mode = submitter && submitter.value || 'save', f = form.querySelector('[name=file]');
   const md = mdaysFromForm(form), input = { employeeId: G.employee.id, month: G.month, notes: v.notes };
-  if (Object.keys(md).length) input.mdays = md; else if (v.totalOnly !== '' && v.totalOnly !== undefined) input.totalOnly = Number(v.totalOnly); else input.mdays = {};
+  if (v.emode === 'total') { if (v.totalOnly !== '' && v.totalOnly !== undefined) input.totalOnly = Number(v.totalOnly); else input.mdays = {}; }
+  else input.mdays = md;
   if (f && f.files[0]) input.file = await readFile(f.files[0]);
-  if (mode === 'submit' && !Object.keys(md).length && !input.totalOnly && !input.file && !(G.timesheet && G.timesheet.hasFile)) throw new Error('Enter the hours for the days worked (or the month\'s total), or attach the timesheet.');
+  if (mode === 'submit' && !(input.mdays && Object.keys(input.mdays).length) && !input.totalOnly && !input.file && !(G.timesheet && G.timesheet.hasFile)) throw new Error('Enter the hours for the days worked (or the month\'s total), or attach the timesheet.');
   await call(mode === 'submit' ? 'submitTimesheet' : 'saveTimesheet', input);
   toast(mode === 'submit' ? 'Month submitted' : 'Saved', 'ok'); await reloadCurrent();
 };
@@ -3986,7 +4165,7 @@ document.addEventListener('submit', async ev => {
 });
 const onChange = async ev => { const el = ev.target.closest && ev.target.closest('[data-change]'); if (!el || !CHANGES[el.dataset.change]) return; try { await CHANGES[el.dataset.change](el, ev); } catch (e) { fail(e); } };
 document.addEventListener('change', onChange);
-document.addEventListener('input', ev => { if (ev.target.dataset && ['ts-sum', 'w4-calc'].indexOf(ev.target.dataset.change) >= 0) onChange(ev); });
+document.addEventListener('input', ev => { if (ev.target.dataset && ['ts-sum', 'w4-calc', 'md-tot'].indexOf(ev.target.dataset.change) >= 0) onChange(ev); });
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && S.modal) userClose('esc'); });
 window.addEventListener('beforeunload', ev => { if (S.modal && S.modal.dirty) { ev.preventDefault(); ev.returnValue = ''; } });
 ['dragover', 'dragleave', 'drop'].forEach(t => document.addEventListener(t, ev => {
