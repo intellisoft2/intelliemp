@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.73"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.74"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -271,7 +271,7 @@ input[type=file]::file-selector-button:hover{background:#f1f4f8}
 .switch input:checked+i{background:var(--teal)}.switch input:checked+i::after{transform:translateX(14px)}.switch input:focus-visible+i{outline:2px solid var(--teal);outline-offset:2px}
 
 .drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1.5px dashed #c6d1dd;border-radius:12px;padding:14px;text-align:center;cursor:pointer;background:#fafcfd;font-weight:500;color:var(--ink2);min-height:84px;transition:border-color .15s,background .15s;margin:0}
-.drop:hover{border-color:var(--teal);background:var(--tealbg)}.drop input{position:absolute;opacity:0;width:1px;height:1px}.drop svg.i{color:var(--teal)}.drop small{font-weight:400}
+.drop:hover{border-color:var(--teal);background:var(--tealbg)}.drop{position:relative}.drop input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;padding:0;border:0;z-index:2}.drop.has{border-style:solid;border-color:var(--teal);background:var(--tealbg)}.drop .drop-n{font-weight:600;color:var(--ink);word-break:break-word}.drop svg.i{color:var(--teal)}.drop small{font-weight:400}
 
 
 .ms-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
@@ -800,6 +800,16 @@ function ask(o) {
     requestAnimationFrame(() => { box.classList.add('show'); const f = field(); if (f) { f.focus(); f.select(); } else { const okb = box.querySelector('[data-ask="1"]'); if (okb) okb.focus(); } });
   });
 }
+
+document.addEventListener('change', ev => {
+  const i = ev.target; if (!(i && i.type === 'file')) return;
+  const box = i.closest('.drop'); if (!box || box.querySelector('#ms_fname')) return;
+  const fs = Array.from(i.files || []); box.classList.toggle('has', !!fs.length);
+  let n = box.querySelector('.drop-n'); if (!n) { n = document.createElement('div'); n.className = 'drop-n'; box.appendChild(n); }
+  n.textContent = fs.length ? (fs.length === 1 ? fs[0].name : fs.length + ' files: ' + fs.slice(0, 3).map(f => f.name).join(', ') + (fs.length > 3 ? '…' : '')) : '';
+}, true);
+['dragenter', 'dragover'].forEach(t => document.addEventListener(t, ev => { const b = ev.target.closest && ev.target.closest('.drop'); if (b) b.classList.add('on'); }));
+['dragleave', 'drop'].forEach(t => document.addEventListener(t, ev => { const b = ev.target.closest && ev.target.closest('.drop'); if (b) b.classList.remove('on'); }));
 const PICK_MIN = 15;
 const pickNorm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
 let pickOpen = null;
