@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.72"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.73"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -357,6 +357,18 @@ input[type=file]::file-selector-button:hover{background:#f1f4f8}
 @media (prefers-reduced-motion:reduce){.ask,.askbg{transition:none}}
 .ask-in{text-align:left;margin-top:16px}.ask-in input{font-size:16px;padding:11px 12px}
 .tm-keep{margin-top:8px;text-align:right}.tm-g.tm-done{background:var(--greenbg);color:#14653c}
+.pick{position:fixed;z-index:210;background:#fff;border:1px solid #dfe5ec;border-radius:14px;box-shadow:0 24px 60px -18px rgba(9,22,38,.4),0 2px 6px rgba(9,22,38,.08);display:flex;flex-direction:column;overflow:hidden;animation:pickin .12s ease-out}
+@keyframes pickin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.pick-s{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #edf1f5;color:var(--mute)}
+.pick-s input{border:0;box-shadow:none!important;padding:4px 0;font-size:15px;background:transparent}.pick-s input:focus{outline:none}
+.pick-l{overflow-y:auto;padding:6px;flex:1;min-height:60px}
+.pick-h{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);padding:10px 10px 4px}
+.pick-o{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;cursor:pointer;font-size:14.5px;color:var(--ink)}
+.pick-o>i{width:16px;flex:none}.pick-o svg.i{width:16px;height:16px;color:var(--teal2)}
+.pick-o.at{background:#eef6f5}.pick-o.on{font-weight:700}.pick-o.off{opacity:.45;cursor:default}
+.pick-o mark{background:#fdf0c4;color:inherit;border-radius:3px;padding:0 1px}
+.pick-none{padding:18px;text-align:center;color:var(--mute);font-size:14px}
+.pick-f{padding:6px 12px;border-top:1px solid #edf1f5;font-size:11.5px;color:var(--mute);background:#fafbfc}
 </style>
 
 </head>
@@ -788,6 +800,81 @@ function ask(o) {
     requestAnimationFrame(() => { box.classList.add('show'); const f = field(); if (f) { f.focus(); f.select(); } else { const okb = box.querySelector('[data-ask="1"]'); if (okb) okb.focus(); } });
   });
 }
+const PICK_MIN = 15;
+const pickNorm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+let pickOpen = null;
+function pickClose(refocus) {
+  if (!pickOpen) return;
+  const p = pickOpen; pickOpen = null;
+  p.el.remove(); document.removeEventListener('mousedown', p.outside, true); window.removeEventListener('resize', p.closeNow); window.removeEventListener('scroll', p.onScroll, true);
+  if (refocus) p.sel.focus();
+}
+function pickFor(sel) {
+  if (pickOpen && pickOpen.sel === sel) return pickClose(true);
+  pickClose();
+  const items = []; let group = '';
+  Array.from(sel.querySelectorAll('option, optgroup')).forEach(n => {
+    if (n.tagName === 'OPTGROUP') { group = n.label; items.push({ head: n.label }); return; }
+    const g = n.parentNode.tagName === 'OPTGROUP' ? n.parentNode.label : '';
+    if (g !== group && !g) group = '';
+    items.push({ value: n.value, text: n.textContent, group: g, disabled: n.disabled, on: n.selected, key: pickNorm(n.textContent + ' ' + g) });
+  });
+  const el = document.createElement('div');
+  el.className = 'pick'; el.setAttribute('role', 'dialog');
+  el.innerHTML = '<div class="pick-s">' + ic('list') + '<input type="search" placeholder="Search ' + (sel.options.length) + ' choices…" aria-label="Search the list" autocomplete="off"></div><div class="pick-l" role="listbox"></div><div class="pick-f"><span>↑↓ to move · Enter to choose · Esc to close</span></div>';
+  document.body.appendChild(el);
+  const r = sel.getBoundingClientRect(), w = Math.max(r.width, 300), spaceBelow = window.innerHeight - r.bottom, up = spaceBelow < 320 && r.top > spaceBelow;
+  el.style.width = Math.min(w, window.innerWidth - 16) + 'px'; el.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px';
+  el.style.maxHeight = Math.max(220, Math.min(440, (up ? r.top : spaceBelow) - 16)) + 'px';
+  if (up) el.style.bottom = (window.innerHeight - r.top + 4) + 'px'; else el.style.top = (r.bottom + 4) + 'px';
+  const list = el.querySelector('.pick-l'), q = el.querySelector('input');
+  let shown = [], at = 0;
+  const hl = (t, words) => { let h = esc(t); words.forEach(wd => { if (!wd) return; const i = t.toLowerCase().indexOf(wd.toLowerCase()); if (i >= 0) h = esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + wd.length)) + '</mark>' + esc(t.slice(i + wd.length)); }); return h; };
+  const draw = () => {
+    const raw = q.value.trim(), words = raw.split(/\s+/).filter(Boolean), keys = words.map(pickNorm);
+    const match = it => !keys.length || keys.every(k => it.key.indexOf(k) >= 0);
+    shown = []; let html = '', lastHead = null;
+    items.forEach(it => {
+      if (it.head !== undefined) { lastHead = it.head; return; }
+      if (!match(it)) return;
+      if (lastHead !== null && it.group === lastHead) { html += '<div class="pick-h">' + esc(lastHead) + '</div>'; lastHead = null; }
+      shown.push(it);
+      html += '<div class="pick-o' + (it.on ? ' on' : '') + (it.disabled ? ' off' : '') + '" role="option" data-i="' + (shown.length - 1) + '" aria-selected="' + (it.on ? 'true' : 'false') + '">' + (it.on ? ic('check') : '<i></i>') + '<span>' + (it.text ? hl(it.text, words) : '<span class="muted">—</span>') + '</span></div>';
+    });
+    list.innerHTML = html || '<div class="pick-none">Nothing matches “' + esc(raw) + '”</div>';
+    at = Math.max(0, shown.findIndex(it => it.on)); if (keys.length || at < 0) at = 0;
+    mark();
+  };
+  const mark = () => { list.querySelectorAll('.pick-o').forEach(o => o.classList.toggle('at', Number(o.dataset.i) === at)); const c = list.querySelector('.pick-o.at'); if (c) c.scrollIntoView({ block: 'nearest' }); };
+  const choose = i => {
+    const it = shown[i]; if (!it || it.disabled) return;
+    const changed = sel.value !== it.value; sel.value = it.value; pickClose(true);
+    if (changed) { sel.dispatchEvent(new Event('input', { bubbles: true })); sel.dispatchEvent(new Event('change', { bubbles: true })); }
+  };
+  q.addEventListener('input', draw);
+  q.addEventListener('keydown', ev => {
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); at = Math.min(shown.length - 1, at + 1); mark(); }
+    else if (ev.key === 'ArrowUp') { ev.preventDefault(); at = Math.max(0, at - 1); mark(); }
+    else if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); choose(at); }
+    else if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); pickClose(true); }
+    else if (ev.key === 'Tab') pickClose();
+  });
+  list.addEventListener('mousedown', ev => ev.preventDefault());
+  list.addEventListener('click', ev => { const o = ev.target.closest('.pick-o'); if (o) choose(Number(o.dataset.i)); });
+  list.addEventListener('mousemove', ev => { const o = ev.target.closest('.pick-o'); if (o && Number(o.dataset.i) !== at) { at = Number(o.dataset.i); mark(); } });
+  const outside = ev => { if (!el.contains(ev.target) && ev.target !== sel) pickClose(); };
+  const closeNow = () => pickClose();
+  const onScroll = ev => { if (!el.contains(ev.target)) pickClose(); };
+  document.addEventListener('mousedown', outside, true); window.addEventListener('resize', closeNow); window.addEventListener('scroll', onScroll, true);
+  pickOpen = { sel: sel, el: el, outside: outside, closeNow: closeNow, onScroll: onScroll };
+  draw(); setTimeout(() => q.focus(), 0);
+}
+const pickable = s => s && s.tagName === 'SELECT' && !s.multiple && !s.disabled && !s.dataset.native && s.options.length >= PICK_MIN && !(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+document.addEventListener('mousedown', ev => { const s = ev.target.closest && ev.target.closest('select'); if (!pickable(s)) return; ev.preventDefault(); s.focus(); pickFor(s); });
+document.addEventListener('keydown', ev => {
+  const s = ev.target; if (!pickable(s)) return;
+  if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'F4' || (ev.altKey && ev.key === 'ArrowDown')) { ev.preventDefault(); pickFor(s); }
+});
 function pubShell(inner) {
   return '<div class="pub"><div class="pub-top"><a href="#home" style="text-decoration:none">' + BRAND + '</a><div class="btns">' +
     (S.token ? '<a class="btn sm" href="#app">Open my workspace</a>' : '<a class="btn ghost sm" href="#login">Sign in</a><a class="btn sm" href="#register">Start free</a>') + '</div></div>' + inner +
@@ -2609,6 +2696,7 @@ function tsAiPanel(t, staff) {
   return '<div class="card tight"><div class="card-h"><h3>' + ic('spark') + (recheck ? 'Check of the attached file ' + chip('AI re-check queued', 'warn') : 'AI check of the attached file') + '</h3>' + (staff ? '<div class="btns"><button class="btn ghost xs" data-action="ai-ts-check" data-id="' + t.id + '">Check again</button>' + (can('timesheets.all') || can('timesheets.approve') ? '<button class="btn ghost xs" data-action="ts-reread" data-ids="' + t.id + '">' + ic('spark') + 'Read the file again</button>' : '') + '</div>' : '') + '</div>' +
     '<p>' + (c.fileHours !== null && c.fileHours !== undefined ? 'File shows <b>' + esc(c.fileHours) + '</b> hours · entered <b>' + esc(c.enteredHours) + '</b> ' + (c.match === null || c.unsure ? chip('Check the file', 'warn') : c.match ? chip('Matches', 'ok') : chip('Differs', 'bad')) : 'No hours could be read from the file.') +
     ' ' + (c.approverSigned === true ? chip('Approver signed' + (c.approverName ? ': ' + c.approverName : ''), 'ok') : c.approverSigned === false ? chip('Not signed by approver', 'warn') : '') + '</p>' +
+    (staff && t.status === 'Approved' && c.match === false && Number(c.fileHours) > 0 && t.period !== 'month' && can('timesheets.all') ? '<div class="banner warn">' + ic('alert') + '<div>Approved with <b>' + esc(t.totalHours) + '</b> hours, but the attached file shows <b>' + esc(c.fileHours) + '</b>. <button type="button" class="btn xs" data-action="ts-reopen-file" data-id="' + t.id + '" data-h="' + esc(c.fileHours) + '" data-b="' + esc(t.totalHours) + '">' + ic('refresh') + 'Reopen and use ' + esc(c.fileHours) + ' h</button></div></div>' : '') +
     issuesHtml((c.issues || []).filter(x => !/^The file shows/.test(x) && !/approver has not signed/.test(x))) + '<p class="hint">' + esc(c.provider || '') + ' · ' + esc(fmtWhen(c.at)) + '. AI can misread handwriting — open the file if anything looks off.</p></div>';
 }
 function fillTsRows(form, rows) {
@@ -3729,7 +3817,7 @@ const DOC_TAGS = {
   'Form W-9': ['contractor'], 'Contractor agreement': ['contractor'], 'Certificate of insurance': ['contractor'], 'Business registration': ['contractor'], 'Form 1099-NEC': ['contractor'], 'Invoice': ['contractor'],
   'EAD card': ['ead'], 'Green card': ['green-card'], 'I-797 approval': ['h1b', 'ead', 'gc-path'], 'I-94': ['nonimmigrant'], 'Visa stamp': ['nonimmigrant'], 'I-20': ['opt'], 'Form I-983': ['stem-opt'],
   'I-485 receipt': ['gc-path'], 'TN approval': ['tn'], 'E-3 approval': ['e3'], 'LCA (ETA-9035)': ['h1b'], 'PERM (ETA-9089)': ['gc-path'], 'I-140 notice': ['gc-path'], 'RFE / NOID': ['h1b', 'gc-path', 'ead'],
-  'Local tax and bank details': ['outside-us'], 'ID document': ['outside-us'], 'PAN card': ['outside-us'], 'Work permit': ['outside-us'], 'Relieving letter': ['outside-us'], 'Direct deposit': ['w2', 'contractor']
+  'Local tax and bank details': ['outside-us'], 'ID document': ['outside-us'], 'PAN card': ['outside-us'], 'Work permit': ['outside-us'], 'Relieving letter': ['outside-us'], 'Direct deposit': ['w2', 'contractor'], 'Social Security card': ['w2']
 };
 function docTypeOptions(e, cur, staff, valueOf) {
   const all = L('docTypes') || [], mine = tagsOf(e), val = valueOf || (t => t);
@@ -3885,9 +3973,19 @@ FORMS['ts-reread'] = async v => {
   openModal('Read again — ' + all.length + ' week(s)', '<p>' + changed + ' updated · ' + (all.length - changed - errs) + ' unchanged' + (errs ? ' · <b style="color:var(--red)">' + errs + ' could not be read</b>' : '') + '</p>' +
     '<div class="tblwrap"><table class="tbl"><thead><tr><th>Employee</th><th>Week</th><th class="num">Before</th><th class="num">File</th><th class="num">Now</th><th>Result</th></tr></thead><tbody>' +
     all.map(x => '<tr><td>' + esc(x.employeeName || '') + '</td><td>' + esc(x.weekStart ? weekLabel(x.weekStart) : '') + '</td><td class="num">' + esc(x.before === undefined ? '' : x.before) + '</td><td class="num">' + esc(x.fileHours === null || x.fileHours === undefined ? '—' : x.fileHours) + (x.spread ? '<br><small class="muted">spread</small>' : '') + '</td><td class="num">' + esc(x.after === undefined ? '' : x.after) + '</td>' +
-      '<td>' + (x.error ? '<span style="color:var(--red)">' + esc(x.error) + '</span>' : x.applied ? chip('Hours updated', 'ok') : x.why ? '<small class="muted">' + esc(x.why) + '</small>' : x.match ? chip('Matches', 'ok') : chip('Checked', '')) + (x.via ? '<br><small class="muted">' + esc(x.via) + '</small>' : '') + '</td></tr>').join('') + '</tbody></table></div>' +
+      '<td>' + (x.error ? '<span style="color:var(--red)">' + esc(x.error) + '</span>' : x.applied ? chip(x.reopened ? 'Reopened · hours updated · sent for approval' : 'Hours updated', 'ok') : x.why ? '<small class="muted">' + esc(x.why) + '</small>' + (/^approved/.test(x.why) && x.fileHours && can('timesheets.all') ? '<br><button type="button" class="btn xs" style="margin-top:4px" data-action="ts-reopen-file" data-id="' + esc(x.id) + '" data-h="' + esc(x.fileHours) + '" data-b="' + esc(x.before) + '">' + ic('refresh') + 'Reopen and use ' + esc(x.fileHours) + ' h</button>' : '') : x.match ? chip('Matches', 'ok') : chip('Checked', '')) + (x.via ? '<br><small class="muted">' + esc(x.via) + '</small>' : '') + '</td></tr>').join('') + '</tbody></table></div>' +
     '<div class="foot-btns">' + (all.some(x => x.toMonth) && can('timesheets.all') ? '<button type="button" class="btn ghost" data-action="to-month" data-ids="' + esc(all.filter(x => x.toMonth).map(x => x.id).join(',')) + '">' + ic('calendar') + 'Move ' + all.filter(x => x.toMonth).length + ' to month' + (all.filter(x => x.toMonth).length === 1 ? '' : 's') + '</button>' : '') + '<button type="button" class="btn" data-action="close-modal">Done</button></div>', true);
 };
+
+async function reopenWithFile(id, fileH, before, btn) {
+  if (!await ask({ title: 'Reopen and use ' + fileH + ' hours?', body: 'This week was approved with ' + before + ' hours; the attached file shows ' + fileH + '. It is reopened, the hours are taken from the file, and it goes to the approver again. If ' + before + ' hours were already paid, payroll needs to adjust the difference.', note: 'Recorded in the audit log.', ok: 'Reopen and use ' + fileH + ' h', tone: 'warn', icon: 'refresh' })) return;
+  const r = await busy(btn, call('rereadTimesheets', { ids: [id], apply: true, reopenApproved: true }));
+  const x = r.results[0] || {};
+  if (x.error) return toast(x.error, 'error', 6000);
+  if (!x.applied) return toast(x.why ? 'Not changed: ' + x.why : 'The file hours could not be read again.', 'error', 6000);
+  closeModal(); toast('Reopened with ' + x.after + ' hours and sent for approval', 'ok', 5000); await reloadCurrent();
+}
+ACTIONS['ts-reopen-file'] = el => reopenWithFile(el.dataset.id, el.dataset.h, el.dataset.b, el);
 function extraFields(x, needsNative, required) {
   x = x || {}; const n = x.native || {}, nc = x.nativeContacts || [], rf = x.references || [];
   const req = required && needsNative ? ' required' : '';
@@ -3943,7 +4041,7 @@ async function piiModal(empId, reveal, btn, pre) {
   const filled = pre && (r.filled || []).length ? '<div class="banner ok">' + ic('check') + '<div>Filled from the documents: ' + esc(r.filled.join(', ')) + '.</div></div>' : '';
   openModal('Sensitive numbers', '<div id="pii-box">' + (r.revealed ? '<div class="banner warn">' + ic('eye') + '<div>Full numbers are shown — this view is recorded in the audit log. Close when done.</div></div>' : '') +
     (auto ? '<div class="banner info" id="pii-reading"><span class="spin"></span><div>Reading the blank numbers from the ' + esc(unreadTypes.join(', ')) + ' on file…</div></div>' : '') + filled + notes +
-    '<table class="tbl">' + row('Social Security number', r.ssn ? '<b' + (r.revealed ? ' style="font-family:monospace"' : '') + '>' + esc(r.ssn) + '</b><br><small class="muted">' + esc(r.ssnStatus) + '</small>' : '<span class="muted">—</span>', 'ssn') +
+    '<table class="tbl">' + row('Social Security number', r.ssn ? '<b' + (r.revealed ? ' style="font-family:monospace"' : '') + '>' + esc(r.ssn) + '</b><br><small class="muted">' + esc(r.ssnStatus) + '</small>' : '<span class="muted">Not on file</span><br><small class="muted">It comes from the signed Form I-9, W-4 or state form, or the Social Security card' + (edit ? ' — or click to enter it' : '') + '.</small>', 'ssn') +
     r.fields.map(f => row(f.label, val(f), f.key)).join('') + '</table>' +
     '<p class="hint">' + (r.updatedAt ? 'Last changed ' + esc(fmtWhen(r.updatedAt)) + ' by ' + esc(r.updatedBy) + '. ' : '') + 'Blank numbers are taken from the Form I-9 and from the passport, I-94, visa, I-797, EAD and I-20 on file' +
     ((r.docs || []).length ? ' (' + esc(r.docs.map(d => d.type).join(', ')) + ')' : ' — none are on file yet') + '. Numbers entered here are never overwritten.' + (edit ? ' Click a row to change it.' : '') + '</p>' +
@@ -3994,7 +4092,7 @@ function sbRows(r) {
   const f = {}; if (r) r.fields.forEach(x => { f[x.key] = x; });
   const val = k => {
     if (!r) return '<span class="sb-mask">••••••••</span>';
-    if (k === 'ssn') return r.ssn ? '<b class="mono">' + esc(r.ssn) + '</b> <small class="muted">' + esc(r.ssnStatus) + '</small>' : '<span class="muted">—</span>';
+    if (k === 'ssn') return r.ssn ? '<b class="mono">' + esc(r.ssn) + '</b> <small class="muted">' + esc(r.ssnStatus) + '</small>' : '<span class="muted">Not on file — enter it with Update, or upload the Social Security card</span>';
     const x = f[k] || {};
     return x.value ? '<b' + (x.secret ? ' class="mono"' : '') + '>' + esc(x.date ? fmtDate(x.value) : x.value) + '</b>' + (x.source ? ' <small class="muted">· ' + esc(/^(Entered|Form I-9)/.test(x.source) ? x.source : 'from ' + x.source) + '</small>' : '')
       : x.partial ? '<span class="muted">' + esc(x.partial) + '</span>' : '<span class="muted">—</span>';
