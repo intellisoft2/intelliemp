@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.77"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.78"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1620,7 +1620,15 @@ function empTimesheets(E) {
   const last = all.filter(t => t.submittedAt).sort((x, y) => String(y.submittedAt).localeCompare(String(x.submittedAt)))[0];
   const byMonth = {};
   months.forEach(t => { byMonth[String(t.weekStart).slice(0, 7)] = { m: String(t.weekStart).slice(0, 7), t: t, hours: Number(t.totalHours || 0) }; });
-  weeks.forEach(t => { const m = String(addDays(t.weekStart, 3)).slice(0, 7); if (byMonth[m] && byMonth[m].t) { byMonth[m].alsoWeeks = (byMonth[m].alsoWeeks || 0) + 1; return; } const x = byMonth[m] = byMonth[m] || { m: m, weeks: [], hours: 0 }; x.weeks.push(t); x.hours += Number(t.totalHours || 0); });
+  weeks.forEach(t => {
+    const en = t.entries || {}, split = {};   // hours per month: by day when the week has days, else the month holding most of its days
+    if (en.rows && en.totalOnly === undefined) for (let i = 0; i < 7; i++) { const d = addDays(t.weekStart, i), v = (L('tsRows') || ['Regular', 'Overtime', 'Paid time off', 'Holiday']).reduce((s2, r) => s2 + Number((en.rows[r] || [])[i] || 0), 0); if (v) split[d.slice(0, 7)] = (split[d.slice(0, 7)] || 0) + v; }
+    if (!Object.keys(split).length) split[String(addDays(t.weekStart, 3)).slice(0, 7)] = Number(t.totalHours || 0);
+    Object.keys(split).forEach(m => {
+      if (byMonth[m] && byMonth[m].t) { byMonth[m].alsoWeeks = (byMonth[m].alsoWeeks || 0) + 1; return; }
+      const x = byMonth[m] = byMonth[m] || { m: m, weeks: [], hours: 0 }; x.weeks.push(t); x.hours += split[m];
+    });
+  });
   const mrows = Object.keys(byMonth).sort().reverse().map(k => byMonth[k]);
   const mDetail = x => {
     if (x.t) { const en = x.t.entries || {}, nd = Object.keys(en.mdays || {}).length; return en.totalOnly !== undefined && !nd ? 'Month total only' : nd + ' day' + (nd === 1 ? '' : 's') + ' with hours'; }
@@ -1629,7 +1637,7 @@ function empTimesheets(E) {
   };
   const mStatus = x => x.t ? statusChip(x.t.status) : (() => { const st = Array.from(new Set(x.weeks.map(w => w.status))); return st.length === 1 ? statusChip(st[0]) : st.map(z => statusChip(z)).join(' '); })();
   const monthTable = mrows.length ? '<div class="tblwrap"><table class="tbl ts-list"><thead><tr><th>Month</th><th class="num">Hours</th><th>Status</th><th class="hide-m">Detail</th><th class="hide-m">Source</th></tr></thead><tbody>' +
-    mrows.map(x => '<tr class="click" data-action="nav" data-href="' + (x.t ? base + x.m : base + x.weeks.slice().sort((p, q) => String(p.weekStart).localeCompare(String(q.weekStart)))[0].weekStart) + '"><td><div class="ts-when"><span class="ts-cal"><b>' + esc(monthTitle(x.m).slice(0, 3)) + '</b><small>' + x.m.slice(0, 4) + '</small></span><div><b>' + esc(monthTitle(x.m)) + '</b>' +
+    mrows.map(x => '<tr class="click" data-action="nav" data-href="' + base + x.m + '"><td><div class="ts-when"><span class="ts-cal"><b>' + esc(monthTitle(x.m).slice(0, 3)) + '</b><small>' + x.m.slice(0, 4) + '</small></span><div><b>' + esc(monthTitle(x.m)) + '</b>' +
       (x.t ? '' : '<br><small class="muted">from weekly timesheets</small>') + (x.alsoWeeks ? '<br><small style="color:var(--amber)">' + ic('alert') + ' also ' + x.alsoWeeks + ' weekly timesheet' + (x.alsoWeeks === 1 ? '' : 's') + '</small>' : '') + '</div></div></td>' +
       '<td class="num"><b>' + r2(x.hours) + '</b></td><td>' + mStatus(x) + (x.t && x.t.dupFlag ? ' ' + chip('Check', 'bad') : '') + '</td><td class="hide-m"><small class="muted">' + esc(mDetail(x)) + '</small></td><td class="hide-m"><small class="muted">' + esc(x.t ? (x.t.source || '') + (x.t.hasFile ? ' · file' : '') : '') + '</small></td></tr>').join('') + '</tbody></table></div>'
     : '<div class="empty">' + ic('calendar') + '<p>No monthly timesheets yet.</p></div>';
@@ -4220,6 +4228,7 @@ Object.assign(ACTIONS, {
 });
 async function monthSheetPage(empId, m, mine) {
   const G = await call('getTimesheet', { employeeId: empId, month: m }); S.cache.ms = G;
+  if (!G.timesheet && (G.weekly || []).length && G.employee.period !== 'Monthly') return weeklyMonthPage(G, empId, m, mine);
   const t = G.timesheet, e = G.employee, edit = G.canEdit, en = t ? t.entries : { mdays: {} }, md = en.mdays || {}, totalOnly = en.totalOnly !== undefined && !Object.keys(md).length;
   const base = mine ? '#app/my-timesheet/' : '#app/timesheet/' + empId + '/';
   const step = t && t.status === 'Submitted' ? (t.steps || [])[Number(t.stepIndex || 0)] : null, me = String(D().who.email).toLowerCase();
@@ -4271,6 +4280,26 @@ FORMS['ms-save'] = async (v, form, submitter) => {
   await call(mode === 'submit' ? 'submitTimesheet' : 'saveTimesheet', input);
   toast(mode === 'submit' ? 'Month submitted' : 'Saved', 'ok'); await reloadCurrent();
 };
+
+function weeklyMonthPage(G, empId, m, mine) {
+  const e = G.employee, base = mine ? '#app/my-timesheet/' : '#app/timesheet/' + empId + '/', thisMonth = (D().today || new Date().toISOString()).slice(0, 7);
+  const md = {}; G.weekly.forEach(w => Object.keys(w.days || {}).forEach(d => { if (d.slice(0, 7) === m) md[d] = w.days[d]; }));
+  const r2 = n => Math.round(n * 100) / 100, total = r2(G.weekly.reduce((s, w) => s + Number(w.inMonth || 0), 0));
+  const ot = r2(Object.keys(md).reduce((s, d) => s + Number(md[d].Overtime || 0), 0)), approved = G.weekly.filter(w => w.status === 'Approved').length;
+  const crosses = G.weekly.some(w => w.weekStart < m + '-01' || addDays(w.weekStart, 6) > G.days[G.days.length - 1]);
+  const tile = (l, v, sub, cls) => '<div class="ms-tile' + (cls ? ' ' + cls : '') + '"><span>' + l + '</span><b>' + v + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</div>';
+  return head(mine ? 'My timesheet' : e.name, (mine ? '' : idTag(e.code) + ' ') + esc(e.clientName || '') + (e.clientName ? ' · ' : '') + 'weekly timesheets, added up by month',
+    '<div class="ms-nav"><a class="btn ghost sm" href="' + base + nextMonthKey(m, -1) + '" aria-label="Previous month">' + ic('back') + '</a><b>' + esc(monthTitle(m)) + '</b><a class="btn ghost sm" href="' + base + nextMonthKey(m, 1) + '" aria-label="Next month">' + ic('chev') + '</a></div>' +
+      (m !== thisMonth ? '<a class="btn ghost sm" href="' + base + thisMonth + '">This month</a>' : '') + '<a class="btn ghost sm" href="' + base + D().thisWeek + '">' + ic('clock') + 'By week</a>') +
+    '<div class="ms-tiles">' + tile('Hours in ' + esc(monthTitle(m).split(' ')[0]), total, 'from ' + G.weekly.length + ' weekly timesheet' + (G.weekly.length === 1 ? '' : 's'), 'main') + tile('Days with hours', Object.keys(md).length, 'in ' + esc(monthTitle(m))) +
+      tile('Overtime', ot, 'hours') + tile('Approved', approved + ' of ' + G.weekly.length, approved === G.weekly.length ? 'all approved' : (G.weekly.length - approved) + ' still open') + '</div>' +
+    '<div class="banner">' + ic('calendar') + '<div>' + esc(e.firstName || e.name) + ' fills in <b>weekly</b> timesheets — this month is added up from them' + (crosses ? '; weeks that run into the next or previous month count only their days in ' + esc(monthTitle(m).split(' ')[0]) : '') + '. Open a week to change it.</div></div>' +
+    '<div class="card ms-card"><div class="ms-top"><div><h3>' + ic('calendar') + esc(monthTitle(m)) + '</h3><p class="muted">' + esc(fmtDate(G.days[0]).replace(/, \d{4}$/, '')) + ' – ' + esc(fmtDate(G.days[G.days.length - 1])) + '</p></div></div>' +
+      monthGridHtml(G.days, md, false) + '</div>' +
+    '<div class="card"><h3>' + ic('clock') + 'The weeks</h3><div class="tblwrap"><table class="tbl ts-list"><thead><tr><th>Week</th><th class="num">In ' + esc(monthTitle(m).split(' ')[0]) + '</th><th class="num">Week total</th><th>Status</th><th class="hide-m">File</th></tr></thead><tbody>' +
+      G.weekly.slice().sort((a, b) => String(a.weekStart).localeCompare(String(b.weekStart))).map(w => '<tr class="click" data-action="nav" data-href="' + base + w.weekStart + '"><td><b>' + esc(weekLabel(w.weekStart)) + '</b>' + (w.totalOnly ? '<br><small class="muted">total only — counted in the month holding most of its days</small>' : '') + '</td><td class="num"><b>' + esc(w.inMonth) + '</b></td><td class="num">' + esc(w.hours) + '</td><td>' + statusChip(w.status) + '</td><td class="hide-m"><small class="muted">' + esc(w.fileName || '—') + '</small></td></tr>').join('') +
+      '</tbody><tfoot><tr><td><b>Total for ' + esc(monthTitle(m)) + '</b></td><td class="num"><b>' + total + '</b></td><td></td><td></td><td class="hide-m"></td></tr></tfoot></table></div></div>';
+}
 function ieRow(label, html, fields, opt) {
   opt = opt || {};
   const empty = html === undefined || html === null || html === '';
