@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.82"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.83"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -4601,6 +4601,13 @@ function tsFixMenu(t, m) {
     '<button type="button" class="danger" data-action="ts-delete" data-id="' + t.id + '">' + ic('trash') + 'Delete this timesheet</button>');
 }
 function tsWrongFileBanner(t, m) {
+  if (t && (t.fileMonths || []).length > 1) {   // a workbook with other months' tabs and none for this month
+    const fm = t.fileMonths, span = monthTitle(fm[0]) + (fm.length > 1 ? ' – ' + monthTitle(fm[fm.length - 1]) : ''), fix = tsCanFix(t), rec = can('timesheets.all');
+    return '<div class="banner bad">' + ic('alert') + '<div><b>Wrong file?</b> ' + esc(t.fileName) + ' is a workbook with ' + fm.length + ' monthly timesheets (' + esc(span) + ') — it has no hours for ' + esc(monthTitle(m)) + '.' +
+      '<div class="btns" style="margin-top:8px">' + (rec ? '<button type="button" class="btn sm" data-action="ts-record-months" data-id="' + t.id + '" data-emp="' + esc(t.employeeId) + '">' + ic('calendar') + 'Record its ' + fm.length + ' months</button>' : '') +
+      (fix ? '<button type="button" class="btn sm ghost" data-action="ts-replace-file" data-id="' + t.id + '">' + ic('upload') + 'Attach the ' + esc(monthTitle(m).split(' ')[0]) + ' file</button><button type="button" class="btn sm ghost danger" data-action="ts-delete" data-id="' + t.id + '">' + ic('trash') + 'Delete it</button>' : '') +
+      '</div>' + (fix ? '<small class="muted">Record its months first, then attach ' + esc(monthTitle(m).split(' ')[0]) + '\'s own file here (or delete this one).</small>' : !rec ? ' Send it back so the right file is attached.' : '') + '</div></div>';
+  }
   if (!t || !t.fileMonth || t.fileMonth === m) return '';
   const fix = tsCanFix(t);
   return '<div class="banner bad">' + ic('alert') + '<div><b>Wrong file?</b> ' + esc(t.fileName) + ' looks like the timesheet for <b>' + esc(monthTitle(t.fileMonth)) + '</b>, not ' + esc(monthTitle(m)) + '.' +
@@ -4653,6 +4660,10 @@ function tsWrongFileAsk(e) {
   const n = document.getElementById('ms_fname'); if (n) n.textContent = 'Choose the signed timesheet';
   return ask({ title: 'That is not this period\'s timesheet', body: e.message, tone: 'warn', ok: 'OK', cancel: 'Close' });
 }
+ACTIONS['ts-record-months'] = async btn => {
+  const r = await busy(btn, call('readTimesheetFile', { employeeId: btn.dataset.emp, timesheetId: btn.dataset.id }));
+  tsWeeksModal(btn.dataset.emp, r);
+};
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
   copy: el => copy(el.dataset.text || ''),
