@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.81"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.82"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -4015,9 +4015,10 @@ FORMS['ts-reread'] = async v => {
   } finally { longTask(''); }
   const changed = all.filter(x => x.applied).length, errs = all.filter(x => x.error).length;
   await reloadCurrent();
-  openModal('Read again — ' + all.length + ' week(s)', '<p>' + changed + ' updated · ' + (all.length - changed - errs) + ' unchanged' + (errs ? ' · <b style="color:var(--red)">' + errs + ' could not be read</b>' : '') + '</p>' +
-    '<div class="tblwrap"><table class="tbl"><thead><tr><th>Employee</th><th>Week</th><th class="num">Before</th><th class="num">File</th><th class="num">Now</th><th>Result</th></tr></thead><tbody>' +
-    all.map(x => '<tr><td>' + esc(x.employeeName || '') + '</td><td>' + esc(x.weekStart ? weekLabel(x.weekStart) : '') + '</td><td class="num">' + esc(x.before === undefined ? '' : x.before) + '</td><td class="num">' + esc(x.fileHours === null || x.fileHours === undefined ? '—' : x.fileHours) + (x.spread ? '<br><small class="muted">spread</small>' : '') + '</td><td class="num">' + esc(x.after === undefined ? '' : x.after) + '</td>' +
+  const allM = all.every(x => x.month), unit = allM ? (all.length === 1 ? 'month' : 'months') : all.some(x => x.month) ? 'timesheet(s)' : 'week(s)';
+  openModal('Read again — ' + all.length + ' ' + unit, '<p>' + changed + ' updated · ' + (all.length - changed - errs) + ' unchanged' + (errs ? ' · <b style="color:var(--red)">' + errs + ' could not be read</b>' : '') + '</p>' +
+    '<div class="tblwrap"><table class="tbl"><thead><tr><th>Employee</th><th>' + (allM ? 'Month' : 'Period') + '</th><th class="num">Before</th><th class="num">File</th><th class="num">Now</th><th>Result</th></tr></thead><tbody>' +
+    all.map(x => '<tr><td>' + esc(x.employeeName || '') + '</td><td>' + esc(x.month ? monthTitle(x.month) : x.weekStart ? weekLabel(x.weekStart) : '') + (x.fileName ? '<br><small class="muted">' + esc(x.fileName) + '</small>' : '') + '</td><td class="num">' + esc(x.before === undefined ? '' : x.before) + '</td><td class="num">' + esc(x.fileHours === null || x.fileHours === undefined ? '—' : x.fileHours) + (x.spread ? '<br><small class="muted">spread</small>' : '') + '</td><td class="num">' + esc(x.after === undefined ? '' : x.after) + '</td>' +
       '<td>' + (x.error ? '<span style="color:var(--red)">' + esc(x.error) + '</span>' : x.toMonth && can('timesheets.all') && !x.applied ? '<small class="muted">' + esc(x.why || '') + '</small><br><button type="button" class="btn xs" style="margin-top:4px" data-action="ts-file-month" data-id="' + esc(x.id) + '" data-m="' + esc(x.toMonth) + '" data-emp="' + esc(x.employeeId || '') + '">' + ic('calendar') + 'File it on ' + esc(monthTitle(x.toMonth)) + ' (keep this week)</button>' : x.applied ? chip(x.reopened ? 'Reopened · hours updated · sent for approval' : 'Hours updated', 'ok') : x.why ? '<small class="muted">' + esc(x.why) + '</small>' + (/^approved/.test(x.why) && x.fileHours && can('timesheets.all') ? '<br><button type="button" class="btn xs" style="margin-top:4px" data-action="ts-reopen-file" data-id="' + esc(x.id) + '" data-h="' + esc(x.fileHours) + '" data-b="' + esc(x.before) + '">' + ic('refresh') + 'Reopen and use ' + esc(x.fileHours) + ' h</button>' : '') : x.match ? chip('Matches', 'ok') : chip('Checked', '')) + (x.via ? '<br><small class="muted">' + esc(x.via) + '</small>' : '') + '</td></tr>').join('') + '</tbody></table></div>' +
     '<div class="foot-btns">' + (all.some(x => x.toMonth) && can('timesheets.all') ? '<button type="button" class="btn ghost" data-action="to-month" data-ids="' + esc(all.filter(x => x.toMonth).map(x => x.id).join(',')) + '">' + ic('calendar') + 'Move ' + all.filter(x => x.toMonth).length + ' to month' + (all.filter(x => x.toMonth).length === 1 ? '' : 's') + '</button>' : '') + '<button type="button" class="btn" data-action="close-modal">Done</button></div>', true);
 };
@@ -4281,12 +4282,27 @@ async function monthSheetPage(empId, m, mine) {
     (t && t.status === 'Submitted' && (mine || can('timesheets.all')) ? '<div class="card tight"><div class="btns"><span class="muted">Waiting for ' + esc(step ? (step.name || step.email) : '') + '.</span><button class="btn ghost sm" data-action="ts-resend" data-id="' + t.id + '">Resend approval email</button></div></div>' : '') +
     (t && t.status === 'Approved' && can('timesheets.all') ? '<div class="card tight"><div class="btns"><span class="muted">Approved' + (t.approvedAt ? ' on ' + esc(fmtDate(t.approvedAt)) : '') + '.</span><button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '">Reopen this month</button></div></div>' : '');
 }
-CHANGES['ms-file'] = el => { const n = document.getElementById('ms_fname'); if (n && el.files[0]) n.innerHTML = '<b>' + esc(el.files[0].name) + '</b> — attached when you save'; };
+function msInput(form) {
+  const G = S.cache.ms, v = formValues(form), input = { employeeId: G.employee.id, month: G.month, notes: v.notes };
+  if (v.emode === 'total') { if (v.totalOnly !== '' && v.totalOnly !== undefined) input.totalOnly = Number(v.totalOnly); else input.mdays = {}; }
+  else input.mdays = mdaysFromForm(form);
+  return input;
+}
+CHANGES['ms-file'] = async el => {
+  const n = document.getElementById('ms_fname'), f = el.files[0], form = el.closest('form');
+  if (!f || !form) return;
+  if (n) n.innerHTML = '<b>' + esc(f.name) + '</b> — attaching…';
+  const input = Object.assign(msInput(form), { file: await readFile(f) });
+  try { await call('saveTimesheet', input); }
+  catch (e) { el.value = ''; if (n) n.textContent = 'Choose the signed timesheet'; if (e.code === 'TS_WRONG_FILE') return tsWrongFileAsk(e); throw e; }
+  const t = (await call('getTimesheet', { employeeId: input.employeeId, month: input.month })).timesheet;
+  if (t && (can('timesheets.all') || can('timesheets.approve'))) { try { await call('rereadTimesheets', { ids: [t.id], apply: false }); } catch (e) { /* the AI check catches up */ } }
+  toast(f.name + ' attached' + (S.cache.ms.timesheet && S.cache.ms.timesheet.hasFile ? ' — it replaces ' + S.cache.ms.timesheet.fileName : ''), 'ok', 6000);
+  await reloadCurrent();
+};
 FORMS['ms-save'] = async (v, form, submitter) => {
   const G = S.cache.ms, mode = submitter && submitter.value || 'save', f = form.querySelector('[name=file]');
-  const md = mdaysFromForm(form), input = { employeeId: G.employee.id, month: G.month, notes: v.notes };
-  if (v.emode === 'total') { if (v.totalOnly !== '' && v.totalOnly !== undefined) input.totalOnly = Number(v.totalOnly); else input.mdays = {}; }
-  else input.mdays = md;
+  const input = msInput(form);
   if (f && f.files[0]) input.file = await readFile(f.files[0]);
   if (mode === 'submit' && !(input.mdays && Object.keys(input.mdays).length) && !input.totalOnly && !input.file && !(G.timesheet && G.timesheet.hasFile)) throw new Error('Enter the hours for the days worked (or the month\'s total), or attach the timesheet.');
   await call(mode === 'submit' ? 'submitTimesheet' : 'saveTimesheet', input);
