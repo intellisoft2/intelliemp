@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.76"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.77"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -369,6 +369,13 @@ input[type=file]::file-selector-button:hover{background:#f1f4f8}
 .pick-o mark{background:#fdf0c4;color:inherit;border-radius:3px;padding:0 1px}
 .pick-none{padding:18px;text-align:center;color:var(--mute);font-size:14px}
 .pick-f{padding:6px 12px;border-top:1px solid #edf1f5;font-size:11.5px;color:var(--mute);background:#fafbfc}
+.split-found{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}.split-chip{display:flex;flex-direction:column;padding:9px 13px;border-radius:12px;background:var(--tealbg);border:1px solid #cfe9e4}.split-chip small{color:var(--ink2)}
+.split-tbl td{vertical-align:middle}.split-tbl select,.split-tbl input{padding:7px 9px;font-size:14px}.split-tbl td:nth-child(2) input{width:110px}
+tr.split-src td{background:#fafbfc;color:var(--ink2)}
+.more{position:relative;display:inline-block}.more>summary{list-style:none;cursor:pointer}.more>summary::-webkit-details-marker{display:none}
+.more-m{position:absolute;right:0;top:calc(100% + 4px);z-index:30;min-width:230px;background:#fff;border:1px solid #e3e9f0;border-radius:12px;box-shadow:0 16px 40px -12px rgba(9,22,38,.3);padding:5px;text-align:left}
+.more-m button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;padding:8px 10px;border-radius:8px;font:500 14px var(--font);color:var(--ink);cursor:pointer;white-space:nowrap}
+.more-m button:hover{background:#f1f5f8}.more-m button.red{color:var(--red)}.more-m button svg.i{width:16px;height:16px;color:var(--mute)}.more-m button.red svg.i{color:var(--red)}
 </style>
 
 </head>
@@ -810,6 +817,14 @@ document.addEventListener('change', ev => {
 }, true);
 ['dragenter', 'dragover'].forEach(t => document.addEventListener(t, ev => { const b = ev.target.closest && ev.target.closest('.drop'); if (b) b.classList.add('on'); }));
 ['dragleave', 'drop'].forEach(t => document.addEventListener(t, ev => { const b = ev.target.closest && ev.target.closest('.drop'); if (b) b.classList.remove('on'); }));
+
+function moreMenu(items) {
+  if (!items) return '';
+  return '<details class="more"><summary class="btn xs ghost" title="More actions" aria-label="More actions">' + ic('menu') + '</summary><div class="more-m" role="menu">' + items + '</div></details>';
+}
+document.addEventListener('click', ev => {
+  document.querySelectorAll('details.more[open]').forEach(d => { if (!d.contains(ev.target) || ev.target.closest('.more-m button')) d.open = false; });
+}, true);
 const PICK_MIN = 15;
 const pickNorm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
 let pickOpen = null;
@@ -1518,16 +1533,22 @@ function docsTable(docs, hr, tasks, empId) {
   const mine = D().who.employeeId && D().who.employeeId === (empId || (docs[0] && docs[0].employeeId));
   const canAdd = hr || mine;
   const row = (d, cur, nOld) => {
+    if (d.splitInto) return '<tr class="split-src"><td><b>Combined file</b> ' + '<span class="chip info">' + ic('doc') + 'Split into ' + d.splitInto.split(',').length + '</span>' + '<br><small class="muted">' + esc(d.fileName) + '</small><br><small class="muted">' + esc(d.notes || '') + '</small></td><td>—</td><td>' + chip('Split', '') + '</td>' +
+      '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' + (d.locked && !d.unlockedUntil ? '' : fileBtns('doc', d.id, { size: 'xs' })) + '</div></td></tr>';
     if (d.locked && !d.unlockedUntil) return lockedRow(d, forDoc, cur, nOld, canAdd);
     const old = !!cur;
     return '<tr' + (old ? ' class="ver-row" data-ver-of="' + esc(cur) + '" hidden' : '') + '><td>' + (old ? '<span class="ver-indent">↳ </span>' : '') + '<b>' + esc(d.type) + '</b> ' + verChip(d) + (d.locked ? chip('Unlocked until ' + fmtTime(d.unlockedUntil), 'warn') + ' ' : '') + (old ? '' : aiChip(d)) +
-      '<br><small class="muted">' + esc(d.fileName) + '</small>' + verLine(d, byId) + (!old && forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (old ? '<small class="muted">' + esc(fmtDate(d.expiresOn) || '—') + '</small>' : (expiryChip(d.expiresOn) || '—')) + '</td><td>' + statusChip(d.status) + '</td>' +
+      '<br><small class="muted">' + esc(d.fileName) + (d.splitFrom ? ' · ' + (/[,–-]/.test(d.pages || '') ? 'pages ' : 'page ') + esc(d.pages || '') + ' of a combined file' : '') + '</small>' + verLine(d, byId) + (!old && forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (old ? '<small class="muted">' + esc(fmtDate(d.expiresOn) || '—') + '</small>' : (expiryChip(d.expiresOn) || '—')) + '</td><td>' + statusChip(d.status) + '</td>' +
       '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' +
       (!old && d.type === 'Form I-9' && d.source !== 'Official USCIS PDF' && d.source !== 'Portal form' && can('onboarding.manage') ? '<button class="btn xs" data-action="i9-paper" data-id="' + d.id + '" title="Read this paper Form I-9 and fill the official USCIS form">' + ic('doc') + 'Convert to official form</button>' : '') + fileBtns('doc', d.id) +
       (!old && hr && AI().on && d.aiStatus !== 'Skipped' ? '<button class="btn xs ghost" data-action="ai-doc" data-id="' + d.id + '" title="What AI read">' + ic('spark') + 'AI</button>' : '') +
-      (!old && hr && (!d.locked || d.unlockMode === 'update') ? (d.status !== 'Verified' ? '<button class="btn xs ghost" data-action="doc-verify" data-id="' + d.id + '">Verify</button>' : '') + '<button class="btn xs ghost" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + '</button>' +
-        (d.status !== 'Verified' ? '<button class="btn xs danger" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + '</button>' : '') : '') +
-      (!old ? verBtns(d, nOld, canAdd) : '') + (d.locked ? '<button class="btn xs ghost" data-action="doc-relock" data-id="' + d.id + '" title="End the access now">' + ic('lock') + 'Lock again</button>' : '') +
+      (!old && hr && (!d.locked || d.unlockMode === 'update') && d.status !== 'Verified' ? '<button class="btn xs ghost" data-action="doc-verify" data-id="' + d.id + '">Verify</button>' : '') +
+      (d.locked ? '<button class="btn xs ghost" data-action="doc-relock" data-id="' + d.id + '" title="End the access now">' + ic('lock') + 'Lock again</button>' : '') +
+      (old ? '' : moreMenu(
+        (hr && (!d.locked || d.unlockMode === 'update') ? '<button type="button" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + 'Edit details</button>' : '') +
+        (!d.splitInto && (hr || (mine && d.status !== 'Verified')) && /pdf/i.test((d.mime || '') + ' ' + d.fileName) ? '<button type="button" data-action="doc-split" data-id="' + d.id + '">' + ic('doc') + 'Split into separate documents</button>' : '') +
+        (!d.splitInto ? verBtns(d, nOld, canAdd, true) : '') +
+        (hr && (!d.locked || d.unlockMode === 'update') && d.status !== 'Verified' ? '<button type="button" class="red" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + 'Delete</button>' : ''))) +
       '</div></td></tr>';
   };
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Expires</th><th>Status</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' +
@@ -1535,7 +1556,9 @@ function docsTable(docs, hr, tasks, empId) {
 }
 const verChip = d => Number(d.version) > 1 || d.supersededBy ? '<span class="chip">v' + esc(d.version || 1) + '</span> ' : '';
 const verLine = (d, byId) => d.supersededBy ? '<br><small class="muted">Replaced ' + esc(fmtDate(d.supersededAt)) + ' by v' + esc((byId[d.supersededBy] || {}).version || '') + ((byId[d.supersededBy] || {}).versionReason ? ' — ' + esc(byId[d.supersededBy].versionReason) : '') + ' · kept for the record</small>' : '';
-function verBtns(d, nOld, canAdd) {
+function verBtns(d, nOld, canAdd, menu) {
+  if (menu) return (canAdd ? '<button type="button" data-action="doc-newver" data-id="' + d.id + '" data-type="' + esc(d.type) + '" data-emp="' + esc(d.employeeId) + '">' + ic('upload') + 'Upload a new version</button>' : '') +
+    (nOld ? '<button type="button" data-action="doc-history" data-id="' + d.id + '" aria-expanded="false">' + ic('clock') + 'Show history (' + nOld + ')</button>' : '');
   return (canAdd ? '<button class="btn xs ghost" data-action="doc-newver" data-id="' + d.id + '" data-type="' + esc(d.type) + '" data-emp="' + esc(d.employeeId) + '" title="Renewed, expired, corrected or a clearer copy — the current one is kept as a previous version">' + ic('upload') + 'New version</button>' : '') +
     (nOld ? '<button class="btn xs ghost" data-action="doc-history" data-id="' + d.id + '" aria-expanded="false">' + ic('clock') + 'History (' + nOld + ')</button>' : '');
 }
@@ -2638,6 +2661,7 @@ const issuesHtml = list => (list || []).length ? '<div class="banner warn">' + i
 
 function aiNotice(ai) {
   if (!ai) return;
+  if (ai.status === 'Read' && ai.id && (ai.parts || []).length >= 2) return splitOffer(ai);
   if (ai.status !== 'Read') { if (ai.status === 'Queued') toast('Uploaded — AI will read it in a few minutes.', 'ok'); return; }
   const filled = ai.filled || [], issues = ai.issues || [];
   if (!filled.length && !issues.length) { toast('Uploaded and read by AI' + (ai.type ? ' as ' + ai.type : ''), 'ok'); return; }
@@ -2660,7 +2684,7 @@ function aiDocModal(d) {
   if (d.aiStatus !== 'Read') return openModal(d.type + ' · AI', '<p>' + aiChip(d) + '</p>' + (a.error ? '<p class="muted">' + esc(a.error) + '</p>' : '') +
     '<div class="foot-btns"><button class="btn" data-action="ai-doc-read" data-id="' + d.id + '">' + ic('spark') + 'Read with AI now</button></div>');
   openModal(d.type + ' · what AI read', '<p class="muted"><small>' + esc(d.aiProvider || '') + ' · ' + esc(fmtWhen(d.aiAt)) + (a.confidence ? ' · confidence ' + Math.round(a.confidence * 100) + '%' : '') + '</small></p>' +
-    (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + issuesHtml(a.issues) +
+    (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + ((a.parts || []).length >= 2 && !d.splitInto && /pdf/i.test((d.mime || '') + ' ' + d.fileName) ? '<div class="banner warn">' + ic('doc') + '<div><b>This file holds ' + a.parts.length + ' documents:</b> ' + a.parts.map(p => esc(p.type) + ' (p. ' + esc(pagesText(p.pages)) + ')').join(', ') + '. <button type="button" class="btn xs" data-action="doc-split" data-id="' + d.id + '">' + ic('doc') + 'Split into ' + a.parts.length + ' documents</button></div></div>' : '') + issuesHtml(a.issues) +
     (facts ? '<dl class="kv">' + facts + '</dl>' : '') +
     ((a.keyTerms || []).length ? '<h4>' + ic('book') + 'Key terms</h4><table class="tbl"><tbody>' + a.keyTerms.map(k => '<tr><td style="width:34%"><b>' + esc(k.label) + '</b></td><td>' + esc(k.value) + '</td></tr>').join('') + '</tbody></table>' +
       '<p class="hint">A summary to help HR, not legal advice. Have counsel review flagged clauses.</p>' : '') +
@@ -3654,15 +3678,6 @@ async function fillI9Pdf(PDFLib, pdfBytes, values, mapping, opts) {
   return { bytes: bytes, filled: filled, missing: missing, fields: fields.map(f => f.getName()) };
 }
 
-async function loadPdfLib() {
-  if (window.PDFLib) return window.PDFLib;
-  const srcs = ['https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js', 'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js'];
-  for (const src of srcs) {
-    try { await new Promise((ok, no) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); if (window.PDFLib) return window.PDFLib; } catch (e) { /* next */ }
-  }
-  throw new Error('Could not load the PDF tools. Check your internet connection and try again.');
-}
-const b64ToBytes = b64 => { const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
 const bytesToB64 = u => { let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
 
 async function makeOfficialI9(empId, btn, quiet) {
@@ -4412,6 +4427,108 @@ FORMS['nofile-remove'] = async (v, form) => {
   if (!await ask({ title: 'Remove ' + ids.length + ' timesheet' + (ids.length === 1 ? '' : 's') + '?', body: 'They were recorded from email text with no timesheet file. The employees can send the timesheet again with the file attached.', ok: 'Remove', tone: 'danger' })) return;
   const r = await call('removeFilelessEmailed', { ids: ids }); closeModal();
   toast(r.removed + ' removed' + (r.kept.length ? ' · ' + r.kept.length + ' kept (approved)' : ''), 'ok'); await reloadCurrent();
+};
+const PDFLIB_SRC = [
+  'vendor/pdf-lib.min.js',
+  'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',
+  'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js'
+];
+const PDFLIB_SRI = 'sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI';
+let pdfLibP = null;
+function loadPdfLib() {
+  if (window.PDFLib) return Promise.resolve(window.PDFLib);
+  if (pdfLibP) return pdfLibP;
+  const onScript = /script\.google|googleusercontent/.test(location.hostname);
+  const srcs = PDFLIB_SRC.filter(s => !(onScript && !/^https:/.test(s)));
+  pdfLibP = new Promise((resolve, reject) => {
+    const next = i => {
+      if (i >= srcs.length) { pdfLibP = null; return reject(new Error('The PDF tool could not be loaded — check the internet connection and try again.')); }
+      const s = document.createElement('script'); s.src = srcs[i]; s.async = true;
+      if (/^https:/.test(srcs[i])) { s.integrity = PDFLIB_SRI; s.crossOrigin = 'anonymous'; }
+      s.onload = () => window.PDFLib ? resolve(window.PDFLib) : next(i + 1);
+      s.onerror = () => { s.remove(); next(i + 1); };
+      document.head.appendChild(s);
+    };
+    next(0);
+  });
+  return pdfLibP;
+}
+const b64ToBytes = b64 => { const bin = atob(b64), out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; };
+const pagesText = ps => { const out = []; (ps || []).forEach((p, i) => { if (i && p === ps[i - 1] + 1) out[out.length - 1][1] = p; else out.push([p, p]); }); return out.map(r => r[0] === r[1] ? String(r[0]) : r[0] + '-' + r[1]).join(', '); };
+function parsePages(spec, max) {
+  const out = [];
+  String(spec || '').split(/[,;]+/).forEach(r => { const m = r.trim().match(/^(\d{1,3})(?:\s*(?:-|–|to)\s*(\d{1,3}))?$/i); if (!m) return; const a = +m[1], b = +(m[2] || m[1]);
+    for (let p = Math.min(a, b); p <= Math.max(a, b); p++) if (p >= 1 && (!max || p <= max) && out.indexOf(p) < 0) out.push(p); });
+  return out.sort((x, y) => x - y);
+}
+function splitOffer(ai) {
+  const parts = ai.parts || [];
+  openModal('This file holds ' + parts.length + ' documents', '<p>' + esc(ai.summary || '') + '</p><div class="split-found">' +
+    parts.map(p => '<div class="split-chip"><b>' + esc(p.type) + '</b><small>page' + (p.pages.length === 1 ? ' ' : 's ') + esc(pagesText(p.pages)) + (p.expiresOn ? ' · expires ' + esc(fmtDate(p.expiresOn)) : '') + '</small></div>').join('') + '</div>' +
+    '<p class="hint">Split it so each one is its own document — with its own expiry date, checklist item and lock. The combined file is kept for the record.</p>' +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Keep as one file</button><button type="button" class="btn" data-action="doc-split" data-id="' + esc(ai.id) + '">' + ic('doc') + 'Split into ' + parts.length + ' documents</button></div>', true);
+}
+async function splitModal(id, btn) {
+  const P = await busy(btn, call('getSplitPlan', { id: id }));
+  let parts = P.parts.length ? P.parts : [{ type: P.type, pages: [], expiresOn: P.expiresOn }, { type: 'Other', pages: [] }];
+  S.split = { id: id, P: P, total: P.pageCount || 0 };
+  const typeSel = (i, cur) => '<select name="t' + i + '">' + P.types.map(t => '<option' + (t === cur ? ' selected' : '') + '>' + esc(t) + '</option>').join('') + '</select>';
+  const row = (p, i) => '<tr data-split-row><td>' + typeSel(i, p.type) + '</td><td><input name="p' + i + '" value="' + esc(pagesText(p.pages)) + '" placeholder="e.g. 1-2" required></td><td><input type="date" name="e' + i + '" value="' + esc(p.expiresOn || '') + '"></td>' +
+    '<td><input type="date" name="i' + i + '" value="' + esc(p.issuedOn || '') + '"></td><td><button type="button" class="btn xs ghost" data-action="split-del" title="Remove">' + ic('x') + '</button></td></tr>';
+  openModal('Split ' + P.fileName, '<form data-form="doc-split"><p class="muted">' + (P.parts.length ? 'AI found these documents in the file. Check the pages and dates, then split.' : 'Say which pages belong to each document.') +
+    ' <span id="split-pc">' + (P.pageCount ? 'The file has ' + P.pageCount + ' page' + (P.pageCount === 1 ? '' : 's') + '.' : '') + '</span></p>' +
+    '<div class="tblwrap"><table class="tbl split-tbl"><thead><tr><th>Document</th><th>Pages</th><th>Expires</th><th>Issued</th><th></th></tr></thead><tbody id="split-rows">' + parts.map(row).join('') + '</tbody></table></div>' +
+    '<p><button type="button" class="btn xs ghost" data-action="split-add">' + ic('plus') + 'Add a document</button></p><div id="split-warn"></div>' +
+    '<p class="hint">Each piece is filed as its own document and read again by AI. The combined file stays on file, marked as split, and no longer counts for any checklist item.</p>' +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + ic('doc') + 'Split and file</button></div></form>', true);
+  S.split.row = row; S.split.n = parts.length;
+  try {
+    const [lib, f] = await Promise.all([loadPdfLib(), call('getDocumentFile', { id: id, mode: 'view' })]);
+    const src = await lib.PDFDocument.load(b64ToBytes(f.data), { ignoreEncryption: true });
+    S.split.src = src; S.split.lib = lib; S.split.total = src.getPageCount();
+    const pc = document.getElementById('split-pc'); if (pc) pc.textContent = 'The file has ' + S.split.total + ' page' + (S.split.total === 1 ? '' : 's') + '.';
+    splitCheck();
+  } catch (e) { const w = document.getElementById('split-warn'); if (w) w.innerHTML = '<div class="banner bad">' + ic('alert') + '<div>' + esc(e.message || 'The PDF could not be opened.') + '</div></div>'; }
+}
+function splitRows(form) {
+  return Array.from(form.querySelectorAll('[data-split-row]')).map(r => ({ type: r.querySelector('select').value, pagesRaw: r.querySelector('input[name^=p]').value, pages: parsePages(r.querySelector('input[name^=p]').value, S.split.total),
+    expiresOn: r.querySelector('input[name^=e]').value, issuedOn: r.querySelector('input[name^=i]').value }));
+}
+function splitCheck() {
+  const f = document.querySelector('form[data-form="doc-split"]'), w = document.getElementById('split-warn'); if (!f || !w) return;
+  const rows = splitRows(f), n = S.split.total, used = {}, msgs = [];
+  rows.forEach((r, i) => { if (r.pagesRaw && !r.pages.length) msgs.push('Row ' + (i + 1) + ': pages "' + r.pagesRaw + '" are not in the file' + (n ? ' (1–' + n + ')' : '') + '.'); r.pages.forEach(p => { used[p] = (used[p] || 0) + 1; }); });
+  const twice = Object.keys(used).filter(p => used[p] > 1), left = []; for (let p = 1; p <= n; p++) if (!used[p]) left.push(p);
+  if (twice.length) msgs.push('Page' + (twice.length > 1 ? 's ' : ' ') + twice.join(', ') + ' ' + (twice.length > 1 ? 'are' : 'is') + ' in more than one document.');
+  if (left.length && n) msgs.push('Page' + (left.length > 1 ? 's ' : ' ') + pagesText(left) + (left.length > 1 ? ' are' : ' is') + ' not in any document (left out of the pieces; still in the combined file).');
+  w.innerHTML = msgs.length ? '<div class="banner warn">' + ic('alert') + '<div>' + msgs.map(esc).join('<br>') + '</div></div>' : '';
+}
+document.addEventListener('input', ev => { if (ev.target.closest && ev.target.closest('form[data-form="doc-split"]')) splitCheck(); });
+Object.assign(ACTIONS, {
+  'doc-split': el => { closeModal(); return splitModal(el.dataset.id, el); },
+  'split-add': () => { const tb = document.getElementById('split-rows'); tb.insertAdjacentHTML('beforeend', S.split.row({ type: 'Other', pages: [] }, S.split.n++)); },
+  'split-del': el => { const tr = el.closest('tr'); if (document.querySelectorAll('[data-split-row]').length > 1) tr.remove(); splitCheck(); }
+});
+FORMS['doc-split'] = async (v, form) => {
+  const rows = splitRows(form).filter(r => r.pages.length);
+  if (rows.length < 1) throw new Error('Say which pages belong to each document.');
+  if (rows.length === 1 && rows[0].pages.length === S.split.total) throw new Error('That is the whole file — nothing to split. Use Edit to change its type instead.');
+  if (!S.split.src) throw new Error('The PDF is still opening — wait a moment and try again.');
+  const lib = S.split.lib, src = S.split.src, base = (S.split.P.fileName || 'document.pdf').replace(/\.pdf$/i, ''), ids = [];
+  try {
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      longTask('Splitting: ' + r.type + ' (' + (i + 1) + ' of ' + rows.length + ')', i / rows.length * 100);
+      const out = await lib.PDFDocument.create(), pages = await out.copyPages(src, r.pages.map(p => p - 1));
+      pages.forEach(p => out.addPage(p));
+      const bytes = await out.save(), name = (r.type.replace(/[\\/:*?"<>|]+/g, '-') + ' - ' + base + ' (p' + pagesText(r.pages) + ').pdf');
+      const res = await call('addSplitPart', { id: S.split.id, type: r.type, pages: r.pages, expiresOn: r.expiresOn, issuedOn: r.issuedOn, file: await readFile(new File([bytes], name, { type: 'application/pdf' })) });
+      ids.push(res.id);
+    }
+    const done = await call('finishSplit', { id: S.split.id, partIds: ids });
+    closeModal(); toast('Split into ' + done.parts.length + ' documents: ' + done.parts.map(p => p.type).join(', '), 'ok', 6000);
+  } finally { longTask(''); }
+  await reloadCurrent();
 };
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
