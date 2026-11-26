@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.4"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.5"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -392,6 +392,23 @@ tr.split-src td{background:#fafbfc;color:var(--ink2)}
 @media(max-width:760px){.command-hero{padding:18px}.enterprise-bar{font-size:10px}.employee-hero{padding:14px}.command-grid{grid-template-columns:1fr}}
 @media print{.enterprise-bar,.command-grid{display:none}.command-hero{background:white;color:black;box-shadow:none}.command-hero h1,.command-hero .pagehead p{color:black}}
 @media(prefers-reduced-motion:reduce){.pulse,.sk,.spin{animation:none!important}}
+.hire-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media (max-width:720px){.hire-opts{grid-template-columns:1fr}}
+.hire-opt{position:relative;display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1.5px solid var(--line,#dfe3ea);border-radius:12px;background:#fff;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
+.hire-opt:hover{border-color:#b9c6d3}
+.hire-opt.on{border-color:var(--teal,#1fb5a3);background:#f2fbfa;box-shadow:0 0 0 3px rgba(31,181,163,.12)}
+.hire-opt input{position:absolute;opacity:0;pointer-events:none}
+.hire-opt input:focus-visible+.hire-ic{outline:2px solid var(--teal,#1fb5a3);outline-offset:2px}
+.hire-ic{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#eef2f6;color:#5b6b7c}
+.hire-opt.on .hire-ic{background:var(--teal,#1fb5a3);color:#fff}
+.hire-tx{display:flex;flex-direction:column;gap:4px;min-width:0}.hire-tx b{font-size:14.5px}.hire-tx small{color:var(--muted,#6b7785);line-height:1.45}
+.modal{max-height:88vh;overflow-y:auto;overscroll-behavior:contain;padding-top:0;padding-bottom:0}
+.modal::after{content:'';display:block;height:18px}
+@media (max-height:520px){.modal{max-height:none;overflow:visible}}
+
+.modal>h3{position:sticky;top:0;z-index:4;background:#fff;margin:0 -22px 14px;padding:20px 56px 12px 22px;border-radius:16px 16px 0 0;border-bottom:1px solid transparent;transition:border-color .15s}
+.modal>.x{position:sticky;top:12px;float:right;z-index:5;margin:12px -8px 0 0}
+.modal form>.foot-btns:last-child{position:sticky;bottom:0;z-index:4;background:#fff;margin:16px -22px -18px;padding:12px 22px 16px;border-top:1px solid var(--line,#e6eaf0);border-radius:0 0 16px 16px}
 </style>
 
 </head>
@@ -1959,16 +1976,16 @@ function inviteChoice(def) {
 CHANGES['inv-to-pick'] = el => { el.closest('.invite-choice').querySelectorAll('[data-signin]').forEach(x => { x.hidden = el.value !== 'both'; }); };
 
 function hireTypePicker(cur, editing) {
-  const opt = (v, t, d) => '<label class="pick' + (cur === v ? ' on' : '') + '" style="flex:1;min-width:240px;border:1px solid var(--line,#dfe3ea);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;gap:10px;align-items:flex-start' + (cur === v ? ';border-color:var(--teal,#1fb5a3);background:#f2fbfa' : '') + '">' +
-    '<input type="radio" name="hireType" value="' + v + '"' + (cur === v ? ' checked' : '') + ' data-change="hire-type" style="margin-top:3px"><span><b>' + t + '</b><br><small class="muted">' + d + '</small></span></label>';
-  return '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">' +
-    opt('', 'New hire', 'Full onboarding: offer letter, Form I-9 (Sections 1 and 2), tax forms, direct deposit, agreements and documents for their status.') +
-    opt('Existing', 'Existing employee — moving from another system', 'Records refresh: they stay Active with their original hire date, confirm details, re-sign current forms and upload current documents. HR uploads the I-9 already on file — no new I-9.') + '</div>' +
+  const opt = (v, t, d, icon) => '<label class="hire-opt' + (cur === v ? ' on' : '') + '"><input type="radio" name="hireType" value="' + v + '"' + (cur === v ? ' checked' : '') + ' data-change="hire-type">' +
+    '<span class="hire-ic">' + ic(icon) + '</span><span class="hire-tx"><b>' + t + '</b><small>' + d + '</small></span></label>';
+  return '<div class="hire-opts" role="radiogroup" aria-label="New hire or existing employee">' +
+    opt('', 'New hire', 'Full onboarding: offer letter, Form I-9 (Sections 1 and 2), tax forms, direct deposit, agreements and documents for their status.', 'plus') +
+    opt('Existing', 'Existing employee — moving from another system', 'Records refresh: they stay Active with their original hire date, confirm details, re-sign current forms and upload current documents. HR uploads the I-9 already on file — no new I-9.', 'users') + '</div>' +
     (editing ? '<p class="hint" style="margin-top:-6px">Switching to "existing" waives the new-hire-only items still open (offer, new I-9, H-1B transfer papers) and adds the records-refresh items.</p>' : '');
 }
 CHANGES['hire-type'] = el => {
   const f = el.form, ex = el.value === 'Existing';
-  f.querySelectorAll('label.pick').forEach(l => { const on = l.querySelector('input').checked; l.style.borderColor = on ? 'var(--teal,#1fb5a3)' : ''; l.style.background = on ? '#f2fbfa' : ''; });
+  f.querySelectorAll('label.hire-opt').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
   const sd = f.querySelector('[name=startDate]'); if (sd) { sd.required = ex; const lab = sd.parentNode.querySelector('label'); if (lab) lab.textContent = ex ? 'Original hire date' : 'Start date'; }
 };
 
