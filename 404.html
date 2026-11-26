@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.5"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.6"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -409,6 +409,8 @@ tr.split-src td{background:#fafbfc;color:var(--ink2)}
 .modal>h3{position:sticky;top:0;z-index:4;background:#fff;margin:0 -22px 14px;padding:20px 56px 12px 22px;border-radius:16px 16px 0 0;border-bottom:1px solid transparent;transition:border-color .15s}
 .modal>.x{position:sticky;top:12px;float:right;z-index:5;margin:12px -8px 0 0}
 .modal form>.foot-btns:last-child{position:sticky;bottom:0;z-index:4;background:#fff;margin:16px -22px -18px;padding:12px 22px 16px;border-top:1px solid var(--line,#e6eaf0);border-radius:0 0 16px 16px}
+.inv-doc .inv-top{display:flex;justify-content:space-between;gap:30px;margin-bottom:18px}.inv-doc .inv-meta{text-align:right}.inv-doc h2{margin:0 0 4px;font-size:20px}
+.inv-doc .inv-to{background:#f6f8fa;border-radius:10px;padding:12px 14px;margin-bottom:6px}.inv-doc .inv-to p{margin:4px 0}.inv-doc tfoot td{border:0;font-size:15px}
 </style>
 
 </head>
@@ -1117,6 +1119,7 @@ function navItems() {
     sec('Operations');
     it('timesheets', 'clock', 'Timesheets', s.myApprovals);
     if (can('immigration.manage')) it('immigration', 'flag', 'Immigration', s.openCases);
+    if (can('pay.view')) it('clients', 'globe', 'Clients');
     if (me) { sec('My portal'); it('me', 'user', 'My onboarding'); it('my-timesheet', 'calendar', 'My timesheet'); it('my-documents', 'doc', 'My documents'); if (D().who.contractor) it('my-invoices', 'briefcase', 'My invoices'); if (!can('immigration.manage') && D().who.immigration) it('my-cases', 'flag', 'My immigration'); }
     sec('Company');
     it('resources', 'book', 'Resources');
@@ -1136,13 +1139,13 @@ function conPage() {
 function shell(html) {
   const db = D(), cur = S.route.parts[0] || '', orgs = db.myOrgs || [];
   const nav = navItems().map(x => x.sec ? '<div class="sec">' + esc(x.sec) + '</div>' :
-    '<a href="#app' + (x.page ? '/' + x.page : '') + '" class="' + (cur === x.page || (cur === 'employee' && x.page === (conPage() ? 'contractors' : 'employees')) || (x.page === 'immigration' && cur === 'case') ? 'on' : '') + '">' + ic(x.icon) + esc(x.label) + (x.n ? '<span class="n">' + x.n + '</span>' : '') + '</a>').join('');
+    '<a href="#app' + (x.page ? '/' + x.page : '') + '" class="' + (cur === x.page || (cur === 'employee' && x.page === (conPage() ? 'contractors' : 'employees')) || (x.page === 'immigration' && cur === 'case') || (x.page === 'clients' && cur === 'client') ? 'on' : '') + '">' + ic(x.icon) + esc(x.label) + (x.n ? '<span class="n">' + x.n + '</span>' : '') + '</a>').join('');
   return '<div class="shell' + (S.ui.open ? ' open' : '') + '" id="shell"><div class="topbar"><button data-action="menu" aria-label="Menu">' + ic('menu') + '</button>' + BRAND + '<span></span></div>' +
     '<aside class="side">' + BRAND + '<div class="orgbox"><b>' + esc(db.org.name) + '</b>' + esc(roleName(db.who.role)) +
     (orgs.length > 1 ? '<select data-change="switch-org" aria-label="Switch company">' + opts(orgs.map(o => [o.id, o.name]), db.org.id) + '</select>' : '') + '</div>' +
     '<nav class="nav">' + nav + '</nav><div class="me"><b>' + esc(db.who.name || db.who.email) + '</b>' + esc(db.who.email) +
     '<div class="btns"><a class="btn xs" href="#app/account">' + ic('lock') + 'Account</a><button class="btn xs" data-action="logout">' + ic('out') + 'Sign out</button></div></div></aside>' +
-    '<main class="main" id="main"><div class="enterprise-bar"><span>WORKFORCE / ' + esc((navItems().find(x => x.page === cur) || {}).label || 'Workspace') + '</span><a href="#app/account">' + ic('user') + ' My account</a></div>' + html + '<p class="muted" style="margin-top:30px;font-size:12px">IntelliEmp v' + esc(db.version) + '</p></main></div>';
+    '<main class="main" id="main"><div class="enterprise-bar"><span>WORKFORCE / ' + esc((navItems().find(x => x.page === cur || ({ client: 'clients', employee: 'employees', case: 'immigration', timesheet: 'timesheets' })[cur] === x.page) || {}).label || 'Workspace') + '</span><a href="#app/account">' + ic('user') + ' My account</a></div>' + html + '<p class="muted" style="margin-top:30px;font-size:12px">IntelliEmp v' + esc(db.version) + '</p></main></div>';
 }
 const roleName = r => ({ EMPLOYEE: 'Employee', MANAGER: 'Manager', PAYROLL: 'Payroll', HR: 'HR', ADMIN: 'Admin', EXECUTIVE: 'Executive' }[r] || r);
 const head = (title, sub, actions) => '<div class="pagehead"><div><h1>' + esc(title) + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div>' + (actions ? '<div class="btns">' + actions + '</div>' : '') + '</div>';
@@ -1165,11 +1168,11 @@ async function renderApp() {
 }
 const SKELETON = '<div class="skel" aria-busy="true" aria-label="Loading"><div class="sk h"></div><div class="sk s"></div><div class="sk card"></div><div class="sk card short"></div></div>';
 function paintApp(html, y) { trailNote(location.hash, html); paint(shell(backBar(location.hash) + html)); if (y) window.scrollTo(0, y); }
-const TOP_PAGES = ['', 'home', 'employees', 'contractors', 'invoices', 'my-invoices', 'onboarding', 'timesheets', 'immigration', 'resources', 'team', 'settings', 'audit', 'me', 'my-timesheet', 'my-documents', 'my-cases', 'account', 'platform'];
+const TOP_PAGES = ['', 'home', 'employees', 'contractors', 'clients', 'invoices', 'my-invoices', 'onboarding', 'timesheets', 'immigration', 'resources', 'team', 'settings', 'audit', 'me', 'my-timesheet', 'my-documents', 'my-cases', 'account', 'platform'];
 S.trail = S.trail || [];
 function trailKey(hash) {
   const r = parseHash(hash), [page, a] = r.parts;
-  if (page === 'employee' || page === 'case') return page + '/' + a;
+  if (page === 'employee' || page === 'case' || page === 'client') return page + '/' + a;
   if (page === 'timesheet') return 'timesheet/' + a;
   return (page || '') + (r.params.week || r.params.status || r.params.q ? '?' + String(hash).split('?')[1] : '');
 }
@@ -1177,7 +1180,7 @@ function trailNote(hash, html) {
   if (!/^#app/.test(hash)) return;
   let key = trailKey(hash), title = ((String(html).match(/<h1>([\s\S]*?)<\/h1>/) || [])[1] || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim().slice(0, 60);
   const pg = parseHash(hash).parts[0] || '';
-  const TOP_TITLE = { '': isStaff() ? 'Dashboard' : 'Home', home: 'Home', employees: can('employees.view') ? 'Employees' : 'My team', contractors: 'Contractors', invoices: 'Invoices', 'my-invoices': 'My invoices', onboarding: 'Onboarding', timesheets: 'Timesheets', immigration: 'Immigration',
+  const TOP_TITLE = { '': isStaff() ? 'Dashboard' : 'Home', home: 'Home', employees: can('employees.view') ? 'Employees' : 'My team', contractors: 'Contractors', clients: 'Clients', invoices: 'Invoices', 'my-invoices': 'My invoices', onboarding: 'Onboarding', timesheets: 'Timesheets', immigration: 'Immigration',
     resources: 'Resources', team: 'Team and roles', settings: 'Settings', audit: 'Audit log', me: 'My onboarding', 'my-timesheet': 'My timesheet', 'my-documents': 'My documents', 'my-cases': 'My immigration', account: 'Account', platform: 'Platform' };
   if (TOP_TITLE[pg] !== undefined) title = TOP_TITLE[pg];
   const i = S.trail.findIndex(x => x.key === key);
@@ -1271,6 +1274,7 @@ async function staffHome() {
     commandTile('clock', 'Time & approvals', 'Timesheets and approval queues', '#app/timesheets') +
     (can('immigration.manage') ? commandTile('flag', 'Compliance', 'Immigration cases and authorization alerts', '#app/immigration') : '') +
     (can('employees.view') ? commandTile('briefcase', 'Contractor finance', 'Contractor records and invoice workflows', '#app/contractors') : '') +
+    (can('pay.view') ? commandTile('globe', 'Client billing', 'Clients, bill rates and invoices to clients', '#app/clients') : '') +
     (can('settings.manage') ? commandTile('shield', 'Data governance', 'Integrity audit and reconciliation in Settings', '#app/settings') : '') + '</div>' +
     (accReq.length ? '<div class="card"><div class="card-h"><h3>' + ic('key') + 'Requests to see locked documents</h3><span class="muted">' + accReq.length + '</span></div>' +
       accReq.map(r => '<div class="alert"><span class="lv warn"></span><div><b>' + esc(r.requester) + '</b> asks to ' + (r.mode === 'update' ? 'see and update' : 'see') + ' the ' + esc(r.type) + ' of <a href="#app/employee/' + esc(r.employeeId) + '/documents">' + esc(r.employeeName) + '</a>' +
@@ -1760,6 +1764,7 @@ function empForm(e, mode) {
       '<div class="hint" id="kindHint"' + (e.employmentType === '1099 Contractor' ? '' : ' hidden') + '>1099 independent contractor: no Form I-9, W-4, state withholding or E-Verify — the checklist asks for a Form W-9, the independent contractor agreement and payment details. Use 1099 only if they control how they do the work (Resources → 1099 contractors). H-1B and STEM OPT workers must be W-2 employees.</div>') + field(e.hireType === 'Existing' ? 'Original hire date' : 'Start date', inp('startDate', e.startDate, 'type="date"')) +
     (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + '<div><label id="payRateLbl">' + esc(payRateLabel(e.payType, e.country && e.country !== 'US' ? (e.currency || (((L('countries') || []).find(c => c.code === e.country) || {}).currency) || '') : 'USD')) + '</label>' +
         inp('payRate', e.payRate, 'type="number" step="0.01" min="0"') + '<div class="hint" id="payRateHint"></div></div>' +
+      '<div><label>Bill rate (per hour, to the client)</label>' + inp('billRate', e.billRate || '', 'type="number" step="0.01" min="0" placeholder="what the client pays"') + '<div class="hint">Separate from the pay rate; used for client invoices. Never shown to the employee. Changes take effect today — set a past date on the Clients page.</div></div>' +
       '<div><label>Per diem</label><div style="display:flex;gap:8px">' + inp('perDiem', e.perDiem, 'type="number" step="0.01" min="0" placeholder="0.00"') + sel('perDiemPer', [['hour', 'per hour'], ['day', 'per day'], ['week', 'per week'], ['month', 'per month']], e.perDiemPer || 'day', 'style="width:auto"') + '</div><div class="hint">Travel or living allowance, if any.</div></div>' +
       '<div><label>Bonus rate</label><div style="display:flex;gap:8px">' + inp('bonusRate', e.bonusRate, 'type="number" step="0.01" min="0" placeholder="0"') + sel('bonusType', [['% of base pay', '% of base pay'], ['Per hour worked', 'per hour worked'], ['Fixed amount per year', 'fixed, per year'], ['Fixed amount per quarter', 'fixed, per quarter'], ['One-time', 'one-time']], e.bonusType || '% of base pay', 'style="width:auto"') + '</div><div class="hint">A percentage, or an amount in the pay currency.</div></div>' +
       '<div><label>Health care reimbursement</label><div style="display:flex;gap:8px">' + inp('healthReimb', e.healthReimb, 'type="number" step="0.01" min="0" placeholder="0.00"') + sel('healthReimbPer', [['month', 'per month'], ['pay period', 'per pay period'], ['year', 'per year']], e.healthReimbPer || 'month', 'style="width:auto"') + '</div><div class="hint">Health insurance premiums or medical costs paid back to them (e.g. an ICHRA/QSEHRA or stipend), if any.</div></div>' +
@@ -4114,16 +4119,17 @@ async function monthlyView(p) {
   const tile = (label, val, cls, s) => '<a class="stat' + (cls ? ' ' + cls : '') + '" href="#app/timesheets?view=month&month=' + m + '&show=' + s + '" style="text-decoration:none"><b>' + val + '</b><span>' + esc(label) + '</span></a>';
   let x0 = '';
   const wkChip = w => '<span title="' + esc(weekLabel(w.weekStart) + ' · ' + w.hours + ' h this month' + (w.weekHours !== w.hours ? ' (' + w.weekHours + ' h in the week)' : '') + (w.flag ? ' · ' + w.flag : '')) + '">' + (w.month ? '<a href="#app/timesheet/' + esc(x0) + '/' + w.month + '">' + chip('Month · ' + w.status, CAL_CLS[w.status] || '') + '</a>' : chip(fmtDate(w.weekStart).replace(/, \d{4}$/, '') + (w.flag ? ' ⚠' : ''), CAL_CLS[w.status] || '')) + '</span>';
-  const amount = x => x.ready && x.estimatedAmount != null ? money(x.estimatedAmount, '', x.currency || 'USD') : '';
+  const amount = x => x.billAmount != null ? '<span title="' + esc((x.billRate ? 'Bill rate ' + money(x.billRate, 'Hourly', x.currency || 'USD') : 'Bill rates by day') + (x.estimatedAmount != null ? ' · pay cost ' + money(x.estimatedAmount, '', x.currency || 'USD') : '')) + '">' + esc(money(x.billAmount, '', x.currency || 'USD')) + '</span>' + (x.ready ? '' : '<br><small class="muted">not all approved</small>')
+    : x.hours && x.billIssue ? '<a class="muted" style="font-size:12px" href="#app/' + (x.clientName ? 'client/' + encodeURIComponent('name:' + x.clientName) : 'employee/' + esc(x.employeeId)) + '" title="No bill rate for this placement">set bill rate</a>' : '';
   return head('Timesheets', 'Hours by month — ready to invoice', '<button class="btn ghost" data-action="tsm-csv">' + ic('download') + 'Download for invoicing</button>') + tsTabs('month') +
     '<div class="card"><div class="weeknav"><a class="btn ghost sm" href="#app/timesheets?view=month&month=' + prev + '">' + ic('back') + '</a><b style="min-width:160px;text-align:center">' + esc(monthTitle(m)) + '</b>' +
       '<a class="btn ghost sm" href="#app/timesheets?view=month&month=' + next + '">' + ic('chev') + '</a><input type="month" value="' + m + '" data-change="tsm-pick" style="max-width:170px"></div></div>' +
     '<div class="stats">' + tile('Hours this month', T.hours, '', '') + tile('Ready to invoice (all approved)', T.ready + ' of ' + T.people, 'ok', 'ready') + tile('Waiting for approval', T.waiting, T.waiting ? 'warn' : '', 'waiting') + tile('With missing weeks', T.missing, T.missing ? 'bad' : '', 'missing') + '</div>' +
     '<div class="card"><div class="filters"><span class="muted">Show</span> ' + [['', 'Everyone'], ['ready', 'Ready to invoice'], ['waiting', 'Waiting for approval'], ['missing', 'Missing weeks'], ['monthly', 'On monthly timesheets'], ['flagged', 'Consistency issues']]
       .map(o => '<a class="btn sm ' + (show === o[0] ? '' : 'ghost') + '" href="#app/timesheets?view=month&month=' + m + '&show=' + o[0] + '">' + o[1] + '</a>').join(' ') + '</div>' +
-    (people.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th class="sel"><input type="checkbox" data-tsm-all aria-label="Select all"></th><th>Employee</th><th class="num">Hours</th><th class="num">Approved</th><th class="num">Waiting</th><th class="num">Draft</th>' + (can('pay.view') ? '<th class="num">Amount</th>' : '') + '<th>Weeks</th><th>Invoice</th><th></th></tr></thead><tbody>' +
+    (people.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th class="sel"><input type="checkbox" data-tsm-all aria-label="Select all"></th><th>Employee</th><th class="num">Hours</th><th class="num">Approved</th><th class="num">Waiting</th><th class="num">Draft</th>' + (can('pay.view') ? '<th class="num" title="Hours × the client bill rate">Billable</th>' : '') + '<th>Weeks</th><th>Invoice</th><th></th></tr></thead><tbody>' +
       people.map(x => '<tr><td class="sel"><input type="checkbox" name="tsmSel" value="' + esc(x.employeeId) + '"></td><td><a href="#app/employee/' + esc(x.employeeId) + '/timesheets"><b>' + esc(x.name) + '</b></a>' + (x.period === 'Monthly' ? ' ' + chip('Monthly', 'teal') : '') + (x.contractor ? ' ' + chip('1099') : '') + '<br><small class="muted">' + esc(x.clientName || x.code || '') + '</small></td>' +
-        '<td class="num"><b>' + x.hours + '</b></td><td class="num">' + x.approved + '</td><td class="num">' + (x.submitted || 0) + '</td><td class="num">' + (x.draft || 0) + '</td>' + (can('pay.view') ? '<td class="num">' + esc(amount(x)) + '</td>' : '') +
+        '<td class="num"><b>' + x.hours + '</b></td><td class="num">' + x.approved + '</td><td class="num">' + (x.submitted || 0) + '</td><td class="num">' + (x.draft || 0) + '</td>' + (can('pay.view') ? '<td class="num">' + amount(x) + '</td>' : '') +
         '<td>' + (x0 = x.employeeId, x.weeks.map(wkChip).join(' ')) + (x.alsoWeekly && x.alsoWeekly.length ? ' <span title="Weekly timesheets also have hours this month: ' + esc(x.alsoWeekly.join(', ')) + '">' + chip('also weekly ⚠', 'bad') + '</span>' : '') + (x.missing.length ? ' ' + x.missing.map(w => '<span title="No timesheet for the week of ' + esc(weekLabel(w)) + '">' + chip(fmtDate(w).replace(/, \d{4}$/, '') + ' missing', 'bad') + '</span>').join(' ') : '') + '</td>' +
         '<td>' + (x.ready ? chip('Ready', 'ok') : (x.consistencyIssues || []).length ? '<span title="' + esc(x.consistencyIssues.join(' ')) + '">' + chip('Resolve conflicts', 'bad') + '</span>' : x.missing.length ? chip('Missing weeks', 'bad') : x.submitted ? chip('Approve first', 'warn') : chip('Not ready', 'warn')) + '</td>' +
         '<td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="ts-calendar" data-emp="' + esc(x.employeeId) + '" data-month="' + m + '">' + ic('calendar') + 'Month</button>' +
@@ -4149,9 +4155,9 @@ Object.assign(ACTIONS, {
   },
   'tsm-csv': () => {
     const M = S.cache.monthly, q = v => '"' + String(v === undefined || v === null ? '' : v).replace(/"/g, '""') + '"';
-    const head = ['Employee', 'Employee ID', 'Client', 'Month', 'Hours', 'Approved hours', 'Waiting', 'Draft', 'Missing weeks', 'Ready to invoice'].concat(can('pay.view') ? ['Rate', 'Pay type', 'Amount'] : []);
+    const head = ['Employee', 'Employee ID', 'Client', 'Month', 'Hours', 'Approved hours', 'Waiting', 'Draft', 'Missing weeks', 'Ready to invoice'].concat(can('pay.view') ? ['Pay rate', 'Pay type', 'Pay cost', 'Bill rate', 'Billable amount'] : []);
     const lines = [head.map(q).join(',')].concat(M.people.map(x => [x.name, x.code, x.clientName, M.month, x.hours, x.approved, x.submitted, x.draft, x.missing.join(' '), x.ready ? 'Yes' : 'No']
-      .concat(can('pay.view') ? [x.payRate || '', x.payType || '', x.ready && x.estimatedAmount != null ? Number(x.estimatedAmount).toFixed(2) : ''] : []).map(q).join(',')));
+      .concat(can('pay.view') ? [x.payRate || '', x.payType || '', x.ready && x.estimatedAmount != null ? Number(x.estimatedAmount).toFixed(2) : '', x.billRate || '', x.billAmount != null ? Number(x.billAmount).toFixed(2) : ''] : []).map(q).join(',')));
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'Timesheets ' + M.month + '.csv'; a.click();
   },
   'ts-reread': el => rereadModal(el.dataset.bulk ? bulkIds() : String(el.dataset.ids || '').split(',').filter(Boolean)),
@@ -4864,6 +4870,162 @@ ACTIONS['ts-sync-month'] = async btn => {
   const r = await busy(btn, call('syncMonthWeeks', { employeeId: btn.dataset.emp, month: m }));
   toast(monthTitle(m) + ': ' + (r.changed.length + r.removed.length ? [r.changed.length ? r.changed.length + ' week' + (r.changed.length === 1 ? '' : 's') + ' trimmed' : '', r.removed.length ? r.removed.length + ' week' + (r.removed.length === 1 ? '' : 's') + ' removed' : ''].filter(Boolean).join(', ') : 'nothing to change') + ' — the monthly timesheet now counts for its days.', 'ok', 8000);
   await reloadCurrent();
+};
+const INV_CLS = { Draft: 'warn', Sent: 'info', Paid: 'ok', Void: '' };
+const invStatus = v => chip(v.overdue ? 'Overdue' : v.status, v.overdue ? 'bad' : INV_CLS[v.status] || '');
+const cMoney = (n, cur) => n === null || n === undefined || n === '' ? '—' : (!cur || cur === 'USD' ? '$' : cur === 'INR' ? '₹' : cur + ' ') + Number(n).toLocaleString(cur === 'INR' ? 'en-IN' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const clientHref = c => '#app/client/' + encodeURIComponent(c.id);
+function clientTabs(cur) {
+  return '<nav class="tabs"><a href="#app/clients" class="' + (cur === 'clients' ? 'on' : '') + '">' + ic('globe') + 'Clients</a><a href="#app/clients?view=invoices" class="' + (cur === 'invoices' ? 'on' : '') + '">' + ic('doc') + 'Client invoices</a></nav>';
+}
+PAGES.clients = async (parts, params) => {
+  if (!can('pay.view')) return go('#app');
+  if ((params || {}).view === 'invoices') return clientInvoicesPage(params);
+  const list = await call('listClients'); S.cache.clients = list;
+  const T = list.reduce((a, c) => ({ placements: a.placements + c.placements, outstanding: a.outstanding + c.outstanding, overdue: a.overdue + c.overdue, noRate: a.noRate + c.noBillRate, drafts: a.drafts + c.drafts }), { placements: 0, outstanding: 0, overdue: 0, noRate: 0, drafts: 0 });
+  const stat = (n, l, cls, href) => '<a class="stat ' + (cls || '') + '" href="' + href + '" style="text-decoration:none"><b>' + n + '</b><span>' + esc(l) + '</span></a>';
+  return head('Clients', 'Placements, bill rates and the invoices you send', '<button class="btn" data-action="client-new">' + ic('plus') + 'Add client</button>') + clientTabs('clients') +
+    '<div class="stats">' + stat(list.filter(c => c.placements).length, 'Clients with people placed', '', '#app/clients') + stat(T.placements, 'People placed', 'teal', '#app/clients') +
+      stat(cMoney(T.outstanding), 'Outstanding (sent, not paid)', T.outstanding ? 'warn' : '', '#app/clients?view=invoices&status=Sent') + stat(T.overdue, 'Overdue invoices', T.overdue ? 'bad' : 'ok', '#app/clients?view=invoices&status=Overdue') +
+      stat(T.noRate, 'Placements with no bill rate', T.noRate ? 'bad' : 'ok', '#app/clients') + '</div>' +
+    '<div class="card">' + (list.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Client</th><th class="num">Placed</th><th>Bill rates</th><th class="num">Outstanding</th><th>Last invoice</th><th>Terms</th><th></th></tr></thead><tbody>' +
+      list.map(c => '<tr class="click" data-action="nav" data-href="' + clientHref(c) + '"><td><b>' + esc(c.name) + '</b>' + (c.status === 'Inactive' ? ' ' + chip('Inactive') : '') + (c.unsaved ? '<br><small class="muted">from employee records — add billing details</small>' : c.billingEmail ? '<br><small class="muted">' + esc(c.billingEmail) + '</small>' : '') + '</td>' +
+        '<td class="num">' + c.placements + '</td><td>' + (c.placements ? (c.noBillRate ? chip(c.noBillRate + ' missing', 'bad') : chip('All set', 'ok')) : '<span class="muted">—</span>') + '</td>' +
+        '<td class="num">' + (c.outstanding ? '<b>' + cMoney(c.outstanding, c.currency) + '</b>' : '<span class="muted">—</span>') + (c.overdue ? '<br>' + chip(c.overdue + ' overdue', 'bad') : '') + '</td>' +
+        '<td>' + (c.lastInvoice ? esc(c.lastInvoice.number) + '<br><small class="muted">to ' + esc(fmtDate(c.lastInvoice.periodEnd)) + ' · ' + esc(c.lastInvoice.status) + '</small>' : '<span class="muted">none yet</span>') + (c.drafts ? '<br>' + chip(c.drafts + ' draft', 'warn') : '') + '</td>' +
+        '<td><small class="muted">' + (c.paymentTerms !== '' && c.paymentTerms !== undefined ? 'Net ' + esc(c.paymentTerms) : 'Net 30') + '</small></td><td class="num">' + ic('chev') + '</td></tr>').join('') + '</tbody></table></div>'
+      : '<div class="empty">' + ic('globe') + '<p>No clients yet. Add one, or set the client on an employee and it appears here.</p></div>') + '</div>';
+};
+async function clientInvoicesPage(params) {
+  const st = params.status || '', list = await call('listClientInvoices', { status: st }); S.cache.cinvList = list;
+  const f = [['', 'All'], ['Draft', 'Drafts'], ['Sent', 'Sent'], ['Overdue', 'Overdue'], ['Paid', 'Paid'], ['Void', 'Void']];
+  return head('Clients', 'Invoices sent to clients') + clientTabs('invoices') +
+    '<div class="card"><div class="filters"><span class="muted">Show</span> ' + f.map(o => '<a class="btn sm ' + (st === o[0] ? '' : 'ghost') + '" href="#app/clients?view=invoices' + (o[0] ? '&status=' + o[0] : '') + '">' + o[1] + '</a>').join(' ') + '</div>' +
+    (list.length ? invoiceTable(list, true) : '<div class="empty">' + ic('doc') + '<p>No invoices' + (st ? ' with this status' : ' yet — open a client and choose New invoice') + '.</p></div>') + '</div>';
+}
+function invoiceTable(list, withClient) {
+  return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Invoice</th>' + (withClient ? '<th>Client</th>' : '') + '<th>Period</th><th class="num">Hours</th><th class="num">Total</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody>' +
+    list.map(v => '<tr><td><b>' + esc(v.number) + '</b><br><small class="muted">' + esc(fmtDate(v.issueDate)) + '</small></td>' + (withClient ? '<td><a href="#app/client/' + encodeURIComponent(v.clientId || 'name:' + v.clientName) + '">' + esc(v.clientName) + '</a></td>' : '') +
+      '<td>' + esc(fmtDate(v.periodStart)) + ' – ' + esc(fmtDate(v.periodEnd)) + '</td><td class="num">' + esc(Math.round(v.lines.reduce((s, l) => s + Number(l.hours || 0), 0) * 100) / 100) + '</td><td class="num"><b>' + cMoney(v.total, v.currency) + '</b></td>' +
+      '<td>' + invStatus(v) + (v.status === 'Paid' && v.paidAmount !== null && Math.abs(v.paidAmount - v.total) > 0.005 ? '<br><small class="muted">received ' + cMoney(v.paidAmount, v.currency) + '</small>' : '') + (v.sentTo ? '<br><small class="muted">emailed to ' + esc(v.sentTo) + '</small>' : '') + '</td>' +
+      '<td><small>' + esc(v.status === 'Paid' ? 'paid ' + fmtDate(v.paidAt) : v.status === 'Void' ? '' : fmtDate(v.dueDate)) + '</small></td>' +
+      '<td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="cinv-view" data-id="' + esc(v.id) + '">' + ic('eye') + 'View</button>' +
+        (v.status === 'Draft' ? '<button class="btn xs" data-action="cinv-send" data-id="' + esc(v.id) + '">' + ic('send') + 'Send</button>' : '') +
+        (v.status === 'Sent' ? '<button class="btn xs" data-action="cinv-paid" data-id="' + esc(v.id) + '" data-total="' + esc(v.total) + '">' + ic('check') + 'Paid</button>' : '') +
+        (v.status === 'Draft' || v.status === 'Sent' ? moreMenu((v.status === 'Sent' ? '<button type="button" data-action="cinv-act" data-a="draft" data-id="' + esc(v.id) + '">' + ic('edit') + 'Back to draft</button>' : '') + '<button type="button" class="danger" data-action="cinv-void" data-id="' + esc(v.id) + '">' + ic('trash') + 'Void</button>') : '') +
+      '</div></td></tr>').join('') + '</tbody></table></div>';
+}
+PAGES.client = async parts => {
+  if (!can('pay.view')) return go('#app');
+  const r = await call('getClient', { id: decodeURIComponent(parts[0] || '') }); S.cache.client = r;
+  const c = r.client, cur = c.currency || 'USD', act = r.placements.filter(p => p.status !== 'Terminated'), noRate = act.filter(p => !p.billRate).length;
+  const open = r.invoices.filter(v => v.status === 'Sent'), outstanding = open.reduce((s, v) => s + v.total, 0);
+  const margin = p => p.billRate && p.payRate && p.payType === 'Hourly' ? Math.round((p.billRate - p.payRate) * 100) / 100 : null;
+  return head(c.name, (c.legalName && c.legalName !== c.name ? esc(c.legalName) + ' · ' : '') + (c.unsaved ? 'from employee records — add billing details' : 'Net ' + esc(c.paymentTerms) + ' · invoiced ' + esc(String(c.invoicePeriod || 'Monthly').toLowerCase()) + (c.billingEmail ? ' · ' + esc(c.billingEmail) : '')),
+      '<button class="btn ghost" data-action="client-edit">' + ic('edit') + (c.unsaved ? 'Add billing details' : 'Edit client') + '</button><button class="btn" data-action="cinv-new">' + ic('plus') + 'New invoice</button>') +
+    '<div class="stats"><div class="stat"><b>' + act.length + '</b><span>People placed</span></div><div class="stat ' + (noRate ? 'bad' : 'ok') + '"><b>' + noRate + '</b><span>No bill rate</span></div>' +
+      '<div class="stat ' + (outstanding ? 'warn' : '') + '"><b>' + cMoney(outstanding, cur) + '</b><span>Outstanding</span></div><div class="stat ' + (open.some(v => v.overdue) ? 'bad' : '') + '"><b>' + open.filter(v => v.overdue).length + '</b><span>Overdue</span></div></div>' +
+    '<div class="card"><div class="card-h"><h3>' + ic('users') + 'Placements and bill rates</h3><span class="muted">The bill rate is what ' + esc(c.name) + ' pays per hour — separate from the pay rate. Never shown to the employee.</span></div>' +
+      (r.placements.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Person</th><th>Pay rate</th><th>Bill rate (per hour)</th><th class="num">Margin / h</th><th></th></tr></thead><tbody>' + r.placements.map(p => '<tr' + (p.status === 'Terminated' ? ' class="muted-row"' : '') + '><td><a href="#app/employee/' + esc(p.id) + '"><b>' + esc(p.name) + '</b></a> ' + idTag(p.code) + (p.status !== 'Active' ? ' ' + statusChip(p.status) : '') + '<br><small class="muted">' + esc(p.jobTitle || p.employmentType || '') + (p.startDate ? ' · since ' + esc(fmtDate(p.startDate)) : '') + '</small></td>' +
+        '<td>' + esc(p.payRate !== null ? money(p.payRate, p.payType, p.currency) : '—') + '</td>' +
+        '<td><form class="btns" data-form="bill-rate" style="flex-wrap:nowrap;gap:6px"><input type="hidden" name="employeeId" value="' + esc(p.id) + '"><input name="billRate" type="number" step="0.01" min="0" value="' + esc(p.billRate || '') + '" placeholder="' + (p.billRate ? '' : 'not set') + '" style="width:110px' + (p.billRate ? '' : ';border-color:var(--red)') + '" aria-label="Bill rate for ' + esc(p.name) + '">' +
+          '<input name="effectiveOn" type="date" value="" title="Takes effect from (blank = today)" style="width:150px"><button class="btn xs ghost">Save</button></form>' +
+          (p.billHistory.length > 1 ? '<small class="muted">' + p.billHistory.filter(h => h.effectiveOn !== '0000-00-00').slice(0, 3).map(h => money(h.billRate, '', p.currency) + ' from ' + fmtDate(h.effectiveOn)).join(' · ') + '</small>' : '') + '</td>' +
+        '<td class="num">' + (margin(p) !== null ? '<span class="' + (margin(p) < 0 ? 'bad' : '') + '">' + esc(money(margin(p), '', p.currency)) + '</span>' : '<span class="muted">—</span>') + '</td><td></td></tr>').join('') + '</tbody></table></div>'
+        : '<div class="empty">Nobody is placed at ' + esc(c.name) + ' yet. Set the client on an employee\'s profile.</div>') + '</div>' +
+    '<div class="card"><div class="card-h"><h3>' + ic('doc') + 'Invoices</h3><button class="btn sm" data-action="cinv-new">' + ic('plus') + 'New invoice</button></div>' + (r.invoices.length ? invoiceTable(r.invoices, false) : '<div class="empty">No invoices yet.</div>') + '</div>' +
+    (c.notes ? '<div class="card"><h3>Notes</h3><p>' + esc(c.notes) + '</p></div>' : '');
+};
+function clientForm(c) {
+  c = c || {};
+  return '<form data-form="client-save"><input type="hidden" name="id" value="' + esc(c.id || '') + '"><div class="grid g2">' + field('Client name', inp('name', c.name || '', 'required maxlength="120"')) + field('Legal name (on invoices)', inp('legalName', c.legalName || '', 'maxlength="160"')) +
+    field('Contact name', inp('contactName', c.contactName || '')) + field('Contact email', inp('contactEmail', c.contactEmail || '', 'type="email"')) + field('Billing email (invoices go here)', inp('billingEmail', c.billingEmail || '', 'type="email"')) + field('Phone', inp('phone', c.phone || '')) + '</div>' +
+    field('Billing address', '<textarea name="address" rows="2" maxlength="300">' + esc(c.address || '') + '</textarea>') +
+    '<div class="grid g4">' + field('Payment terms (days)', inp('paymentTerms', c.paymentTerms === undefined || c.paymentTerms === '' ? 30 : c.paymentTerms, 'type="number" min="0" max="180"')) + field('Invoice', sel('invoicePeriod', ['Monthly', 'Semi-monthly', 'Bi-weekly', 'Weekly'], c.invoicePeriod || 'Monthly')) +
+      field('Currency', inp('currency', c.currency || 'USD', 'maxlength="3" style="text-transform:uppercase"')) + field('PO number', inp('poNumber', c.poNumber || '')) + '</div>' +
+    field('Status', sel('status', ['Active', 'Inactive'], c.status || 'Active')) + field('Notes', '<textarea name="notes" rows="2" maxlength="1000">' + esc(c.notes || '') + '</textarea>') +
+    (c.id && !c.unsaved ? '<p class="hint">Renaming the client also updates the client on the employees placed there.</p>' : '') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Save client</button></div></form>';
+}
+function invoiceHtml(v) {
+  const C = v.billTo || {}, org = D().org, cur = v.currency || 'USD', m = n => esc(cMoney(n, cur));
+  return '<div class="inv-doc"><div class="inv-top"><div><h2>' + esc(org.legalName || org.name) + '</h2><p class="muted">' + esc(org.address || '') + '</p></div><div class="inv-meta"><h2>Invoice</h2><p><b>' + esc(v.number) + '</b><br>Date: ' + esc(fmtDate(v.issueDate)) + '<br>Due: ' + esc(fmtDate(v.dueDate)) + (v.poNumber ? '<br>PO: ' + esc(v.poNumber) : '') + '</p></div></div>' +
+    '<div class="inv-to"><small class="muted">BILL TO</small><p><b>' + esc(C.legalName || v.clientName) + '</b>' + (C.contactName ? '<br>Attn: ' + esc(C.contactName) : '') + (C.address ? '<br>' + esc(C.address).replace(/\n/g, '<br>') : '') + '</p><p class="muted">Services for ' + esc(fmtDate(v.periodStart)) + ' – ' + esc(fmtDate(v.periodEnd)) + '</p></div>' +
+    '<table class="tbl inv-lines"><thead><tr><th>Consultant</th><th>Role</th><th class="num">Hours</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead><tbody>' +
+    v.lines.map(l => (l.rates && l.rates.length > 1 ? l.rates.map((r, i) => '<tr><td>' + (i ? '' : '<b>' + esc(l.name) + '</b>') + '</td><td>' + (i ? '' : esc(l.jobTitle || '')) + '</td><td class="num">' + esc(r.hours) + '</td><td class="num">' + m(r.rate) + '</td><td class="num">' + m(r.hours * r.rate) + '</td></tr>').join('')
+      : '<tr><td><b>' + esc(l.name) + '</b></td><td>' + esc(l.jobTitle || '') + '</td><td class="num">' + esc(l.hours) + '</td><td class="num">' + (l.rate ? m(l.rate) : '') + '</td><td class="num">' + m(l.amount) + '</td></tr>')).join('') +
+    '</tbody><tfoot><tr><td colspan="4" class="num"><b>Total due</b></td><td class="num"><b>' + m(v.total) + '</b></td></tr></tfoot></table>' + (v.notes ? '<p>' + esc(v.notes) + '</p>' : '') + '<p class="muted">Payment due within the agreed terms. Thank you for your business.</p></div>';
+}
+const cinvFind = id => [].concat(S.cache.client ? S.cache.client.invoices : [], S.cache.cinvList || []).find(x => x.id === id);
+Object.assign(ACTIONS, {
+  'client-new': () => openModal('Add client', clientForm({}), true),
+  'client-edit': () => openModal('Client details', clientForm(S.cache.client.client), true),
+  'cinv-new': () => {
+    const c = S.cache.client.client, last = addDays((D().today || new Date().toISOString()).slice(0, 7) + '-01', -1), from = last.slice(0, 7) + '-01';
+    openModal('New invoice · ' + c.name, '<form data-form="cinv-preview"><div class="grid g3">' + field('Month', '<input type="month" name="month" value="' + from.slice(0, 7) + '" data-change="cinv-month">') + field('From', inp('from', from, 'type="date" required')) + field('To', inp('to', last, 'type="date" required')) + '</div>' +
+      '<p class="hint">Only approved hours are billed, by day, at the bill rate in effect each day. Pick a month, or set any period (e.g. half a month).</p><div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + ic('spark') + 'Work out the invoice</button></div></form>', true);
+  },
+  'cinv-view': el => {
+    const v = cinvFind(el.dataset.id);
+    if (!v) return;
+    S.cache.cinvView = v;
+    openModal('Invoice ' + v.number, invoiceHtml(v) + '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Close</button><button type="button" class="btn" data-action="cinv-print">' + ic('download') + 'Print / save as PDF</button></div>', true);
+  },
+  'cinv-print': () => {
+    const w = window.open('', '_blank'); if (!w) return toast('Allow pop-ups to print the invoice.', 'warn');
+    w.document.write('<!doctype html><html><head><title>' + esc(S.cache.cinvView.number) + '</title><style>body{font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#13202e;margin:40px}h2{margin:0 0 4px}.muted{color:#6b7785}.inv-top{display:flex;justify-content:space-between;gap:40px;margin-bottom:28px}.inv-meta{text-align:right}table{width:100%;border-collapse:collapse;margin:18px 0}th,td{padding:8px 6px;border-bottom:1px solid #e3e8ee;text-align:left}th{font-size:12px;text-transform:uppercase;color:#6b7785}.num{text-align:right}tfoot td{border:0;font-size:16px}</style></head><body>' + invoiceHtml(S.cache.cinvView) + '</body></html>');
+    w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+  },
+  'cinv-send': async el => {
+    const v = cinvFind(el.dataset.id) || {}, c = v.billTo || {};
+    const to = await ask({ title: 'Send invoice ' + (v.number || ''), body: 'It is marked as sent (the due date counts from the invoice date). To email it to the client as well, enter their billing address; leave it empty to send it yourself (Print / save as PDF).', input: { label: 'Email it to (optional)', type: 'email', value: c.billingEmail || '' }, ok: 'Mark as sent' });
+    if (to === null || to === false || to === undefined) return;
+    await busy(el, call('decideClientInvoice', { id: el.dataset.id, action: 'send', email: !!to, to: to || '' }));
+    toast('Invoice marked as sent' + (to ? ' and emailed to ' + to : ''), 'ok'); await reloadCurrent();
+  },
+  'cinv-paid': async el => {
+    const v = await ask({ title: 'Payment received', body: 'Enter the amount received (the invoice total by default) and, if you like, the payment reference after a comma — e.g. "' + el.dataset.total + ', ACH 1042".', input: { label: 'Amount, reference', value: el.dataset.total, required: true }, ok: 'Mark paid', tone: 'ok' });
+    if (!v) return;
+    const [amt, ...ref] = String(v).split(',');
+    await busy(el, call('decideClientInvoice', { id: el.dataset.id, action: 'paid', amount: amt.replace(/[^0-9.]/g, ''), reference: ref.join(',').trim() }));
+    toast('Marked paid', 'ok'); await reloadCurrent();
+  },
+  'cinv-void': async el => {
+    const why = await ask({ title: 'Void this invoice?', body: 'It stays on file, marked void, and its hours can be billed again.', input: { label: 'Why', required: true }, ok: 'Void', tone: 'danger' });
+    if (!why) return;
+    await busy(el, call('decideClientInvoice', { id: el.dataset.id, action: 'void', reason: why })); toast('Invoice voided', 'ok'); await reloadCurrent();
+  },
+  'cinv-act': async el => { await busy(el, call('decideClientInvoice', { id: el.dataset.id, action: el.dataset.a })); await reloadCurrent(); }
+});
+CHANGES['cinv-month'] = el => {
+  const f = el.form, m = el.value; if (!/^\d{4}-\d{2}$/.test(m)) return;
+  f.from.value = m + '-01'; f.to.value = addDays(addDays(m + '-01', 32).slice(0, 7) + '-01', -1);
+};
+FORMS['client-save'] = async v => {
+  const r = await call('saveClient', v); closeModal(); toast('Client saved', 'ok');
+  if (!v.id) go('#app/client/' + encodeURIComponent(r.id)); else if (/^name:/.test(v.id)) go('#app/client/' + encodeURIComponent(r.id)); else await reloadCurrent();
+};
+FORMS['bill-rate'] = async (v, form) => {
+  await call('setBillRate', { employeeId: v.employeeId, billRate: v.billRate, effectiveOn: v.effectiveOn || '' });
+  toast('Bill rate saved' + (v.effectiveOn ? ' from ' + fmtDate(v.effectiveOn) : ''), 'ok'); await reloadCurrent();
+};
+FORMS['cinv-preview'] = async v => {
+  const c = S.cache.client.client, r = await call('previewClientInvoice', { clientId: c.id, from: v.from, to: v.to }), cur = r.currency;
+  S.cache.cinvPreview = r;
+  openModal('New invoice · ' + c.name + ' · ' + fmtDate(r.from) + ' – ' + fmtDate(r.to), '<form data-form="cinv-create"><input type="hidden" name="from" value="' + r.from + '"><input type="hidden" name="to" value="' + r.to + '">' +
+    (r.lines.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th></th><th>Person</th><th class="num">Approved hours</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead><tbody>' + r.lines.map((l, i) => '<tr' + (l.include ? '' : ' class="muted-row"') + '><td><input type="checkbox" name="inc_' + i + '" value="' + esc(l.employeeId) + '"' + (l.include ? ' checked' : ' disabled') + '></td>' +
+      '<td><b>' + esc(l.name) + '</b>' + (l.jobTitle ? '<br><small class="muted">' + esc(l.jobTitle) + '</small>' : '') + l.issues.map(x => '<br><small style="color:var(--red)">' + ic('alert') + ' ' + esc(x) + '</small>').join('') + l.notes.map(x => '<br><small style="color:var(--amber)">' + esc(x) + '</small>').join('') + '</td>' +
+      '<td class="num">' + esc(l.hours) + '</td><td class="num">' + (l.rates.length > 1 ? l.rates.map(x => esc(cMoney(x.rate, cur)) + ' × ' + esc(x.hours) + ' h').join('<br>') : esc(cMoney(l.rate, cur))) + '</td><td class="num"><b>' + esc(cMoney(l.amount, cur)) + '</b></td></tr>').join('') +
+      '</tbody><tfoot><tr><td colspan="4" class="num"><b>Total (ticked)</b></td><td class="num"><b>' + esc(cMoney(r.total, cur)) + '</b></td></tr></tfoot></table></div>' : '<div class="empty">Nobody placed at ' + esc(c.name) + ' has hours in this period.</div>') +
+    '<div class="grid g2">' + field('Invoice date', inp('issueDate', D().today || '', 'type="date"')) + field('Note on the invoice (optional)', inp('notes', '')) + '</div>' +
+    '<p class="hint">People with a problem (no bill rate, overlapping timesheets, already billed) are left out — fix it and work the invoice out again. It is saved as a draft; you can check it, print it and send it.</p>' +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="cinv-new">Change the period</button><button class="btn"' + (r.lines.some(l => l.include) ? '' : ' disabled') + '>' + ic('doc') + 'Create draft invoice</button></div></form>', true);
+};
+FORMS['cinv-create'] = async (v, form) => {
+  const ids = Array.from(form.querySelectorAll('input[type=checkbox][name^=inc_]:checked')).map(x => x.value);
+  if (!ids.length) throw new Error('Tick at least one person.');
+  const r = await call('createClientInvoice', { clientId: S.cache.client.client.id, from: v.from, to: v.to, employeeIds: ids, issueDate: v.issueDate, notes: v.notes });
+  closeModal(); toast('Draft invoice ' + r.invoice.number + ' created — ' + cMoney(r.invoice.total, r.invoice.currency), 'ok', 7000); await reloadCurrent();
 };
 Object.assign(ACTIONS, {
   nav: el => go(el.dataset.href),
