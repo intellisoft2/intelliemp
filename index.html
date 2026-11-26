@@ -317,6 +317,8 @@ input[type=file]::file-selector-button:hover{background:#f1f4f8}
 .mc-otro{display:block;font-size:11px;font-weight:700;color:var(--amber)}
 .mc-wt{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f7f9fb}.mc-wt b{font:800 18px var(--head)}.mc-wt small{font-size:11px;color:var(--mute)}
 .ms-more{margin-top:18px}.ms-more textarea{min-height:84px}
+.prev-files{margin-top:8px}.prev-files>summary{cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px}.prev-files .ms-file{margin-top:8px;padding:6px 10px;background:#fff}.prev-files .ms-file>span{font-weight:500}
+.reopen-picks{margin:-4px 0 12px;gap:6px}
 .ms-file{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;padding:10px 12px;border:1px solid #edf1f5;border-radius:12px;background:#fafcfd}.ms-file>span{font-weight:600;margin-right:auto}
 .ms-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
 .ms-step{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:20px;background:#f1f4f8;font-size:13px;font-weight:600;color:var(--ink2)}.ms-step small{font-weight:500;color:var(--mute)}
@@ -2103,13 +2105,13 @@ async function timesheetPage(empId, week, mine) {
     (edit ? field(G.source === 'client' ? 'Client-approved timesheet (required)' : 'Attach the signed timesheet (optional)', '<input type="file" name="file" data-change="ts-file-pick" accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.xlsx,.xls,.csv,.txt,.doc,.docx">' +
       '<div class="btns" style="margin-top:6px"><button type="button" class="btn ghost sm" data-action="ts-ai-read">' + ic('spark') + 'Read hours from the file</button>' + (G.readerAi ? '<button type="button" class="btn ghost sm" data-action="ts-ai-read" data-offline="1" title="Uses IntelliEmp\'s own reader — nothing is sent to an AI provider">Read without AI</button>' : '') + '</div>', '',
       t && t.hasFile ? 'Current file: ' + t.fileName : (G.readerAi ? 'AI reads signed sheets, scans, photos and spreadsheets; the built-in reader takes over if AI is unavailable.' : 'The built-in reader handles client-system PDFs, spreadsheets and CSV; scans are read with Google\'s text recognition.')) : '') + '</div><div id="ts-ai"></div>' +
-    (t && t.hasFile ? '<p class="btns">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) + tsFixMenu(t, '') + '</p>' : '') +
+    (t && t.hasFile ? '<p class="btns">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) + tsFixMenu(t, '') + '</p>' : '') + prevFilesHtml(t) +
     (t && (t.steps || []).length ? '<div class="steps">' + t.steps.map((s, i) => '<span class="step">' + (s.status === 'Approved' ? ic('check') : s.status === 'Rejected' ? ic('x') : ic('clock')) + (i + 1) + '. ' + esc(s.name || s.email) + ' <small class="muted">(' + esc(s.role) + ')</small> ' + statusChip(s.status) + '</span>').join('') + '</div>' : '') +
     (edit ? '<p class="hint">' + esc(flowNote) + '</p><div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button>' + (future ? '<span class="muted">You can submit once the week starts.</span>' : '<button class="btn" name="mode" value="submit">' + ic('send') + 'Submit for approval</button>') + '</div>' : '') +
     '</form>' + tsAiPanel(t, !mine && isStaff()) +
     (canApprove ? '<div class="card"><h3>' + ic('check') + 'Your approval</h3><p class="muted">Step ' + (Number(t.stepIndex) + 1) + ' of ' + t.steps.length + ' (' + esc(step.role) + ').</p><div class="btns"><button class="btn" data-action="ts-approve" data-id="' + t.id + '">Approve ' + esc(t.totalHours) + ' hours</button><button class="btn danger" data-action="ts-reject" data-id="' + t.id + '">Send back</button></div></div>' : '') +
     (t && t.status === 'Submitted' && (mine || can('timesheets.all')) ? '<div class="card tight"><div class="btns"><span class="muted">Waiting for ' + esc(step ? (step.name || step.email) : '') + '.</span><button class="btn ghost sm" data-action="ts-resend" data-id="' + t.id + '">' + ic('mail') + 'Resend approval email</button>' + (can('timesheets.all') ? '<button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '">Reopen</button>' : '') + '</div></div>' : '') +
-    (t && t.status === 'Approved' && can('timesheets.all') ? '<div class="card tight"><div class="btns"><button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '">Reopen this week</button></div></div>' : '') +
+    (t && t.status === 'Approved' && can('timesheets.all') ? '<div class="card tight"><div class="btns"><button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '" data-reason="' + esc(reopenReason(t)) + '">Reopen this week</button></div></div>' : '') +
     (mine && D().org.timesheetInbox ? '<p class="hint">' + ic('mail') + ' You can also email your signed timesheet to <b>' + esc(D().org.timesheetInbox) + '</b> from ' + esc(D().who.email) + ' — put the week-ending date in the subject.</p>' : '');
 }
 function tsRowsFromForm(form) {
@@ -2149,7 +2151,7 @@ Object.assign(ACTIONS, {
     await busy(el, call('approveTimesheet', { id: el.dataset.id, decision: 'approve' })); toast('Approved', 'ok'); await reloadCurrent();
   },
   'ts-reject': el => openModal('Send the timesheet back', '<form data-form="ts-reject"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '"><div class="grid">' + field('What needs to change? (emailed to the employee)', area('note', '', 'required')) + '</div><div class="foot-btns"><button class="btn danger">Send back</button></div></form>'),
-  'ts-reopen': el => openModal('Reopen this week', '<form data-form="ts-reopen"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '"><p class="muted">The week goes back to draft so hours can be changed and resubmitted. The employee is told.</p><div class="grid">' + field('Reason', area('note', '', 'required')) + '</div><div class="foot-btns"><button class="btn">Reopen</button></div></form>'),
+  'ts-reopen': el => { const per = el.dataset.per || 'week', def = el.dataset.reason || ''; openModal('Reopen this ' + per, '<form data-form="ts-reopen"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '"><p class="muted">The ' + per + ' goes back to draft so hours can be changed and resubmitted. The employee is told, with this reason. The attached file stays; a corrected file sent later keeps this one under "Earlier files".</p><div class="grid">' + field('Reason', area('note', def, 'required maxlength="500" rows="5"')) + '</div><div class="btns reopen-picks">' + REOPEN_PICKS.map(p => '<button type="button" class="btn ghost xs" data-action="reopen-pick" data-v="' + esc(p) + '">' + esc(p) + '</button>').join('') + '</div><div class="foot-btns"><button class="btn">Reopen</button></div></form>') },
   'ts-resend': async el => { await busy(el, call('resendApproval', { id: el.dataset.id })); toast('Approval email sent again', 'ok'); },
   'ts-file': el => docMode() === 'view' ? viewFile('ts', el.dataset.id, el) : getFile('ts', el.dataset.id, el),
   'ts-export': () => { const to = D().thisWeek, from = addDays(to, -28);
@@ -4454,13 +4456,13 @@ async function monthSheetPage(empId, m, mine) {
         (edit ? '<div class="grid g2 ms-more">' + field('Notes for the approver', '<textarea name="notes" maxlength="500" rows="2" placeholder="Anything the approver should know">' + esc(t ? t.notes || '' : '') + '</textarea>') +
           '<div><label>Timesheet file</label><label class="drop"><input type="file" title=" " name="file" accept=".pdf,.png,.jpg,.jpeg,.heic,.webp,.xlsx,.xls,.csv,.doc,.docx" data-change="ms-file">' + ic('upload') + '<span id="ms_fname">' + (t && t.hasFile ? 'Replace <b>' + esc(t.fileName) + '</b>' : 'Choose the signed timesheet') + '</span><small>PDF, photo, scan or spreadsheet</small></label></div></div>' : '') +
         (t && t.hasFile ? '<div class="ms-file">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) +
-          (!mine && (can('timesheets.all') || can('timesheets.approve')) ? '<button type="button" class="btn ghost sm" data-action="ts-reread" data-ids="' + esc(t.id) + '">' + ic('spark') + 'Read the file again</button>' : '') + tsFixMenu(t, m) + '</div>' : '') +
+          (!mine && (can('timesheets.all') || can('timesheets.approve')) ? '<button type="button" class="btn ghost sm" data-action="ts-reread" data-ids="' + esc(t.id) + '">' + ic('spark') + 'Read the file again</button>' : '') + tsFixMenu(t, m) + '</div>' : '') + prevFilesHtml(t) +
         tsWrongFileBanner(t, m) + stepsHtml +
         (edit ? '<div class="ms-bar"><div><span class="muted">Total</span> <b id="md_total2">' + total + '</b> <span class="muted">hours</span></div><div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button><button class="btn" name="mode" value="submit"' + (G.days[0] > (D().today || '') ? ' disabled title="You can submit once the month has started"' : '') + '>' + ic('send') + 'Submit ' + esc(monthTitle(m).split(' ')[0]) + '</button></div></div>' : '') +
       '</div></form>' + tsAiPanel(t, !mine && isStaff()) +
     (canApprove ? '<div class="card ms-approve"><div><h3>' + ic('check') + 'Your approval</h3><p class="muted">' + esc(e.name) + ' · ' + esc(monthTitle(m)) + ' · <b>' + total + ' hours</b></p></div><div class="btns"><button class="btn" data-action="ts-approve" data-id="' + t.id + '">' + ic('check') + 'Approve ' + total + ' hours</button><button class="btn danger" data-action="ts-reject" data-id="' + t.id + '">Send back</button></div></div>' : '') +
     (t && t.status === 'Submitted' && (mine || can('timesheets.all')) ? '<div class="card tight"><div class="btns"><span class="muted">Waiting for ' + esc(step ? (step.name || step.email) : '') + '.</span><button class="btn ghost sm" data-action="ts-resend" data-id="' + t.id + '">Resend approval email</button></div></div>' : '') +
-    (t && t.status === 'Approved' && can('timesheets.all') ? '<div class="card tight"><div class="btns"><span class="muted">Approved' + (t.approvedAt ? ' on ' + esc(fmtDate(t.approvedAt)) : '') + '.</span><button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '">Reopen this month</button></div></div>' : '');
+    (t && t.status === 'Approved' && can('timesheets.all') ? '<div class="card tight"><div class="btns"><span class="muted">Approved' + (t.approvedAt ? ' on ' + esc(fmtDate(t.approvedAt)) : '') + '.</span><button class="btn ghost sm" data-action="ts-reopen" data-id="' + t.id + '" data-per="month" data-reason="' + esc(reopenReason(t)) + '">Reopen this month</button></div></div>' : '');
 }
 function msInput(form) {
   const G = S.cache.ms, v = formValues(form), input = { employeeId: G.employee.id, month: G.month, notes: v.notes };
@@ -4886,6 +4888,23 @@ async function oddConfirm(t) {
   if (!t || !(t.odd || []).length) return true;
   return ask({ title: 'These hours look odd', body: t.odd.join(' ') + ' Approve anyway?', ok: 'Approve anyway', tone: 'warn' });
 }
+
+function prevFilesHtml(t) {
+  const list = (t && t.prevFiles) || [];
+  if (!list.length) return '';
+  return '<details class="prev-files"><summary class="muted">' + ic('clock') + 'Earlier file' + (list.length > 1 ? 's' : '') + ' (' + list.length + ') — kept after correction</summary>' +
+    list.map((p, i) => '<div class="ms-file">' + ic('doc') + '<span>' + esc(p.name) + ' <small class="muted">· ' + esc(p.why || 'replaced') + (p.at ? ' ' + esc(fmtDate(p.at)) : '') + '</small></span>' + fileBtns('ts', t.id + '~' + i, { size: 'xs' }) + '</div>').join('') + '</details>';
+}
+function reopenReason(t) {
+  if (!t) return '';
+  const parts = [], c = t.aiCheck || {};
+  if (c && !c.error && c.match === false && c.fileHours !== null && c.fileHours !== undefined) parts.push('The attached file shows ' + c.fileHours + ' h; ' + t.totalHours + ' h were entered.');
+  (c.issues || []).filter(x => /week|month|period|covers/i.test(x) && !/^The file shows/.test(x)).slice(0, 1).forEach(x => parts.push(x));
+  (t.odd || []).forEach(x => { if (parts.length < 3 && !parts.some(p => p.slice(0, 30) === x.slice(0, 30))) parts.push(x); });
+  return parts.length ? ('Hours need correcting — ' + parts.join(' ')).slice(0, 490) : '';
+}
+const REOPEN_PICKS = ['Hours entered on the wrong day', 'Filed on the wrong week', 'Hours do not match the attached file', 'Wrong file attached', 'Client corrected the timesheet'];
+ACTIONS['reopen-pick'] = el => { const ta = el.closest('form').querySelector('[name="note"]'); if (!ta) return; ta.value = el.dataset.v + (ta.value && !REOPEN_PICKS.some(p => ta.value === p) ? ' — ' + ta.value.replace(/^Hours need correcting — /, '') : ''); ta.focus(); };
 const INV_CLS = { Draft: 'warn', Sent: 'info', Paid: 'ok', Void: '' };
 const invStatus = v => chip(v.overdue ? 'Overdue' : v.status, v.overdue ? 'bad' : INV_CLS[v.status] || '');
 const cMoney = (n, cur) => n === null || n === undefined || n === '' ? '—' : (!cur || cur === 'USD' ? '$' : cur === 'INR' ? '₹' : cur + ' ') + Number(n).toLocaleString(cur === 'INR' ? 'en-IN' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
