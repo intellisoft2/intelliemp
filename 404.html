@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.16"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.17"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1918,7 +1918,12 @@ Object.assign(ACTIONS, {
 Object.assign(FORMS, {
   'emp-create': async v => { const invite = v.invite, inviteTo = v.inviteTo, signIn = v.signIn; delete v.invite; delete v.inviteTo; delete v.signIn; const x = extraFrom(v); const o = cleanEmp(v); if (x) o.extra = x; o.hireType = v.hireType || ''; const r = await call('createEmployee', o); closeModal();
     if (invite) { try { const to = inviteTo === 'work' && !o.email ? 'personal' : inviteTo === 'personal' && !o.personalEmail ? 'work' : inviteTo; await call('inviteEmployee', { employeeId: r.id, to: to === 'both' && !(o.email && o.personalEmail) ? (o.email ? 'work' : 'personal') : to, signIn: to === 'both' && o.email && o.personalEmail ? (signIn || 'work') : to === 'both' ? (o.email ? 'work' : 'personal') : to }); } catch (e) { fail(e); } }
-    toast((o.employmentType === '1099 Contractor' ? 'Contractor added — W-9, agreement and payment details are on their checklist' : o.hireType === 'Existing' ? 'Existing employee added — records refresh list ready' : 'Employee added') + (invite ? ' and invited' : ''), 'ok'); S.db = null; await loadDb(); go('#app/employee/' + r.id + '/onboarding'); },
+    toast((o.employmentType === '1099 Contractor' ? 'Contractor added — W-9, agreement and payment details are on their checklist' : o.hireType === 'Existing' ? 'Existing employee added — records refresh list ready' : 'Employee added') + (invite ? ' and invited' : ''), 'ok'); S.db = null; await loadDb();
+    const I = S.cache.intake;   // added from "What the documents are": back to the documents, the new person chosen
+    if (I && I.addFor !== null && I.addFor !== undefined && I.items[I.addFor] && !I.items[I.addFor].filed) { I.items[I.addFor].employeeId = r.id; I.picks = Object.assign(I.picks || {}, { ['e_' + I.addFor]: r.id });
+      const key = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\b(inc|llc|ltd|corp|co)\b/g, '').trim(), nm = key(o.firstName + ' ' + o.lastName), bz = key(o.businessName);
+      I.items.forEach((y, j) => { if (j === I.addFor || y.filed || y.employeeId || I.picks['e_' + j]) return; if ((nm && key(y.personName) === nm) || (bz && key(y.businessName) === bz)) { y.employeeId = r.id; I.picks['e_' + j] = r.id; } }); I.addFor = null; S.cache.emps = null; return intakeReview(I.items, [], I.fixedEmp); }
+    go('#app/employee/' + r.id + '/onboarding'); },
   'emp-update': async v => { const x = extraFrom(v); const o = Object.assign({}, v); if (x) o.extra = x; ['payRate', 'perDiem', 'bonusRate', 'healthReimb'].forEach(k => { if (o[k] !== '' && o[k] !== undefined) o[k] = Number(o[k]); });
     if (can('confidential.view')) o.confidential = !!v.confidential; else delete o.confidential;
     o.hireType = v.hireType || '';
@@ -3106,26 +3111,44 @@ async function runIntake(picked, empId, hashAt, prior) {
   doneAlert('Sorted ' + out.length + ' document' + (out.length === 1 ? '' : 's') + (failed.length ? ' (' + failed.length + ' could not be read)' : '') + ' — check and file', async () => { if (location.hash !== hashAt) { location.hash = hashAt; await waitPainted(hashAt); } open(); });
 }
 ACTIONS['intake-retry'] = async () => { const F = S.intakeFailed; if (!F || !F.picked.length) return; closeModal(); await runIntake(F.picked, F.empId, F.hashAt, F.out); };
+const x0IsCon = items => (items || []).some(x => x.businessName || /^(Invoice|Form W-9|Certificate of insurance|Contractor agreement)$/.test(x.documentType || ''));
+CHANGES['intake-who'] = el => {
+  if (el.value !== '__new') return;
+  const I = S.cache.intake, i = Number(el.dataset.i), x = I.items[i], form = el.closest('form');
+  I.picks = {}; form.querySelectorAll('select').forEach(s => { I.picks[s.name] = s.name === el.name ? '' : s.value; });
+  I.addFor = i;
+  const con = /contractor/.test(location.hash) || x0IsCon([x]), nm = String(x.personName || '').trim().split(/\s+/);
+  const pre = { employmentType: con ? CON_TYPE : '', payType: 'Hourly', firstName: nm.length > 1 ? nm.slice(0, -1).join(' ') : nm[0] || '', lastName: nm.length > 1 ? nm[nm.length - 1] : '', businessName: x.businessName || '' };
+  openModal(con ? 'Add contractor' : 'Add employee', '<form data-form="emp-create">' + '<p class="muted">From <b>' + esc(x.fileName) + '</b>' + (x.businessName ? ' — ' + esc(x.businessName) : '') + '. Check the details; when added, you are back at the documents with them chosen.</p>' +
+    hireTypePicker('') + empForm(pre, 'new') + inviteChoice('personal') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="intake-back">Back to the documents</button><button class="btn">' + (con ? 'Add contractor' : 'Add employee') + '</button></div></form>', true);
+};
+ACTIONS['intake-back'] = () => { const I = S.cache.intake; if (I) { I.addFor = null; intakeReview(I.items, [], I.fixedEmp); } };
 async function intakeReview(items, errs, fixedEmp) {
   const staff = isStaff() && (can('docs.manage') || can('settings.manage')), emps = staff && !fixedEmp ? await empChoices() : [];
   const corpTypes = (D().lists.corpDocTypes || []), empTypes = L('docTypes') || [];
-  S.cache.intake = { items: items, fixedEmp: fixedEmp };
+  S.cache.intake = Object.assign(S.cache.intake && S.cache.intake.items === items ? S.cache.intake : {}, { items: items, fixedEmp: fixedEmp });
   const who = x => personFor(fixedEmp || x.employeeId) || (emps || []).find(e => e.id === (fixedEmp || x.employeeId)) || null;
   const typeSel = (i, x) => '<select name="t_' + i + '">' + (who(x) ? docTypeOptions(who(x), x.category === 'employee' ? x.documentType : '', staff, t => 'e|' + t) : '<optgroup label="Employee documents">' + empTypes.map(t => '<option value="e|' + esc(t) + '"' + (x.category === 'employee' && x.documentType === t ? ' selected' : '') + '>' + esc(t) + '</option>').join('') + '</optgroup>') +
     '<optgroup label="Timesheets"><option value="t|Timesheet"' + (x.category === 'timesheet' ? ' selected' : '') + '>Timesheet (record the weeks)</option></optgroup>' +
     (can('settings.manage') ? '<optgroup label="Company documents">' + corpTypes.map(t => '<option value="c|' + esc(t) + '"' + (x.category === 'company' && x.documentType === t ? ' selected' : '') + '>' + esc(t) + '</option>').join('') + '</optgroup>' : '') + '</select>';
-  const whoSel = (i, x) => fixedEmp ? '' : '<select name="e_' + i + '"><option value="">' + (x.category === 'company' ? 'The company' : '— choose —') + '</option>' + emps.map(e => '<option value="' + e.id + '"' + (x.employeeId === e.id ? ' selected' : '') + '>' + esc(e.name) + '</option>').join('') + '</select>' +
-    (x.personName && !x.employeeId ? '<br><small class="muted">Name on it: ' + esc(x.personName) + '</small>' : '');
+  const con = /contractor/.test(location.hash) || x0IsCon(items);
+  const whoSel = (i, x) => fixedEmp ? '' : '<select name="e_' + i + '" data-change="intake-who" data-i="' + i + '"><option value="">' + (x.category === 'company' ? 'The company' : '— choose —') + '</option>' +
+    (can('employees.edit') && x.category !== 'company' ? '<option value="__new">+ Add a new ' + (con ? 'contractor' : 'person') + (x.personName || x.businessName ? ': ' + esc(x.personName || x.businessName) : '') + '…</option>' : '') +
+    emps.map(e => '<option value="' + e.id + '"' + (x.employeeId === e.id ? ' selected' : '') + '>' + esc(e.name) + (e.businessName ? ' · ' + esc(e.businessName) : '') + '</option>').join('') + '</select>' +
+    (!x.employeeId && (x.personName || x.businessName) ? '<br><small class="muted">On it: ' + esc([x.personName, x.businessName].filter(Boolean).join(' · ')) + '</small>' : '');
   openModal('What the documents are', '<form data-form="intake-file">' + (errs.length ? '<div class="banner bad">' + ic('alert') + '<div>Could not read: ' + errs.map(esc).join('<br>') + '<br><button type="button" class="btn sm" data-action="intake-retry" style="margin-top:6px">Try these again</button> <small class="muted">The failures are in the audit log.</small></div></div>' : '') +
     '<div class="tblwrap"><table class="tbl"><thead><tr><th>File</th><th>What it is</th>' + (fixedEmp ? '' : '<th>For</th>') + '</tr></thead><tbody>' +
     items.map((x, i) => '<tr><td><b>' + esc(x.fileName) + '</b><br><small class="muted">' + esc(x.summary || '') + ' · ' + esc(x.readBy) + '</small></td><td>' + typeSel(i, x) + '</td>' + (fixedEmp ? '' : '<td>' + whoSel(i, x) + '</td>') + '</tr>').join('') +
     '</tbody></table></div><p class="hint">Change anything that is wrong. Employee documents are then read for dates and details; timesheets show their weeks to record; company documents go to Settings → Corporate documents.</p>' +
     '<div class="foot-btns"><button class="btn">' + ic('check') + 'File ' + (items.length === 1 ? 'it' : 'them') + '</button></div></form>', true);
+  const P = S.cache.intake && S.cache.intake.picks;
+  if (P) { Object.keys(P).forEach(n => { const el = document.querySelector('form[data-form="intake-file"] [name="' + n + '"]'); if (el && P[n] && [...el.options].some(o => o.value === P[n])) el.value = P[n]; }); }
 }
 FORMS['intake-file'] = async v => {
   const I = S.cache.intake, done = [], later = [], bad = [];
   I.items.forEach((x, i) => { const [k] = String(v['t_' + i] || '').split('|'), category = { e: 'employee', t: 'timesheet', c: 'company' }[k] || x.category;
-    if (category !== 'company' && !(I.fixedEmp || v['e_' + i])) throw new Error('Choose who ' + x.fileName + ' is for.'); });
+    if (category !== 'company' && (!(I.fixedEmp || v['e_' + i]) || v['e_' + i] === '__new')) throw new Error('Choose who ' + x.fileName + ' is for.'); });
   for (let i = 0; i < I.items.length; i++) {
     const x = I.items[i]; if (x.filed) continue;
     const [k, type] = String(v['t_' + i] || '').split('|'), category = { e: 'employee', t: 'timesheet', c: 'company' }[k] || x.category;
