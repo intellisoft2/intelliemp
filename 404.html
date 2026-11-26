@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.23"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.24"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -320,6 +320,9 @@ input[type=file]::file-selector-button:hover{background:#f1f4f8}
 .prev-files{margin-top:8px}.prev-files>summary{cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px}.prev-files .ms-file{margin-top:8px;padding:6px 10px;background:#fff}.prev-files .ms-file>span{font-weight:500}
 .ai-fix{margin:6px 0 10px;border:1px solid #edf1f5;border-radius:12px;padding:8px 12px;background:#fafcfd}.ai-fix>summary{cursor:pointer;font-weight:600;display:flex;align-items:center;gap:6px}.ai-fix .banner{margin:10px 0}.ai-sug{align-items:center;gap:6px;margin:4px 0 8px}.ai-sug small{margin-right:10px}label.fix-hint{color:var(--teal,#0f766e);font-weight:600}
 .resolve-opts>*{border:1px solid #edf1f5;border-radius:12px;padding:10px 12px;margin-bottom:8px}.resolve-opts p{margin:4px 0 0}
+.inv-extra{border:1px solid #edf1f5;border-radius:12px;padding:10px 12px;background:#fafcfd}.inv-extra .kv{margin:0}.inv-extra .banner{margin:0 0 8px}
+.doc-details{margin-top:14px;border:1px solid #e3efe9;border-radius:12px;padding:10px 12px;background:#f6fbf8}.doc-details h4{margin:0 0 6px}
+.chip-btn{border:0;cursor:pointer;font:inherit}
 .reopen-picks{margin:-4px 0 12px;gap:6px}
 .ms-file{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;padding:10px 12px;border:1px solid #edf1f5;border-radius:12px;background:#fafcfd}.ms-file>span{font-weight:600;margin-right:auto}
 .ms-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -1618,7 +1621,7 @@ function docsTable(docs, hr, tasks, empId) {
       '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' + (d.locked && !d.unlockedUntil ? '' : fileBtns('doc', d.id, { size: 'xs' })) + '</div></td></tr>';
     if (d.locked && !d.unlockedUntil) return lockedRow(d, forDoc, cur, nOld, canAdd);
     const old = !!cur;
-    return '<tr' + (old ? ' class="ver-row" data-ver-of="' + esc(cur) + '" hidden' : '') + '><td>' + (old ? '<span class="ver-indent">↳ </span>' : '') + '<b>' + esc(d.type) + '</b> ' + verChip(d) + empChip(d) + (d.locked ? chip('Unlocked until ' + fmtTime(d.unlockedUntil), 'warn') + ' ' : '') + (old ? '' : aiChip(d)) +
+    return '<tr' + (old ? ' class="ver-row" data-ver-of="' + esc(cur) + '" hidden' : '') + '><td>' + (old ? '<span class="ver-indent">↳ </span>' : '') + '<b>' + esc(d.type) + '</b> ' + verChip(d) + empChip(d) + (d.locked ? chip('Unlocked until ' + fmtTime(d.unlockedUntil), 'warn') + ' ' : '') + (old ? '' : aiChip(d)) + (!old && (d.profileGaps || []).length && can('employees.edit') ? ' <button type="button" class="chip info chip-btn" data-action="doc-details" data-id="' + d.id + '" title="Details on this document that are not on the record">' + ic('user') + (d.profileGaps.length) + ' detail' + (d.profileGaps.length === 1 ? '' : 's') + ' to save</button>' : '') +
       '<br><small class="muted">' + esc(d.fileName) + (d.splitFrom ? ' · ' + (/[,–-]/.test(d.pages || '') ? 'pages ' : 'page ') + esc(d.pages || '') + ' of a combined file' : '') + '</small>' + empNote(d) + verLine(d, byId) + (!old && forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (old ? '<small class="muted">' + esc(fmtDate(d.expiresOn) || '—') + '</small>' : (docExpiry(d) || '—')) + '</td><td>' + statusChip(d.status) + '</td>' +
       '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' +
       (!old && d.type === 'Form I-9' && d.source !== 'Official USCIS PDF' && d.source !== 'Portal form' && can('onboarding.manage') ? '<button class="btn xs" data-action="i9-paper" data-id="' + d.id + '" title="Read this paper Form I-9 and fill the official USCIS form">' + ic('doc') + 'Convert to official form</button>' : '') + fileBtns('doc', d.id) +
@@ -1699,6 +1702,7 @@ Object.assign(ACTIONS, {
   'doc-relock': async el => { await busy(el, call('relockDocument', { docId: el.dataset.id })); toast('Locked again', 'ok'); await reloadCurrent(); },
   'acc-decide': async el => { const hrs = el.closest('.alert') && el.closest('.alert').querySelector('select'); await busy(el, call('decideDocAccess', { id: el.dataset.id, decision: el.dataset.d, hours: hrs ? hrs.value : 4 })); toast(el.dataset.d === 'approve' ? 'Access approved' : 'Request declined', 'ok'); await reloadCurrent(); }
 });
+ACTIONS['doc-details'] = el => { const E = S.cache.emp || {}, d = (E.documents || []).find(x => x.id === el.dataset.id); if (d) docDetailsModal(d.id, d.profileGaps || [], d.type, (E.employee || {}).name); };
 const docAdmin = () => can('docs.manage') && ['ADMIN', 'EXECUTIVE'].indexOf(String((D().who || {}).role || '').toUpperCase()) >= 0;
 ACTIONS['doc-replace'] = el => openModal('Replace the file: ' + el.dataset.type, '<form data-form="doc-replace"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '">' +
   '<p class="muted">For the wrong file attached, or a clearer scan. The document keeps its type, dates and checklist link; the new file is checked again (Received → verify it). Recorded in the audit log.</p><div class="grid">' +
@@ -2890,11 +2894,29 @@ function aiNotice(ai) {
   if (!ai) return;
   if (ai.status === 'Read' && ai.id && (ai.parts || []).length >= 2) return splitOffer(ai);
   if (ai.status !== 'Read') { if (ai.status === 'Queued') toast('Uploaded — AI will read it in a few minutes.', 'ok'); return; }
-  const filled = ai.filled || [], issues = ai.issues || [];
-  if (!filled.length && !issues.length) { toast('Uploaded and read by AI' + (ai.type ? ' as ' + ai.type : ''), 'ok'); return; }
-  openModal('What AI found', (ai.summary ? '<p>' + esc(ai.summary) + '</p>' : '') + (filled.length ? '<p>' + ic('check') + ' Filled in: ' + filled.map(esc).join(', ') + '</p>' : '') + issuesHtml(issues) +
+  const filled = ai.filled || [], issues = ai.issues || [], gaps = can('employees.edit') ? ai.profileGaps || [] : [];
+  if (!filled.length && !issues.length && !gaps.length) { toast('Uploaded and read by AI' + (ai.type ? ' as ' + ai.type : ''), 'ok'); return; }
+  if (!filled.length && !issues.length && gaps.length) return docDetailsModal(ai.id, gaps, ai.docType || ai.type, ai.employeeName);
+  openModal('What AI found', (ai.summary ? '<p>' + esc(ai.summary) + '</p>' : '') + (filled.length ? '<p>' + ic('check') + ' Filled in: ' + filled.map(esc).join(', ') + '</p>' : '') + issuesHtml(issues) + docDetailsForm(ai.id, gaps, ai.employeeName) +
     '<p class="hint">AI reading can be wrong. ' + (can('docs.manage') ? 'Check it against the document before you verify it.' : 'HR checks every document.') + '</p><div class="foot-btns"><button class="btn" data-action="close-modal">OK</button></div>');
 }
+
+function docDetailsForm(docId, gaps, who) {
+  if (!docId || !(gaps || []).length || !can('employees.edit')) return '';
+  return '<form data-form="doc-details" class="doc-details"><input type="hidden" name="id" value="' + esc(docId) + '"><h4>' + ic('user') + 'Not on ' + esc(who ? who + '\'s' : 'the') + ' record yet — save?</h4>' +
+    gaps.map(g => '<label class="check"><input type="checkbox" name="pf_' + esc(g.field) + '"' + (g.current ? '' : ' checked') + '> ' + esc(g.label) + ': <b>' + esc(g.field === 'startDate' || g.field === 'i94Expiry' ? fmtDate(g.value) : g.value) + '</b>' +
+      (g.current ? ' <small class="muted">(on file: ' + esc(g.field === 'startDate' || g.field === 'i94Expiry' ? fmtDate(g.current) : g.current) + ')</small>' : ' <small class="muted">(not on file)</small>') + '</label>').join('') +
+    '<div class="btns"><button class="btn sm">' + ic('check') + 'Save to the record</button></div><p class="hint">New details are ticked; changes to what is on file are not — tick them if the document is right.</p></form>';
+}
+function docDetailsModal(docId, gaps, type, who) {
+  openModal('Useful details on the ' + (type || 'document'), '<p class="muted">AI read details from the ' + esc(type || 'document') + ' that are not on ' + esc(who || 'the employee') + '\'s record.</p>' + docDetailsForm(docId, gaps, who) +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Not now</button></div>');
+}
+FORMS['doc-details'] = async (v, form) => {
+  const profile = {}; form.querySelectorAll('input[name^="pf_"]').forEach(c => { if (c.checked) profile[c.name.slice(3)] = true; });
+  if (!Object.keys(profile).length) throw new Error('Tick the details to save.');
+  const r = await call('saveDocDetails', { id: v.id, profile: profile }); closeModal(); toast('Saved to the record: ' + r.saved.length + ' detail' + (r.saved.length === 1 ? '' : 's'), 'ok'); await reloadCurrent();
+};
 
 const AI_FACTS = [['documentType', 'Type'], ['personName', 'Name on document'], ['formType', 'Form'], ['noticeType', 'Notice'], ['receiptNumber', 'Receipt number'],
   ['workAuthorization', 'Work authorization'], ['eadCategory', 'EAD category'], ['classOfAdmission', 'Class of admission'], ['i94AdmitUntil', 'I-94 admit until'], ['issuedOn', 'Issued'], ['validFrom', 'Valid from'],
@@ -2939,6 +2961,7 @@ function aiDocModal(d) {
     (notice && can('immigration.manage') && cases.length ? field('Update an immigration case', sel('caseId', [['', 'No case']].concat(cases.map(c => [c.id, c.type + (c.receiptNumber ? ' · ' + c.receiptNumber : '')])), ''), '',
       a.noticeType === 'RFE' || a.noticeType === 'NOID' ? 'Sets the next action to respond by ' + fmtDate(a.responseDueDate) + '.' : 'Adds the receipt number and dates, and a note.') : '') +
     '<div class="foot-btns"><button class="btn sm">Apply</button><button type="button" class="btn ghost sm" data-action="ai-doc-read" data-id="' + d.id + '">' + ic('spark') + 'Read again</button></div></form>' +
+    docDetailsForm(d.id, d.profileGaps, (E.employee || {}).name) +
     '<form data-form="ai-ask" style="margin-top:16px"><input type="hidden" name="id" value="' + d.id + '"><h4>' + ic('spark') + 'Ask about this document</h4><div class="grid">' +
     inp('question', '', 'required maxlength="500" placeholder="' + (d.legal ? 'What is the non-compete period and area?' : 'When does this expire, and is it signed?') + '"') + '</div><button class="btn ghost sm">Ask</button><div id="ai-answer"></div></form>', true);
 }
@@ -4070,20 +4093,35 @@ async function invoiceModal(empId, pre) {
   openModal('Submit an invoice', '<form data-form="inv-submit">' + (pre.token ? '<input type="hidden" name="token" value="' + esc(pre.token) + '">' : '') + '<div class="grid g2">' +
     (empId ? '<input type="hidden" name="employeeId" value="' + esc(empId) + '">' : field('Contractor', sel('employeeId', [['', '— choose —']].concat(emps.map(e => [e.id, e.name + (e.businessName ? ' — ' + e.businessName : '')])), ''), 'span2')) +
     (pre.token ? '<p class="span2 muted">' + ic('doc') + ' ' + esc(pre.fileName || 'the invoice') + '</p>' : field('Invoice file (PDF or image)', '<input type="file" name="file" required accept=".pdf,.png,.jpg,.jpeg,.heic,.webp,.doc,.docx,.xlsx,.xls" data-change="inv-read">', 'span2', 'The number, period, hours and amount are read from it — check them below.')) +
-    field('Invoice number', inp('number', pre.number || '', 'required maxlength="40"')) + field('Invoice date', inp('invoiceDate', pre.invoiceDate || today(), 'type="date"')) +
+    field('Invoice number', inp('number', pre.number || '', 'required maxlength="40"')) + field('Invoice date', inp('invoiceDate', pre.invoiceDate || today(), 'type="date"' + (pre.invoiceDate ? '' : ' data-auto="1"'))) +
     field('Period from', inp('periodStart', pre.periodStart || '', 'type="date" required data-change="inv-exp"')) + field('Period to', inp('periodEnd', pre.periodEnd || '', 'type="date" required data-change="inv-exp"')) +
     field('Hours billed', inp('hours', pre.hours || '', 'type="number" step="0.25" min="0"')) + field('Amount', inp('amount', pre.amount || '', 'type="number" step="0.01" min="0" required')) +
-    field('Notes (optional)', inp('notes', '', 'maxlength="500"'), 'span2') + '<div class="span2 hint" id="invExp"></div></div>' +
+    field('Notes (optional)', inp('notes', '', 'maxlength="500"'), 'span2') + '<div class="span2 hint" id="invExp"></div><div class="span2" id="invExtra">' + invExtraHtml(pre) + '</div></div>' +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + ic('send') + 'Submit invoice</button></div></form>', true);
+  if (pre.expected) { const f = document.querySelector('form[data-form="inv-submit"]'); if (f) showExpected(f, pre.expected); }
 }
 const today = () => D().today || new Date().toISOString().slice(0, 10);
+function invExtraHtml(r) {
+  if (!r) return '';
+  const f = r.from || {}, gaps = r.profileGaps || [], notes = r.notes || [];
+  const addr = [f.address, [f.city, [f.state, f.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')].filter(Boolean).join(', ');
+  const facts = [f.name ? ['From', f.name + (addr ? ' · ' + addr : '') + (f.phone ? ' · ' + f.phone : '') + (f.email ? ' · ' + f.email : '')] : null, r.billTo ? ['Billed to', r.billTo] : null,
+    r.worker ? ['Consultant', r.worker] : null, r.client ? ['Client / project', r.client] : null, r.rate ? ['Rate', amt(r.rate) + '/h'] : null,
+    r.dueDate || r.paymentTerms ? ['Due', [r.dueDate ? fmtDate(r.dueDate) : '', r.paymentTerms].filter(Boolean).join(' · ')] : null].filter(Boolean);
+  if (!facts.length && !gaps.length && !notes.length) return '';
+  return '<div class="inv-extra">' + (notes.length ? '<div class="banner warn">' + ic('alert') + '<div>' + notes.map(esc).join('<br>') + '</div></div>' : '') +
+    (facts.length ? '<dl class="kv">' + facts.map(x => '<dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1]) + '</dd>').join('') + '</dl>' : '') +
+    (gaps.length ? '<p class="hint" style="margin:8px 0 4px">' + ic('user') + 'Save to the contractor\'s record:</p>' + gaps.map(g => '<label class="check"><input type="checkbox" name="prof_' + esc(g.field) + '" value="' + esc(g.value) + '"' + (g.current ? '' : ' checked') + '> ' + esc(g.label) + ': <b>' + esc(g.value) + '</b>' + (g.current ? ' <small class="muted">(on file: ' + esc(g.current) + ')</small>' : ' <small class="muted">(not on file)</small>') + '</label>').join('') : '') + '</div>';
+}
 CHANGES['inv-read'] = async el => {
   const f = el.form, emp = (f.querySelector('[name=employeeId]') || {}).value; if (!el.files[0]) return;
   if (!emp) return toast('Choose the contractor first, then the file.');
   const file = await readFile(el.files[0]); S.cache.invFile = file;
   const r = await busy(null, call('readInvoice', { employeeId: emp, file: file }));
-  ['number', 'invoiceDate', 'periodStart', 'periodEnd', 'hours', 'amount'].forEach(k => { const x = f.querySelector('[name=' + k + ']'); if (x && r[k] && !x.value) x.value = r[k]; });
+  ['number', 'invoiceDate', 'periodStart', 'periodEnd', 'hours', 'amount'].forEach(k => { const x = f.querySelector('[name=' + k + ']'); if (x && r[k] && (!x.value || x.dataset.auto)) { x.value = r[k]; delete x.dataset.auto; } });   // today's date was only a placeholder
+  if (r.description && !f.querySelector('[name=notes]').value) f.querySelector('[name=notes]').value = r.description.slice(0, 500);
   showExpected(f, r.expected);
+  const ex = f.querySelector('#invExtra'); if (ex) ex.innerHTML = invExtraHtml(r);
   toast('Read from the file — check the details', 'ok');
 };
 CHANGES['inv-exp'] = async el => { const f = el.form, a = f.querySelector('[name=periodStart]').value, b = f.querySelector('[name=periodEnd]').value, emp = (f.querySelector('[name=employeeId]') || {}).value; if (!a || !b || !emp || !S.cache.invFile) return;
@@ -4091,7 +4129,10 @@ CHANGES['inv-exp'] = async el => { const f = el.form, a = f.querySelector('[name
 function showExpected(f, ex) { const h = f.querySelector('#invExp'); if (!h) return; h.textContent = ex ? 'Timesheets for this period: ' + ex.hours + ' hours' + (ex.amount !== null ? ' × ' + amt(ex.rate) + ' = ' + amt(ex.amount) : '') + (ex.weeks ? '' : ' (none submitted yet)') + '.' : ''; }
 FORMS['inv-submit'] = async (v, form) => {
   if (!v.token) { const fi = form.querySelector('[name=file]'); v.file = S.cache.invFile && fi && fi.files[0] ? S.cache.invFile : await readFile(fi.files[0]); }
+  const prof = {}; form.querySelectorAll('input[name^="prof_"]').forEach(c => { if (c.checked) prof[c.name.slice(5)] = c.value; delete v[c.name]; });
+  if (Object.keys(prof).length) v.profile = prof;
   const r = await call('submitInvoice', v); S.cache.invFile = null; closeModal();
+  if ((r.profileSaved || []).length) setTimeout(() => toast('Saved to the contractor\'s record: ' + r.profileSaved.length + ' detail' + (r.profileSaved.length === 1 ? '' : 's'), 'ok', 5000), 400);
   toast('Invoice ' + r.invoice.number + ' submitted' + (r.invoice.check && !r.invoice.check.match ? ' — ' + r.invoice.check.issues.length + ' thing(s) to check' : ' — matches the timesheets'), r.invoice.check && !r.invoice.check.match ? '' : 'ok', 7000);
   await reloadCurrent();
 };
