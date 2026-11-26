@@ -1613,8 +1613,8 @@ function docsTable(docs, hr, tasks, empId) {
       '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' + (d.locked && !d.unlockedUntil ? '' : fileBtns('doc', d.id, { size: 'xs' })) + '</div></td></tr>';
     if (d.locked && !d.unlockedUntil) return lockedRow(d, forDoc, cur, nOld, canAdd);
     const old = !!cur;
-    return '<tr' + (old ? ' class="ver-row" data-ver-of="' + esc(cur) + '" hidden' : '') + '><td>' + (old ? '<span class="ver-indent">↳ </span>' : '') + '<b>' + esc(d.type) + '</b> ' + verChip(d) + (d.locked ? chip('Unlocked until ' + fmtTime(d.unlockedUntil), 'warn') + ' ' : '') + (old ? '' : aiChip(d)) +
-      '<br><small class="muted">' + esc(d.fileName) + (d.splitFrom ? ' · ' + (/[,–-]/.test(d.pages || '') ? 'pages ' : 'page ') + esc(d.pages || '') + ' of a combined file' : '') + '</small>' + verLine(d, byId) + (!old && forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (old ? '<small class="muted">' + esc(fmtDate(d.expiresOn) || '—') + '</small>' : (expiryChip(d.expiresOn) || '—')) + '</td><td>' + statusChip(d.status) + '</td>' +
+    return '<tr' + (old ? ' class="ver-row" data-ver-of="' + esc(cur) + '" hidden' : '') + '><td>' + (old ? '<span class="ver-indent">↳ </span>' : '') + '<b>' + esc(d.type) + '</b> ' + verChip(d) + empChip(d) + (d.locked ? chip('Unlocked until ' + fmtTime(d.unlockedUntil), 'warn') + ' ' : '') + (old ? '' : aiChip(d)) +
+      '<br><small class="muted">' + esc(d.fileName) + (d.splitFrom ? ' · ' + (/[,–-]/.test(d.pages || '') ? 'pages ' : 'page ') + esc(d.pages || '') + ' of a combined file' : '') + '</small>' + empNote(d) + verLine(d, byId) + (!old && forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td><td>' + (old ? '<small class="muted">' + esc(fmtDate(d.expiresOn) || '—') + '</small>' : (docExpiry(d) || '—')) + '</td><td>' + statusChip(d.status) + '</td>' +
       '<td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td><td class="num"><div class="btns" style="justify-content:flex-end">' +
       (!old && d.type === 'Form I-9' && d.source !== 'Official USCIS PDF' && d.source !== 'Portal form' && can('onboarding.manage') ? '<button class="btn xs" data-action="i9-paper" data-id="' + d.id + '" title="Read this paper Form I-9 and fill the official USCIS form">' + ic('doc') + 'Convert to official form</button>' : '') + fileBtns('doc', d.id) +
       (!old && hr && AI().on && d.aiStatus !== 'Skipped' ? '<button class="btn xs ghost" data-action="ai-doc" data-id="' + d.id + '" title="What AI read">' + ic('spark') + 'AI</button>' : '') +
@@ -1623,6 +1623,7 @@ function docsTable(docs, hr, tasks, empId) {
       (old ? '' : moreMenu(
         (hr && (!d.locked || d.unlockMode === 'update') ? '<button type="button" data-action="doc-edit" data-id="' + d.id + '">' + ic('edit') + 'Edit details</button>' : '') +
         (!d.splitInto && (hr || (mine && d.status !== 'Verified')) && /pdf/i.test((d.mime || '') + ' ' + d.fileName) ? '<button type="button" data-action="doc-split" data-id="' + d.id + '">' + ic('doc') + 'Split into separate documents</button>' : '') +
+        (hr && d.type === 'I-797 approval' ? '<button type="button" data-action="doc-employer" data-id="' + d.id + '" data-role="' + esc(d.employerSet || '') + '" data-emp="' + esc(d.employer || '') + '">' + ic('building') + 'Whose approval is this?</button>' : '') +
         (!d.splitInto ? verBtns(d, nOld, canAdd, true) : '') +
         (hr && (!d.locked || d.unlockMode === 'update') && d.status !== 'Verified' ? '<button type="button" class="red" data-action="doc-del" data-id="' + d.id + '">' + ic('trash') + 'Delete</button>' : ''))) +
       '</div></td></tr>';
@@ -1630,6 +1631,18 @@ function docsTable(docs, hr, tasks, empId) {
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Document</th><th>Expires</th><th>Status</th><th class="hide-m">Added</th><th></th></tr></thead><tbody>' +
     current.map(d => { const h = older(d); return row(d, '', h.length) + h.map(o => row(o, d.id, 0)).join(''); }).join('') + '</tbody></table></div>';
 }
+const empChip = d => d.type !== 'I-797 approval' || !d.employerRole ? (d.employerNote ? chip('Check the petitioner', 'warn') + ' ' : '') : d.employerRole === 'prior'
+  ? '<span class="chip" title="Petitioner: ' + esc(d.employer || 'an earlier employer') + ' — kept as immigration history">Earlier employer' + (d.employer ? ' · ' + esc(d.employer) : '') + '</span> '
+  : '<span class="chip teal" title="Petitioner on the notice: ' + esc(d.employer || '') + '">Employer · ' + esc(d.company || 'this company') + '</span> ';
+const empNote = d => d.employerNote ? '<br><small style="color:var(--amber,#b7791f)">' + ic('alert') + esc(d.employerNote) + '</small>' : '';
+const docExpiry = d => d.type === 'I-797 approval' && d.employerRole === 'prior' && d.expiresOn
+  ? '<small class="muted">' + (d.expiresOn < (D().today || new Date().toISOString().slice(0, 10)) ? 'Ended ' : 'Valid to ') + esc(fmtDate(d.expiresOn)) + '<br>earlier employer</small>' : expiryChip(d.expiresOn);
+ACTIONS['doc-employer'] = el => openModal('Whose I-797 approval is this?', '<form data-form="doc-employer"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '">' +
+  '<p class="muted">The petitioner is the employer that filed the petition — not the client where the employee works. Approvals from an earlier employer are kept as immigration history: they are not versions of this company\'s approval, their end date raises no alert, and they don\'t set the work-authorization expiry.</p>' +
+  '<div class="grid">' + field('Petitioner', sel('role', [['auto', 'As on the notice' + (el.dataset.emp ? ' (' + el.dataset.emp + ')' : '')], ['current', 'Our company (the employer)'], ['prior', 'An earlier employer']], el.dataset.role || 'auto')) +
+  field('Employer name (optional)', inp('employer', el.dataset.emp || '', 'maxlength="160"'), '', 'Leave as is to keep what the notice says.') + '</div>' +
+  '<div class="foot-btns"><button class="btn">Save</button></div></form>');
+FORMS['doc-employer'] = async v => { const emp = v.employer; if (!emp) delete v.employer; await call('setDocEmployer', v); closeModal(); toast('Saved — I-797 history sorted by employer', 'ok'); await reloadCurrent(); };
 const verChip = d => Number(d.version) > 1 || d.supersededBy ? '<span class="chip">v' + esc(d.version || 1) + '</span> ' : '';
 const verLine = (d, byId) => d.supersededBy ? '<br><small class="muted">Replaced ' + esc(fmtDate(d.supersededAt)) + ' by v' + esc((byId[d.supersededBy] || {}).version || '') + ((byId[d.supersededBy] || {}).versionReason ? ' — ' + esc(byId[d.supersededBy].versionReason) : '') + ' · kept for the record</small>' : '';
 function verBtns(d, nOld, canAdd, menu) {
@@ -1641,9 +1654,9 @@ function verBtns(d, nOld, canAdd, menu) {
 const fmtTime = iso => { const t = new Date(iso); return isNaN(t) ? '' : t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + (t.toDateString() === new Date().toDateString() ? '' : ' ' + t.toLocaleDateString([], { month: 'short', day: 'numeric' })); };
 function lockedRow(d, forDoc, cur, nOld, canAdd) {
   const old = !!cur;
-  return '<tr class="locked-row' + (old ? ' ver-row' : '') + '"' + (old ? ' data-ver-of="' + esc(cur) + '" hidden' : '') + '><td>' + (old ? '<span class="ver-indent">↳ </span>' : '') + '<b>' + esc(d.type) + '</b> ' + verChip(d) + '<span class="chip teal">' + ic('lock') + 'Locked</span>' + '<br><small class="muted">' + esc(d.fileName) + '</small>' +
+  return '<tr class="locked-row' + (old ? ' ver-row' : '') + '"' + (old ? ' data-ver-of="' + esc(cur) + '" hidden' : '') + '><td>' + (old ? '<span class="ver-indent">↳ </span>' : '') + '<b>' + esc(d.type) + '</b> ' + verChip(d) + empChip(d) + '<span class="chip teal">' + ic('lock') + 'Locked</span>' + '<br><small class="muted">' + esc(d.fileName) + '</small>' + empNote(d) +
     (d.supersededBy ? '<br><small class="muted">Replaced ' + esc(fmtDate(d.supersededAt)) + ' · kept for the record</small>' : '') + (!old && forDoc(d) ? '<div style="margin-top:4px">' + forDoc(d) + '</div>' : '') + '</td>' +
-    '<td>' + (old ? '<small class="muted">' + esc(fmtDate(d.expiresOn) || '—') + '</small>' : (expiryChip(d.expiresOn) || '—')) + '</td><td>' + statusChip(d.status) + '</td><td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td>' +
+    '<td>' + (old ? '<small class="muted">' + esc(fmtDate(d.expiresOn) || '—') + '</small>' : (docExpiry(d) || '—')) + '</td><td>' + statusChip(d.status) + '</td><td class="hide-m"><small>' + esc(fmtDate(d.uploadedAt)) + '<br>' + esc(d.source || '') + '</small></td>' +
     '<td class="num"><div class="btns" style="justify-content:flex-end">' + (d.canUnlock ? '<button class="btn xs" data-action="doc-unlock" data-id="' + d.id + '" data-type="' + esc(d.type) + '">' + ic('key') + 'Unlock</button>'
       : d.requested ? chip('Access requested', 'info') : '<button class="btn xs ghost" data-action="doc-request" data-id="' + d.id + '" data-type="' + esc(d.type) + '">' + ic('key') + 'Request access</button>') + (old ? '' : verBtns(d, nOld, canAdd)) + '</div></td></tr>';
 }
