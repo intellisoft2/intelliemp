@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.90"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.92"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -529,26 +529,26 @@ async function callQuiet(fn, ...args) {
 }
 const READ_FN = /^(get|list)/, NO_CACHE_FN = /^(getBootstrap|getDocumentFile|getCorpDocFile|getTimesheetFile|getHandbookFile|getApproval|getApprovalFile|getI9DocDetails|getI9OfficialData)$/;
 const inflight = {}, prefetched = {}, pageCache = new Map(), pageCalls = new Map();
-let recording = null, prefetchBusy = 0;
+let recording = null, prefetchBusy = 0, cacheRevision = 0;
 const rpcKey = (fn, args) => fn + '|' + JSON.stringify(args || []);
-function dropCaches() { pageCache.clear(); Object.keys(prefetched).forEach(k => delete prefetched[k]); }
+function dropCaches() { cacheRevision++; Object.keys(inflight).forEach(k => delete inflight[k]); pageCache.clear(); Object.keys(prefetched).forEach(k => delete prefetched[k]); }
 function prefetchCall(fn, args) {
   const key = rpcKey(fn, args), pf = prefetched[key];
   if ((pf && Date.now() - pf.at < 30000) || inflight[key] || prefetchBusy >= 4) return;
   prefetchBusy++;
   const p = rpc(fn, args || []).then(r => { if (r && r.ok) return r.data; throw new Error('prefetch'); });
   prefetched[key] = { p: p, at: Date.now() };
-  p.catch(() => { delete prefetched[key]; }).finally(() => { prefetchBusy--; });
+  p.catch(() => { if (prefetched[key] && prefetched[key].p === p) delete prefetched[key]; }).finally(() => { prefetchBusy--; });
 }
 async function call(fn, ...args) {
   if (READ_FN.test(fn) && !NO_CACHE_FN.test(fn)) {
-    const key = rpcKey(fn, args);
+    const key = rpcKey(fn, args), revision = cacheRevision;
     if (recording) recording.push([fn, args]);
     const pf = prefetched[key];
-    if (pf && Date.now() - pf.at < 30000) { delete prefetched[key]; try { return await pf.p; } catch (e) { /* fall back to a normal request */ } }
-    if (inflight[key]) return inflight[key];
+    if (pf && Date.now() - pf.at < 30000) { delete prefetched[key]; try { const v = await pf.p; return revision === cacheRevision ? v : call(fn, ...args); } catch (e) { /* fall back to a normal request */ } }
+    if (inflight[key]) { const v = await inflight[key]; return revision === cacheRevision ? v : call(fn, ...args); }
     const p = callNet(fn, args); inflight[key] = p;
-    try { return await p; } finally { delete inflight[key]; }
+    try { const v = await p; return revision === cacheRevision ? v : call(fn, ...args); } finally { if (inflight[key] === p) delete inflight[key]; }
   }
   const out = await callNet(fn, args);
   dropCaches();
@@ -2419,7 +2419,7 @@ PAGES.settings = async () => {
     field('Document buttons for employees', sel('docAccessEmployee', DOC_ACCESS_OPTS, (o.docAccess || {}).employee || 'both'), '', 'Applies to their own documents, timesheet files and the handbook.') + '</div>' +
     '<p class="hint">"View only" shows files inside the portal without a Download button, and the server refuses downloads. Anyone who can see a file can still take a screenshot or print it. Every view and download is recorded in the audit log.</p><button class="btn">Save</button></form>' +
     tsInboxCard(S.cache.inboxSt, o) +
-    aiSettingsCard() +
+    aiSettingsCard() + (can('settings.manage') ? '<div class="card"><h3>Data Integrity Center</h3><p>Scan company records for cross-module conflicts. No records are changed.</p><button class="btn ghost" data-action="integrity-scan">Run integrity audit</button></div>' : '') +
     '<div class="card"><h3>' + ic('lock') + 'Security</h3><p>' + (o.requireMfa ? chip('Two-step sign-in required for staff', 'ok') : 'Two-step sign-in is optional.') + '</p>' +
     '<button class="btn ghost" data-action="mfa-policy" data-on="' + (o.requireMfa ? '' : '1') + '">' + (o.requireMfa ? 'Make two-step sign-in optional' : 'Require two-step sign-in') + '</button><p class="hint">Turn it on for your own account first (Account).</p></div>' +
     '<div class="card"><h3>' + ic('link') + 'IntelliHire</h3><p>When a candidate is hired in IntelliHire — or a bench consultant is placed — they arrive here as an employee in onboarding, with their documents, and are invited to the portal.</p>' +
@@ -2603,6 +2603,8 @@ FORMS['ts-rule-apply'] = async (v, form) => {
   if (!ids.length) return toast('Tick at least one person.');
   const r = await call('applyTsRule', { ids: ids }); closeModal(); toast(r.changed + ' employee(s) no longer file timesheets', 'ok'); await reloadCurrent();
 };
+
+ACTIONS['integrity-scan'] = async el => { const r = await busy(el, call('runConsistencyAudit')); if (!r) return; openModal('Data Integrity Center', '<p>Records checked: '+esc(r.checked)+' · Findings: '+esc(r.total)+'</p>'+(r.truncated?'<p>Showing first 500 findings.</p>':'')+(r.issues.length?'<div class="tblwrap"><table class="tbl"><thead><tr><th>Finding</th><th>Employee ID</th><th>Record ID</th><th>Review</th></tr></thead><tbody>'+r.issues.map(x=>'<tr><td>'+esc(x.kind)+'</td><td>'+esc(x.employeeId)+'</td><td>'+esc(x.recordId)+'</td><td>'+esc(x.detail)+'</td></tr>').join('')+'</tbody></table></div>':'<p>No conflicts detected by these checks.</p>')); };
 const QR = (() => {
   const BLOCKS = [null, [10, [[1, 16]]], [16, [[1, 28]]], [26, [[1, 44]]], [18, [[2, 32]]], [24, [[2, 43]]], [16, [[4, 27]]], [18, [[4, 31]]],
     [22, [[2, 38], [2, 39]]], [22, [[3, 36], [2, 37]]], [26, [[4, 43], [1, 44]]]];
