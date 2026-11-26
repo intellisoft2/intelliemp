@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.26"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.27"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1593,7 +1593,7 @@ function empProfile(E) {
     R('Personal email', esc(e.personalEmail), [F('personalEmail', 'email', e.personalEmail, 'name@gmail.com')]) + R('Phone', esc(e.phone), [F('phone', 'tel', e.phone, 'Phone')]) +
     R('Address', esc([e.address, e.city, e.state, e.zip].filter(Boolean).join(', ')), [F('address', 'text', e.address, 'Street'), F('city', 'text', e.city, 'City', null, 140), F('state', 'text', e.state, 'State', null, 70), F('zip', 'text', e.zip, 'ZIP', null, 90)]) +
     R('Emergency contact', esc([e.emergencyName, e.emergencyPhone].filter(Boolean).join(' · ')), [F('emergencyName', 'text', e.emergencyName, 'Name'), F('emergencyPhone', 'tel', e.emergencyPhone, 'Phone')]) +
-    extraHtml(E.extra, can('employees.edit')) + '</dl></div>' +
+    extraHtml(E.extra, can('employees.edit')) + '</dl></div>' + firmCard(E) +
     '<div class="card"><div class="card-h"><h3>' + ic('shield') + 'Portal access</h3>' + (can('employees.edit') && !(E.member && E.member.signedIn) ? '<button class="btn sm" data-action="emp-invite" data-id="' + e.id + '">' + ic('send') + (e.invitedAt || E.member ? 'Resend invitation' : 'Invite to portal') + '</button>' : '') + '</div>' +
       (E.member && can('employees.edit') ? '<p><button class="btn xs ghost" data-action="emp-signins" data-email="' + esc(E.member.email) + '">' + ic('lock') + 'Sign-in history</button></p>' : '') +
       (E.member && E.member.signedIn ? '<p>' + chip('Signed in', 'ok') + ' ' + esc(E.member.email) + ' · ' + esc(roleName(E.member.role)) + (E.member.lastLogin ? ' <small class="muted">· last signed in ' + esc(fmtWhen(E.member.lastLogin)) + '</small>' : '') + '</p>'
@@ -1601,6 +1601,25 @@ function empProfile(E) {
         : '<p class="muted">Not invited yet.</p>') +
     '<dl class="kv">' + kv('Added', esc(fmtDate(e.createdAt)) + ' by ' + esc(e.createdBy || '')) + kv('Source', esc(e.source)) + '</dl></div></div>' + sensitiveBox(E);
 }
+function firmCard(E) {
+  const e = E.employee; if (!e || e.employmentType !== '1099 Contractor') return '';
+  const F = ieF, R = ieRow, ed = can('employees.edit');
+  return ieCard(e.id, 'firm', ic('briefcase') + 'Contractor firm') + (ed ? firmPendingHtml(E.firmPending, e.id) : '') + '<dl class="kv">' +
+    R('Business name', esc(e.businessName), [F('businessName', 'text', e.businessName, 'Legal name of the business')]) +
+    R('Business type', esc(e.businessType), [F('businessType', 'select', e.businessType || '', '', [['', '—']].concat(E.firmTypes || []))]) +
+    '<dt>EIN</dt><dd>' + (e.einLast4 ? '<span class="mono">•• - •••' + esc(e.einLast4) + '</span>' : '<span class="muted">Not on file</span>') +
+      (ed ? ' <button type="button" class="btn xs ghost" data-action="ein-edit" data-emp="' + esc(e.id) + '">' + ic('edit') + (e.einLast4 ? 'Change' : 'Add') + '</button>' : '') +
+      (e.einLast4 && can('pii.view') ? ' <button type="button" class="btn xs ghost" data-action="ein-show" data-emp="' + esc(e.id) + '">' + ic('eye') + 'Show</button>' : '') + '</dd>' +
+    R('Business address', esc([e.businessAddress, e.businessCity, [e.businessState, e.businessZip].filter(Boolean).join(' ')].filter(Boolean).join(', ')),
+      [F('businessAddress', 'text', e.businessAddress, 'Street'), F('businessCity', 'text', e.businessCity, 'City', null, 140), F('businessState', 'text', e.businessState, 'State', null, 70), F('businessZip', 'text', e.businessZip, 'ZIP', null, 90)]) +
+    R('Business phone', esc(e.businessPhone), [F('businessPhone', 'tel', e.businessPhone, 'Phone')]) + R('Billing email', esc(e.businessEmail), [F('businessEmail', 'email', e.businessEmail, 'ap@firm.com')]) +
+    R('Contact', esc(e.businessContact), [F('businessContact', 'text', e.businessContact, 'Name')]) + '</dl>' +
+    (ed && E.hasW9 ? '<p class="btns"><button type="button" class="btn xs ghost" data-action="w9-read" data-emp="' + esc(e.id) + '">' + ic('spark') + 'Read the W-9 on file</button><small class="muted">Its firm details and EIN are offered to save.</small></p>' : ed ? '<p class="hint">Upload their Form W-9 (Documents) — its firm details and EIN are read and offered to save.</p>' : '') + '</div>';
+}
+ACTIONS['ein-edit'] = el => openModal('Business EIN', '<form data-form="ein-save"><input type="hidden" name="employeeId" value="' + esc(el.dataset.emp) + '"><p class="muted">The firm\'s Employer Identification Number from their Form W-9 — needed for Form 1099-NEC. Kept in the private file; only the last 4 are shown. Recorded in the audit log.</p>' +
+  '<div class="grid">' + field('EIN', inp('ein', '', 'required inputmode="numeric" maxlength="11" placeholder="12-3456789" autocomplete="off"')) + '</div><div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">Save EIN</button></div></form>');
+FORMS['ein-save'] = async v => { await call('saveContractorEin', v); closeModal(); toast('EIN saved', 'ok'); await reloadCurrent(); };
+ACTIONS['ein-show'] = async el => { const r = await busy(el, call('revealEin', { employeeId: el.dataset.emp })); el.outerHTML = '<span class="mono">' + esc(r.ein) + '</span>'; };
 function empOnboarding(E) {
   const pr = E.progress || { pct: 0, done: 0, total: 0 }, hr = can('onboarding.manage');
   return '<div class="card"><div class="card-h"><h3>' + pr.done + ' of ' + pr.total + ' required items done</h3><div class="btns">' +
@@ -1792,13 +1811,16 @@ function empNotes(E) {
 }
 FORMS['emp-note'] = async v => { await call('addEmployeeNote', v); toast('Note added', 'ok'); await reloadCurrent(); };
 
+const FIRM_TYPE_LIST = ['Individual / sole proprietor', 'Single-member LLC', 'LLC — C corporation', 'LLC — S corporation', 'LLC — partnership', 'C corporation', 'S corporation', 'Partnership', 'Trust / estate', 'Other'];
 function empForm(e, mode) {
   e = e || {}; const lists = D().lists, isNew = mode !== 'edit';
   return '<div class="grid g3">' + field('First name', inp('firstName', e.firstName, 'required')) + field('Middle name', inp('middleName', e.middleName, 'maxlength="60" placeholder="Optional"')) + field('Last name', inp('lastName', e.lastName, 'required')) + '</div><div class="grid g2">' +
     field('Work email', inp('email', e.email, 'type="email"'), '', 'Used to sign in to the portal.') + field('Personal email', inp('personalEmail', e.personalEmail, 'type="email"')) +
     field('Job title', inp('jobTitle', e.jobTitle)) + field('Department', inp('department', e.department)) +
     field('Employment type', sel('employmentType', lists.empTypes, e.employmentType || 'W2 Full-time (salary)', 'data-change="emp-kind"') +
-      '<div data-con-only' + (e.employmentType === '1099 Contractor' ? '' : ' hidden') + ' style="margin-top:8px"><label>Business name (if they work through their own company)</label>' + inp('businessName', e.businessName, 'maxlength="160" placeholder="e.g. Cody Data LLC"') + '</div>' +
+      '<div data-con-only' + (e.employmentType === '1099 Contractor' ? '' : ' hidden') + ' style="margin-top:8px"><label>Business name (if they work through their own company)</label>' + inp('businessName', e.businessName, 'maxlength="160" placeholder="e.g. Cody Data LLC"') +
+        '<div class="grid g2" style="margin-top:8px">' + field('Business type (as on their W-9)', sel('businessType', [['', '—']].concat(FIRM_TYPE_LIST), e.businessType || '')) +
+        (mode === 'new' ? field('Business EIN (optional)', inp('ein', '', 'inputmode="numeric" maxlength="11" placeholder="12-3456789" autocomplete="off"'), '', 'Kept private; or read later from their Form W-9.') : '') + '</div></div>' +
       '<div class="hint" id="kindHint"' + (e.employmentType === '1099 Contractor' ? '' : ' hidden') + '>1099 independent contractor: no Form I-9, W-4, state withholding or E-Verify — the checklist asks for a Form W-9, the independent contractor agreement and payment details. Use 1099 only if they control how they do the work (Resources → 1099 contractors). H-1B and STEM OPT workers must be W-2 employees.</div>') + field(e.hireType === 'Existing' ? 'Original hire date' : 'Start date', inp('startDate', e.startDate, 'type="date"')) +
     (can('pay.view') ? field('Pay type', sel('payType', [['', '—'], 'Salary', 'Hourly'], e.payType || '')) + '<div><label id="payRateLbl">' + esc(payRateLabel(e.payType, e.country && e.country !== 'US' ? (e.currency || (((L('countries') || []).find(c => c.code === e.country) || {}).currency) || '') : 'USD')) + '</label>' +
         inp('payRate', e.payRate, 'type="number" step="0.01" min="0"') + '<div class="hint" id="payRateHint"></div></div>' +
@@ -2901,6 +2923,32 @@ function aiNotice(ai) {
     '<p class="hint">AI reading can be wrong. ' + (can('docs.manage') ? 'Check it against the document before you verify it.' : 'HR checks every document.') + '</p><div class="foot-btns"><button class="btn" data-action="close-modal">OK</button></div>');
 }
 
+async function w9Offer(docId, btn, empId) {
+  try {
+    const r = await busy(btn || null, call('readW9Details', docId ? { docId: docId } : { employeeId: empId }));
+    if (r.pending) firmPendingModal(r.pending, S.cache.emp && S.cache.emp.employee ? S.cache.emp.employee.id : '', docId);
+    else if (btn) toast(r.found ? 'The W-9 matches what is on file' : 'Nothing could be read from the W-9 — enter the firm details by hand', r.found ? 'ok' : '', 6000);
+  } catch (e) { if (btn) throw e; }
+}
+function firmPendingHtml(p, empId) {
+  if (!p || !(p.gaps || []).length) return '';
+  return '<form data-form="firm-pending" class="doc-details"><input type="hidden" name="employeeId" value="' + esc(empId) + '"><h4>' + ic('doc') + 'From the ' + esc(p.source) + ' — not on file yet</h4>' +
+    p.gaps.map(g => '<label class="check"><input type="checkbox" name="fp_' + esc(g.field) + '"' + (g.current ? '' : ' checked') + '> ' + esc(g.label) + ': <b>' + esc(g.value) + '</b>' + (g.current ? ' <small class="muted">(on file: ' + esc(g.current) + ')</small>' : ' <small class="muted">(not on file)</small>') + '</label>').join('') +
+    '<div class="btns"><button class="btn sm">' + ic('check') + 'Save to the firm details</button><button type="button" class="btn sm ghost" data-action="firm-dismiss" data-emp="' + esc(empId) + '">Dismiss</button></div></form>';
+}
+function firmPendingModal(p, empId) {
+  empId = empId || (S.cache.emp && S.cache.emp.employee && S.cache.emp.employee.id) || '';
+  openModal('Contractor firm details', '<p class="muted">Details found that are not on the contractor\'s record. The EIN is kept private — only its last 4 are shown.</p>' + firmPendingHtml(p, empId) +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Not now</button></div>');
+}
+FORMS['firm-pending'] = async (v, form) => {
+  const pick = {}; form.querySelectorAll('input[name^="fp_"]').forEach(c => { if (c.checked) pick[c.name.slice(3)] = true; });
+  if (!Object.keys(pick).length) throw new Error('Tick the details to save.');
+  const r = await call('applyFirmPending', { employeeId: v.employeeId, pick: pick }); closeModal(); toast('Saved: ' + r.saved.length + ' detail' + (r.saved.length === 1 ? '' : 's'), 'ok'); await reloadCurrent();
+};
+ACTIONS['firm-dismiss'] = async el => { await busy(el, call('applyFirmPending', { employeeId: el.dataset.emp, dismiss: true })); closeModal(); toast('Dismissed', 'ok'); await reloadCurrent(); };
+ACTIONS['w9-read'] = el => w9Offer('', el, el.dataset.emp);
+
 function docDetailsForm(docId, gaps, who) {
   if (!docId || !(gaps || []).length || !can('employees.edit')) return '';
   return '<form data-form="doc-details" class="doc-details"><input type="hidden" name="id" value="' + esc(docId) + '"><h4>' + ic('user') + 'Not on ' + esc(who ? who + '\'s' : 'the') + ' record yet — save?</h4>' +
@@ -3113,6 +3161,7 @@ ACTIONS['ai-test'] = async el => {
 CHANGES['ts-file-pick'] = async el => { if (!el.files || !el.files[0]) return; const f = el.form, b = f.querySelector('[data-action="ts-ai-read"]'); try { await tsAiRead(f, b); } catch (e) { fail(e); } };
 
 async function readAfterUpload(r, name) {
+  if (r && r.w9DocId && can('employees.edit')) { w9Offer(r.w9DocId); if (!r.readDocId) return; }
   if (!r || !r.readDocId) { if (r && r.ai) aiNotice(r.ai); return; }
   const hashAt = location.hash;
   longTask('Reading ' + name);
