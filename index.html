@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.94"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.0.95"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1171,10 +1171,10 @@ function backBar(hash) {
   return '<a class="backlink" href="' + esc(to.hash) + '">' + ic('back') + 'Back to ' + esc(to.title) + '</a>';
 }
 async function runPage(key, fn, parts, params) {
-  const rec = []; recording = rec;
+  const revision = cacheRevision, rec = []; recording = rec;
   let html;
   try { html = await fn(parts, params); } finally { if (recording === rec) recording = null; }
-  if (key !== location.hash || typeof html !== 'string') {
+  if (revision !== cacheRevision || key !== location.hash || typeof html !== 'string') {
     const cur = pageCache.get(location.hash); if (cur) Object.assign(S.cache, cur.cache);   // a slow page must not overwrite the current page's data
     return null;
   }
@@ -1405,6 +1405,14 @@ PAGES['my-cases'] = async () => {
     immHistoryHtml(P.immHistory, P.employee, false) +
     '<h3 style="margin:18px 0 8px">Open filings</h3>' + (cs.length ? cs.map(c => '<div class="card">' + caseDetailHtml(c, false) + '</div>').join('') : '<div class="card"><div class="empty">No immigration cases for you right now.</div></div>');
 };
+
+let lastReturnRefresh = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden || !S.token || !S.db || S.modal || !location.hash.startsWith('#app') || Date.now()-lastReturnRefresh<15000) return;
+  const a=document.activeElement; if(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+  lastReturnRefresh=Date.now(); const key=location.hash, page=S.route.parts[0]||'';
+  dropCaches(); revalidate(key,PAGES[page]||PAGES[''],S.route.parts.slice(1),S.route.params).catch(()=>{});
+});
 const empName = e => '<div class="who"><span class="av">' + esc(initials(e.name)) + '</span><div><b>' + esc(e.name) + '</b>' + (e.confidential === 'Yes' ? ' ' + chip('Confidential', 'warn') : '') + '<small class="muted">' + esc(e.jobTitle || e.email || '') + '</small></div></div>';
 PAGES.employees = async (parts, p) => {
   const all = await call('listEmployees'); S.cache.emps = all;
@@ -2419,7 +2427,7 @@ PAGES.settings = async () => {
     field('Document buttons for employees', sel('docAccessEmployee', DOC_ACCESS_OPTS, (o.docAccess || {}).employee || 'both'), '', 'Applies to their own documents, timesheet files and the handbook.') + '</div>' +
     '<p class="hint">"View only" shows files inside the portal without a Download button, and the server refuses downloads. Anyone who can see a file can still take a screenshot or print it. Every view and download is recorded in the audit log.</p><button class="btn">Save</button></form>' +
     tsInboxCard(S.cache.inboxSt, o) +
-    aiSettingsCard() + (can('settings.manage') ? '<div class="card"><h3>Data Integrity Center</h3><p>Scan company records for cross-module conflicts. No records are changed.</p><button class="btn ghost" data-action="integrity-scan">Run integrity audit</button></div>' : '') +
+    aiSettingsCard() + (can('settings.manage') ? '<div class="card"><h3>Data Integrity Center</h3><p>Scan company records for cross-module conflicts. No records are changed.</p><button class="btn ghost" data-action="integrity-scan">Run integrity audit</button> <button class="btn ghost" data-action="workflow-preview">Review employee reconciliation</button> <button class="btn ghost" data-action="revision-history">Timesheet history</button></div>' : '') +
     '<div class="card"><h3>' + ic('lock') + 'Security</h3><p>' + (o.requireMfa ? chip('Two-step sign-in required for staff', 'ok') : 'Two-step sign-in is optional.') + '</p>' +
     '<button class="btn ghost" data-action="mfa-policy" data-on="' + (o.requireMfa ? '' : '1') + '">' + (o.requireMfa ? 'Make two-step sign-in optional' : 'Require two-step sign-in') + '</button><p class="hint">Turn it on for your own account first (Account).</p></div>' +
     '<div class="card"><h3>' + ic('link') + 'IntelliHire</h3><p>When a candidate is hired in IntelliHire — or a bench consultant is placed — they arrive here as an employee in onboarding, with their documents, and are invited to the portal.</p>' +
@@ -2605,6 +2613,12 @@ FORMS['ts-rule-apply'] = async (v, form) => {
 };
 
 ACTIONS['integrity-scan'] = async el => { const r = await busy(el, call('runConsistencyAudit')); if (!r) return; openModal('Data Integrity Center', '<p>Records checked: '+esc(r.checked)+' · Findings: '+esc(r.total)+'</p>'+(r.truncated?'<p>Showing first 500 findings.</p>':'')+(r.issues.length?'<div class="tblwrap"><table class="tbl"><thead><tr><th>Finding</th><th>Employee ID</th><th>Record ID</th><th>Review</th></tr></thead><tbody>'+r.issues.map(x=>'<tr><td>'+esc(x.kind)+'</td><td>'+esc(x.employeeId)+'</td><td>'+esc(x.recordId)+'</td><td>'+esc(x.detail)+'</td></tr>').join('')+'</tbody></table></div>':'<p>No conflicts detected by these checks.</p>')); };
+
+ACTIONS['workflow-preview'] = () => openModal('Employee reconciliation', '<form data-form="workflow-preview"><label>Employee ID<input name="employeeId" required></label><p class="hint">Preview counts only. No records changed.</p><button class="btn">Preview</button></form>');
+FORMS['workflow-preview'] = async v => { const r=await call('reconcileEmployeeWorkflow',v); openModal('Reconciliation preview','<p>Unlinked immigration documents: '+esc(r.unlinkedImmigrationDocuments)+' · Checklist items to review: '+esc(r.checklistItemsToReview)+'</p><p>Applying runs existing document matching and immigration backfill rules; profile dates may change. Verify documents first.</p><form data-form="workflow-apply"><input type="hidden" name="employeeId" value="'+esc(r.employeeId)+'"><button class="btn">Apply reconciliation</button></form>'); };
+FORMS['workflow-apply'] = async v => { const r=await call('reconcileEmployeeWorkflow',{employeeId:v.employeeId,apply:true}); openModal('Reconciliation complete','<p>Checklist updates: '+esc(r.linked)+' · Immigration entries added or linked: '+esc(r.added)+'</p>'); };
+ACTIONS['revision-history'] = () => openModal('Timesheet history','<form data-form="revision-history"><label>Employee ID<input name="employeeId" required></label><button class="btn">View history</button></form>');
+FORMS['revision-history'] = async v => { const r=await call('getTimesheetRevisions',v); openModal('Timesheet history','<p>Up to 200 previous snapshots; read only.</p><div class="tblwrap"><table class="tbl"><thead><tr><th>Period</th><th>Hours</th><th>Status</th><th>Operation</th><th>Recorded</th></tr></thead><tbody>'+r.map(x=>'<tr><td>'+esc(x.weekStart)+'</td><td>'+esc(x.totalHours)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.operation)+'</td><td>'+esc(x.createdAt)+'</td></tr>').join('')+'</tbody></table></div>'); };
 const QR = (() => {
   const BLOCKS = [null, [10, [[1, 16]]], [16, [[1, 28]]], [26, [[1, 44]]], [18, [[2, 32]]], [24, [[2, 43]]], [16, [[4, 27]]], [18, [[4, 31]]],
     [22, [[2, 38], [2, 39]]], [22, [[3, 36], [2, 37]]], [26, [[4, 43], [1, 44]]]];
@@ -3984,7 +3998,7 @@ async function monthlyView(p) {
   const tile = (label, val, cls, s) => '<a class="stat' + (cls ? ' ' + cls : '') + '" href="#app/timesheets?view=month&month=' + m + '&show=' + s + '" style="text-decoration:none"><b>' + val + '</b><span>' + esc(label) + '</span></a>';
   let x0 = '';
   const wkChip = w => '<span title="' + esc(weekLabel(w.weekStart) + ' · ' + w.hours + ' h this month' + (w.weekHours !== w.hours ? ' (' + w.weekHours + ' h in the week)' : '') + (w.flag ? ' · ' + w.flag : '')) + '">' + (w.month ? '<a href="#app/timesheet/' + esc(x0) + '/' + w.month + '">' + chip('Month · ' + w.status, CAL_CLS[w.status] || '') + '</a>' : chip(fmtDate(w.weekStart).replace(/, \d{4}$/, '') + (w.flag ? ' ⚠' : ''), CAL_CLS[w.status] || '')) + '</span>';
-  const amount = x => x.ready && x.payType === 'Hourly' && Number(x.payRate) ? money(Math.round(x.hours * Number(x.payRate) * 100) / 100, '', x.currency || 'USD') : '';
+  const amount = x => x.ready && x.estimatedAmount != null ? money(x.estimatedAmount, '', x.currency || 'USD') : '';
   return head('Timesheets', 'Hours by month — ready to invoice', '<button class="btn ghost" data-action="tsm-csv">' + ic('download') + 'Download for invoicing</button>') + tsTabs('month') +
     '<div class="card"><div class="weeknav"><a class="btn ghost sm" href="#app/timesheets?view=month&month=' + prev + '">' + ic('back') + '</a><b style="min-width:160px;text-align:center">' + esc(monthTitle(m)) + '</b>' +
       '<a class="btn ghost sm" href="#app/timesheets?view=month&month=' + next + '">' + ic('chev') + '</a><input type="month" value="' + m + '" data-change="tsm-pick" style="max-width:170px"></div></div>' +
@@ -4021,7 +4035,7 @@ Object.assign(ACTIONS, {
     const M = S.cache.monthly, q = v => '"' + String(v === undefined || v === null ? '' : v).replace(/"/g, '""') + '"';
     const head = ['Employee', 'Employee ID', 'Client', 'Month', 'Hours', 'Approved hours', 'Waiting', 'Draft', 'Missing weeks', 'Ready to invoice'].concat(can('pay.view') ? ['Rate', 'Pay type', 'Amount'] : []);
     const lines = [head.map(q).join(',')].concat(M.people.map(x => [x.name, x.code, x.clientName, M.month, x.hours, x.approved, x.submitted, x.draft, x.missing.join(' '), x.ready ? 'Yes' : 'No']
-      .concat(can('pay.view') ? [x.payRate || '', x.payType || '', x.ready && x.payType === 'Hourly' && Number(x.payRate) ? (Math.round(x.hours * Number(x.payRate) * 100) / 100).toFixed(2) : ''] : []).map(q).join(',')));
+      .concat(can('pay.view') ? [x.payRate || '', x.payType || '', x.ready && x.estimatedAmount != null ? Number(x.estimatedAmount).toFixed(2) : ''] : []).map(q).join(',')));
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'Timesheets ' + M.month + '.csv'; a.click();
   },
   'ts-reread': el => rereadModal(el.dataset.bulk ? bulkIds() : String(el.dataset.ids || '').split(',').filter(Boolean)),
