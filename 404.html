@@ -2105,7 +2105,7 @@ async function timesheetPage(empId, week, mine) {
     (edit ? field(G.source === 'client' ? 'Client-approved timesheet (required)' : 'Attach the signed timesheet (optional)', '<input type="file" name="file" data-change="ts-file-pick" accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.xlsx,.xls,.csv,.txt,.doc,.docx">' +
       '<div class="btns" style="margin-top:6px"><button type="button" class="btn ghost sm" data-action="ts-ai-read">' + ic('spark') + 'Read hours from the file</button>' + (G.readerAi ? '<button type="button" class="btn ghost sm" data-action="ts-ai-read" data-offline="1" title="Uses IntelliEmp\'s own reader — nothing is sent to an AI provider">Read without AI</button>' : '') + '</div>', '',
       t && t.hasFile ? 'Current file: ' + t.fileName : (G.readerAi ? 'AI reads signed sheets, scans, photos and spreadsheets; the built-in reader takes over if AI is unavailable.' : 'The built-in reader handles client-system PDFs, spreadsheets and CSV; scans are read with Google\'s text recognition.')) : '') + '</div><div id="ts-ai"></div>' +
-    (t && t.hasFile ? '<p class="btns">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) + tsFixMenu(t, '') + '</p>' : '') + prevFilesHtml(t) +
+    (t && t.hasFile ? '<p class="btns">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) + subjectBtn(t) + tsFixMenu(t, '') + '</p>' : '') + prevFilesHtml(t) +
     (t && (t.steps || []).length ? '<div class="steps">' + t.steps.map((s, i) => '<span class="step">' + (s.status === 'Approved' ? ic('check') : s.status === 'Rejected' ? ic('x') : ic('clock')) + (i + 1) + '. ' + esc(s.name || s.email) + ' <small class="muted">(' + esc(s.role) + ')</small> ' + statusChip(s.status) + '</span>').join('') + '</div>' : '') +
     (edit ? '<p class="hint">' + esc(flowNote) + '</p><div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button>' + (future ? '<span class="muted">You can submit once the week starts.</span>' : '<button class="btn" name="mode" value="submit">' + ic('send') + 'Submit for approval</button>') + '</div>' : '') +
     '</form>' + tsAiPanel(t, !mine && isStaff()) +
@@ -4456,7 +4456,7 @@ async function monthSheetPage(empId, m, mine) {
         (edit ? '<div class="grid g2 ms-more">' + field('Notes for the approver', '<textarea name="notes" maxlength="500" rows="2" placeholder="Anything the approver should know">' + esc(t ? t.notes || '' : '') + '</textarea>') +
           '<div><label>Timesheet file</label><label class="drop"><input type="file" title=" " name="file" accept=".pdf,.png,.jpg,.jpeg,.heic,.webp,.xlsx,.xls,.csv,.doc,.docx" data-change="ms-file">' + ic('upload') + '<span id="ms_fname">' + (t && t.hasFile ? 'Replace <b>' + esc(t.fileName) + '</b>' : 'Choose the signed timesheet') + '</span><small>PDF, photo, scan or spreadsheet</small></label></div></div>' : '') +
         (t && t.hasFile ? '<div class="ms-file">' + ic('doc') + '<span>' + esc(t.fileName) + '</span>' + fileBtns('ts', t.id, { size: 'sm' }) +
-          (!mine && (can('timesheets.all') || can('timesheets.approve')) ? '<button type="button" class="btn ghost sm" data-action="ts-reread" data-ids="' + esc(t.id) + '">' + ic('spark') + 'Read the file again</button>' : '') + tsFixMenu(t, m) + '</div>' : '') + prevFilesHtml(t) +
+          (!mine && (can('timesheets.all') || can('timesheets.approve')) ? '<button type="button" class="btn ghost sm" data-action="ts-reread" data-ids="' + esc(t.id) + '">' + ic('spark') + 'Read the file again</button>' : '') + subjectBtn(t) + tsFixMenu(t, m) + '</div>' : '') + prevFilesHtml(t) +
         tsWrongFileBanner(t, m) + stepsHtml +
         (edit ? '<div class="ms-bar"><div><span class="muted">Total</span> <b id="md_total2">' + total + '</b> <span class="muted">hours</span></div><div class="btns"><button class="btn ghost" name="mode" value="save">Save draft</button><button class="btn" name="mode" value="submit"' + (G.days[0] > (D().today || '') ? ' disabled title="You can submit once the month has started"' : '') + '>' + ic('send') + 'Submit ' + esc(monthTitle(m).split(' ')[0]) + '</button></div></div>' : '') +
       '</div></form>' + tsAiPanel(t, !mine && isStaff()) +
@@ -4879,10 +4879,19 @@ ACTIONS['ts-sync-month'] = async btn => {
   await reloadCurrent();
 };
 
+const canFixSubject = () => can('timesheets.all') || can('timesheets.approve');
 function oddBanner(t) {
   if (!t || !(t.odd || []).length) return '';
-  return '<div class="banner warn">' + ic('alert') + '<div><b>These hours look odd — check before approving:</b><br>' + t.odd.map(esc).join('<br>') + '</div></div>';
+  const subj = t.subjectSuggest && canFixSubject() ? '<div class="btns" style="margin-top:8px"><button type="button" class="btn sm ghost" data-action="ts-subject" data-id="' + esc(t.id) + '" data-s="' + esc(t.subject) + '" data-sg="' + esc(t.subjectSuggest) + '">' + ic('edit') + 'Hours are right — correct the subject</button></div>' : '';
+  return '<div class="banner warn">' + ic('alert') + '<div><b>These hours look odd — check before approving:</b><br>' + t.odd.map(esc).join('<br>') + subj + '</div></div>';
 }
+const subjectBtn = t => t && t.subject && canFixSubject() ? '<button type="button" class="btn ghost xs" data-action="ts-subject" data-id="' + esc(t.id) + '" data-s="' + esc(t.subject) + '" data-sg="' + esc(t.subjectSuggest || '') + '" title="Correct the email subject recorded for this timesheet">' + ic('edit') + 'Email subject</button>' : '';
+ACTIONS['ts-subject'] = el => openModal('Correct the email subject', '<form data-form="ts-subject"><input type="hidden" name="id" value="' + esc(el.dataset.id) + '">' +
+  '<p class="muted">Sometimes the subject line names the wrong dates while the timesheet itself is right. Correcting it changes only the recorded subject — the hours, file and status (approved included) stay as they are. The original subject is kept in the note and the audit log.</p>' +
+  '<div class="grid">' + field('Subject as received', '<input value="' + esc(el.dataset.s) + '" disabled>') + field('Corrected subject', '<input name="subject" required maxlength="200" value="' + esc(el.dataset.sg || el.dataset.s) + '">') + '</div>' +
+  (el.dataset.sg ? '<p class="hint">Suggested from this timesheet\'s dates — edit if needed.</p>' : '') +
+  '<div class="foot-btns"><button class="btn">Save subject</button></div></form>');
+FORMS['ts-subject'] = async v => { await call('correctTimesheetSubject', v); closeModal(); toast('Subject corrected', 'ok'); await reloadCurrent(); };
 const oddChip = t => t && (t.odd || []).length ? ' <span title="' + esc(t.odd.join(' ')) + '">' + chip('Odd hours', 'warn') + '</span>' : '';
 async function oddConfirm(t) {
   if (!t || !(t.odd || []).length) return true;
