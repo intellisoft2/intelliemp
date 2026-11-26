@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.13"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.14"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -4088,7 +4088,7 @@ function immHistoryHtml(H, emp, staff) {
     H.petitions.map(p => '<tr><td><b>' + esc(p.employer) + '</b>' + (p.thisEmployer ? ' ' + chip('This employer', 'teal') : ' ' + chip('Prior employer')) +
       (p.jobTitle || p.worksite ? '<br><small class="muted">' + esc([p.jobTitle, p.worksite].filter(Boolean).join(' · ')) + '</small>' : '') + '</td>' +
       '<td>' + esc(p.classification) + (p.petitionType ? '<br><small class="muted">' + esc(p.petitionType) + '</small>' : '') + '</td><td><small>' + esc(p.receiptNumber || '—') + (p.lcaNumber ? '<br>LCA ' + esc(p.lcaNumber) : '') + '</small></td>' +
-      '<td>' + (p.validFrom ? esc(fmtDate(p.validFrom)) + ' – ' + esc(fmtDate(p.validTo)) : p.validTo ? '? – ' + esc(fmtDate(p.validTo)) : '—') + (s.current && s.current.id === p.id ? '<br>' + chip('Current', 'ok') : p.status === 'Approved' && p.validTo >= today && !p.thisEmployer ? '<br><small class="muted">earlier employer</small>' : p.validTo && p.validTo < today ? '<br><small class="muted">ended</small>' : '') + '</td>' +
+      '<td>' + (p.validFrom ? esc(fmtDate(p.validFrom)) + ' – ' + esc(fmtDate(p.validTo)) : p.validTo ? '? – ' + esc(fmtDate(p.validTo)) : '—') + (s.current && s.current.id === p.id ? '<br>' + chip('Current', 'ok') : p.status === 'Approved' && p.validFrom && p.validFrom > today ? '<br>' + chip('Future', 'info') : p.status === 'Approved' && p.validTo >= today && !p.thisEmployer ? '<br><small class="muted">earlier employer</small>' : p.validTo && p.validTo < today ? '<br><small class="muted">ended</small>' : '') + '</td>' +
       '<td>' + stChip(p.status) + (p.docId ? ' ' + fileBtns('doc', p.docId, { iconOnly: true }) : '') + '</td>' +
       '<td class="num">' + (staff ? '<button class="btn xs ghost" data-action="imm-edit" data-k="petition" data-id="' + p.id + '">' + ic('edit') + '</button><button class="btn xs ghost" data-action="imm-del" data-id="' + p.id + '">' + ic('trash') + '</button>' : '') + '</td></tr>').join('') + '</tbody></table></div>'
     : '<div class="empty">No approvals recorded yet.' + (staff ? ' Add each I-797 — earlier employers too — or read an I-797 with AI and it is added for you.' : '') + '</div>';
@@ -4927,8 +4927,8 @@ function reopenReason(t) {
 }
 const REOPEN_PICKS = ['Hours entered on the wrong day', 'Filed on the wrong week', 'Hours do not match the attached file', 'Wrong file attached', 'Client corrected the timesheet'];
 ACTIONS['reopen-pick'] = el => { const ta = el.closest('form').querySelector('[name="note"]'); if (!ta) return; ta.value = el.dataset.v + (ta.value && !REOPEN_PICKS.some(p => ta.value === p) ? ' — ' + ta.value.replace(/^Hours need correcting — /, '') : ''); ta.focus(); };
-const INV_CLS = { Draft: 'warn', Sent: 'info', Paid: 'ok', Void: '' };
-const invStatus = v => chip(v.overdue ? 'Overdue' : v.status, v.overdue ? 'bad' : INV_CLS[v.status] || '');
+const INV_CLS = { Draft: 'warn', Sent: 'info', 'Partially Paid': 'warn', Paid: 'ok', Void: '' };
+const invStatus = v => chip(v.overdue ? (v.status==='Partially Paid'?'Partially Paid · Overdue':'Overdue') : v.status, v.overdue ? 'bad' : INV_CLS[v.status] || '');
 const cMoney = (n, cur) => n === null || n === undefined || n === '' ? '—' : (!cur || cur === 'USD' ? '$' : cur === 'INR' ? '₹' : cur + ' ') + Number(n).toLocaleString(cur === 'INR' ? 'en-IN' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const clientHref = c => '#app/client/' + encodeURIComponent(c.id);
 function clientTabs(cur) {
@@ -4942,7 +4942,7 @@ PAGES.clients = async (parts, params) => {
   const stat = (n, l, cls, href) => '<a class="stat ' + (cls || '') + '" href="' + href + '" style="text-decoration:none"><b>' + n + '</b><span>' + esc(l) + '</span></a>';
   return head('Clients', 'Placements, bill rates and the invoices you send', '<button class="btn" data-action="client-new">' + ic('plus') + 'Add client</button>') + clientTabs('clients') +
     '<div class="stats">' + stat(list.filter(c => c.placements).length, 'Clients with people placed', '', '#app/clients') + stat(T.placements, 'People placed', 'teal', '#app/clients') +
-      stat(cMoney(T.outstanding), 'Outstanding (sent, not paid)', T.outstanding ? 'warn' : '', '#app/clients?view=invoices&status=Sent') + stat(T.overdue, 'Overdue invoices', T.overdue ? 'bad' : 'ok', '#app/clients?view=invoices&status=Overdue') +
+      stat(cMoney(T.outstanding), 'Outstanding (sent, not paid)', T.outstanding ? 'warn' : '', '#app/clients?view=invoices&status=') + stat(T.overdue, 'Overdue invoices', T.overdue ? 'bad' : 'ok', '#app/clients?view=invoices&status=Overdue') +
       stat(T.noRate, 'Placements with no bill rate', T.noRate ? 'bad' : 'ok', '#app/clients') + '</div>' +
     '<div class="card">' + (list.length ? '<div class="tblwrap"><table class="tbl"><thead><tr><th>Client</th><th class="num">Placed</th><th>Bill rates</th><th class="num">Outstanding</th><th>Last invoice</th><th>Terms</th><th></th></tr></thead><tbody>' +
       list.map(c => '<tr class="click" data-action="nav" data-href="' + clientHref(c) + '"><td><b>' + esc(c.name) + '</b>' + (c.status === 'Inactive' ? ' ' + chip('Inactive') : '') + (c.unsaved ? '<br><small class="muted">from employee records — add billing details</small>' : c.billingEmail ? '<br><small class="muted">' + esc(c.billingEmail) + '</small>' : '') + '</td>' +
@@ -4954,7 +4954,7 @@ PAGES.clients = async (parts, params) => {
 };
 async function clientInvoicesPage(params) {
   const st = params.status || '', list = await call('listClientInvoices', { status: st }); S.cache.cinvList = list;
-  const f = [['', 'All'], ['Draft', 'Drafts'], ['Sent', 'Sent'], ['Overdue', 'Overdue'], ['Paid', 'Paid'], ['Void', 'Void']];
+  const f = [['', 'All'], ['Draft', 'Drafts'], ['Sent', 'Sent'], ['Partially Paid', 'Partially paid'], ['Overdue', 'Overdue'], ['Paid', 'Paid'], ['Void', 'Void']];
   return head('Clients', 'Invoices sent to clients') + clientTabs('invoices') +
     '<div class="card"><div class="filters"><span class="muted">Show</span> ' + f.map(o => '<a class="btn sm ' + (st === o[0] ? '' : 'ghost') + '" href="#app/clients?view=invoices' + (o[0] ? '&status=' + o[0] : '') + '">' + o[1] + '</a>').join(' ') + '</div>' +
     (list.length ? invoiceTable(list, true) : '<div class="empty">' + ic('doc') + '<p>No invoices' + (st ? ' with this status' : ' yet — open a client and choose New invoice') + '.</p></div>') + '</div>';
@@ -4963,19 +4963,19 @@ function invoiceTable(list, withClient) {
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Invoice</th>' + (withClient ? '<th>Client</th>' : '') + '<th>Period</th><th class="num">Hours</th><th class="num">Total</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody>' +
     list.map(v => '<tr><td><b>' + esc(v.number) + '</b><br><small class="muted">' + esc(fmtDate(v.issueDate)) + '</small></td>' + (withClient ? '<td><a href="#app/client/' + encodeURIComponent(v.clientId || 'name:' + v.clientName) + '">' + esc(v.clientName) + '</a></td>' : '') +
       '<td>' + esc(fmtDate(v.periodStart)) + ' – ' + esc(fmtDate(v.periodEnd)) + '</td><td class="num">' + esc(Math.round(v.lines.reduce((s, l) => s + Number(l.hours || 0), 0) * 100) / 100) + '</td><td class="num"><b>' + cMoney(v.total, v.currency) + '</b></td>' +
-      '<td>' + invStatus(v) + (v.status === 'Paid' && v.paidAmount !== null && Math.abs(v.paidAmount - v.total) > 0.005 ? '<br><small class="muted">received ' + cMoney(v.paidAmount, v.currency) + '</small>' : '') + (v.sentTo ? '<br><small class="muted">emailed to ' + esc(v.sentTo) + '</small>' : '') + '</td>' +
+      '<td>' + invStatus(v) + (v.balance>0 ? '<br><small>Balance '+cMoney(v.balance,v.currency)+'</small>' : '') + (v.status === 'Paid' && v.paidAmount !== null && Math.abs(v.paidAmount - v.total) > 0.005 ? '<br><small class="muted">received ' + cMoney(v.paidAmount, v.currency) + '</small>' : '') + (v.sentTo ? '<br><small class="muted">emailed to ' + esc(v.sentTo) + '</small>' : '') + '</td>' +
       '<td><small>' + esc(v.status === 'Paid' ? 'paid ' + fmtDate(v.paidAt) : v.status === 'Void' ? '' : fmtDate(v.dueDate)) + '</small></td>' +
       '<td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="cinv-view" data-id="' + esc(v.id) + '">' + ic('eye') + 'View</button>' +
-        (v.status === 'Draft' ? '<button class="btn xs" data-action="cinv-send" data-id="' + esc(v.id) + '">' + ic('send') + 'Send</button>' : '') +
-        (v.status === 'Sent' ? '<button class="btn xs" data-action="cinv-paid" data-id="' + esc(v.id) + '" data-total="' + esc(v.total) + '">' + ic('check') + 'Paid</button>' : '') +
-        (v.status === 'Draft' || v.status === 'Sent' ? moreMenu((v.status === 'Sent' ? '<button type="button" data-action="cinv-act" data-a="draft" data-id="' + esc(v.id) + '">' + ic('edit') + 'Back to draft</button>' : '') + '<button type="button" class="danger" data-action="cinv-void" data-id="' + esc(v.id) + '">' + ic('trash') + 'Void</button>') : '') +
+        (can('billing.manage') && v.status === 'Draft' ? '<button class="btn xs" data-action="cinv-send" data-id="' + esc(v.id) + '">' + ic('send') + 'Send</button>' : '') +
+        (can('billing.manage') && v.balance > 0 ? '<button class="btn xs" data-action="cinv-paid" data-id="' + esc(v.id) + '" data-total="' + esc(v.balance) + '">' + ic('check') + 'Record payment</button>' : '') +
+        (can('billing.manage') && (v.status === 'Draft' || v.status === 'Sent') ? moreMenu((v.status === 'Sent' ? '<button type="button" data-action="cinv-act" data-a="draft" data-id="' + esc(v.id) + '">' + ic('edit') + 'Back to draft</button>' : '') + '<button type="button" class="danger" data-action="cinv-void" data-id="' + esc(v.id) + '">' + ic('trash') + 'Void</button>') : '') +
       '</div></td></tr>').join('') + '</tbody></table></div>';
 }
 PAGES.client = async parts => {
   if (!can('pay.view')) return go('#app');
   const r = await call('getClient', { id: decodeURIComponent(parts[0] || '') }); S.cache.client = r;
   const c = r.client, cur = c.currency || 'USD', act = r.placements.filter(p => p.status !== 'Terminated'), noRate = act.filter(p => !p.billRate).length;
-  const open = r.invoices.filter(v => v.status === 'Sent'), outstanding = open.reduce((s, v) => s + v.total, 0);
+  const open = r.invoices.filter(v => v.balance > 0), outstanding = open.reduce((s, v) => s + v.balance, 0);
   const margin = p => p.billRate && p.payRate && p.payType === 'Hourly' ? Math.round((p.billRate - p.payRate) * 100) / 100 : null;
   return head(c.name, (c.legalName && c.legalName !== c.name ? esc(c.legalName) + ' · ' : '') + (c.unsaved ? 'from employee records — add billing details' : 'Net ' + esc(c.paymentTerms) + ' · invoiced ' + esc(String(c.invoicePeriod || 'Monthly').toLowerCase()) + (c.billingEmail ? ' · ' + esc(c.billingEmail) : '')),
       '<button class="btn ghost" data-action="client-edit">' + ic('edit') + (c.unsaved ? 'Add billing details' : 'Edit client') + '</button><button class="btn" data-action="cinv-new">' + ic('plus') + 'New invoice</button>') +
@@ -5040,11 +5040,11 @@ Object.assign(ACTIONS, {
     toast('Invoice marked as sent' + (to ? ' and emailed to ' + to : ''), 'ok'); await reloadCurrent();
   },
   'cinv-paid': async el => {
-    const v = await ask({ title: 'Payment received', body: 'Enter the amount received (the invoice total by default) and, if you like, the payment reference after a comma — e.g. "' + el.dataset.total + ', ACH 1042".', input: { label: 'Amount, reference', value: el.dataset.total, required: true }, ok: 'Mark paid', tone: 'ok' });
+    const v = await ask({ title: 'Payment received', body: 'Enter the amount received (the outstanding balance by default) and, if you like, the payment reference after a comma — e.g. "' + el.dataset.total + ', ACH 1042".', input: { label: 'Amount, reference', value: el.dataset.total, required: true }, ok: 'Record payment', tone: 'ok' });
     if (!v) return;
     const [amt, ...ref] = String(v).split(',');
-    await busy(el, call('decideClientInvoice', { id: el.dataset.id, action: 'paid', amount: amt.replace(/[^0-9.]/g, ''), reference: ref.join(',').trim() }));
-    toast('Marked paid', 'ok'); await reloadCurrent();
+    await busy(el, call('decideClientInvoice', { id: el.dataset.id, action: 'paid', amount: amt.trim(), reference: ref.join(',').trim() }));
+    toast('Payment recorded', 'ok'); await reloadCurrent();
   },
   'cinv-void': async el => {
     const why = await ask({ title: 'Void this invoice?', body: 'It stays on file, marked void, and its hours can be billed again.', input: { label: 'Why', required: true }, ok: 'Void', tone: 'danger' });
