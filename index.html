@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.19"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.20"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1678,8 +1678,8 @@ FORMS['doc-newver'] = async (v, form) => {
 const ACCESS_HOURS = [['1', '1 hour'], ['4', '4 hours'], ['24', '1 day'], ['72', '3 days']];
 Object.assign(ACTIONS, {
   'doc-unlock': el => openModal('Unlock ' + el.dataset.type, '<form data-form="doc-unlock"><input type="hidden" name="docId" value="' + esc(el.dataset.id) + '">' +
-    '<p class="muted">The ' + esc(el.dataset.type) + ' is locked after verification. Unlocking is recorded in the audit log with your reason, and it locks again on its own.</p><div class="grid g2">' +
-    field('Why do you need it?', inp('reason', '', 'required maxlength="300" placeholder="e.g. client background check, renewal update"'), 'span2') +
+    '<p class="muted">The ' + esc(el.dataset.type) + ' is locked after verification. Unlocking is recorded in the audit log' + (unlockFree() ? '' : ' with your reason') + ', and it locks again on its own.</p><div class="grid g2">' +
+    field(unlockFree() ? 'Reason (optional for administrators)' : 'Why do you need it?', inp('reason', '', (unlockFree() ? '' : 'required ') + 'maxlength="300" placeholder="e.g. client background check, renewal update"'), 'span2') +
     field('To', sel('mode', [['view', 'See it'], ['update', 'See and update it']], 'view')) + field('For', sel('hours', ACCESS_HOURS, '1')) + '</div>' +
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + ic('key') + 'Unlock</button></div></form>'),
   'doc-request': el => openModal('Request access: ' + el.dataset.type, '<form data-form="doc-request"><input type="hidden" name="docId" value="' + esc(el.dataset.id) + '">' +
@@ -1690,6 +1690,7 @@ Object.assign(ACTIONS, {
   'doc-relock': async el => { await busy(el, call('relockDocument', { docId: el.dataset.id })); toast('Locked again', 'ok'); await reloadCurrent(); },
   'acc-decide': async el => { const hrs = el.closest('.alert') && el.closest('.alert').querySelector('select'); await busy(el, call('decideDocAccess', { id: el.dataset.id, decision: el.dataset.d, hours: hrs ? hrs.value : 4 })); toast(el.dataset.d === 'approve' ? 'Access approved' : 'Request declined', 'ok'); await reloadCurrent(); }
 });
+const unlockFree = () => ['ADMIN', 'EXECUTIVE'].indexOf(String((D().who || {}).role || '').toUpperCase()) >= 0;
 FORMS['doc-unlock'] = async v => { const r = await call('unlockDocument', v); closeModal(); toast('Unlocked until ' + fmtTime(r.until), 'ok'); await reloadCurrent(); };
 FORMS['doc-request'] = async v => { await call('requestDocAccess', v); closeModal(); toast('Request sent — you will get an email when it is decided', 'ok'); await reloadCurrent(); };
 function empDocuments(E) {
