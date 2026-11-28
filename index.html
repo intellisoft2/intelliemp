@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.37"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.38"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -887,6 +887,16 @@ function moreMenu(items) {
 document.addEventListener('click', ev => {
   document.querySelectorAll('details.more[open]').forEach(d => { if (!d.contains(ev.target) || ev.target.closest('.more-m button')) d.open = false; });
 }, true);
+function placeMore(d) {
+  const m = d.querySelector('.more-m'), s = d.querySelector('summary'); if (!m || !s) return;
+  const r = s.getBoundingClientRect(); m.style.position = 'fixed'; m.style.top = 'auto'; m.style.bottom = 'auto';
+  m.style.right = Math.max(8, window.innerWidth - r.right) + 'px'; m.style.left = 'auto';
+  const h = m.offsetHeight || 120, below = window.innerHeight - r.bottom;
+  if (below < h + 12 && r.top > below) m.style.bottom = (window.innerHeight - r.top + 4) + 'px'; else m.style.top = (r.bottom + 4) + 'px';
+}
+document.addEventListener('toggle', ev => { const d = ev.target; if (d && d.matches && d.matches('details.more') && d.open) placeMore(d); }, true);
+window.addEventListener('scroll', () => document.querySelectorAll('details.more[open]').forEach(d => { d.open = false; }), true);
+window.addEventListener('resize', () => document.querySelectorAll('details.more[open]').forEach(placeMore));
 const PICK_MIN = 15;
 const pickNorm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
 const PICK_ALIASES = [
@@ -5245,13 +5255,15 @@ async function clientInvoicesPage(params) {
 function invoiceTable(list, withClient) {
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Invoice</th>' + (withClient ? '<th>Client</th>' : '') + '<th>Period</th><th class="num">Hours</th><th class="num">Total</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody>' +
     list.map(v => '<tr><td><b>' + esc(v.number) + '</b>' + (v.imported ? ' ' + chip('Imported') : '') + '<br><small class="muted">' + esc(fmtDate(v.issueDate)) + '</small>' + (v.hasFile ? '<br>' + fileBtns('cinv', v.id, { iconOnly: true }) : '') + '</td>' + (withClient ? '<td><a href="#app/client/' + encodeURIComponent(v.clientId || 'name:' + v.clientName) + '">' + esc(v.clientName) + '</a></td>' : '') +
-      '<td>' + (v.periodStart ? esc(fmtDate(v.periodStart)) + ' – ' + esc(fmtDate(v.periodEnd)) : '<span class="muted">—</span>') + '</td><td class="num">' + esc(Math.round(v.lines.reduce((s, l) => s + Number(l.hours || 0), 0) * 100) / 100) + '</td><td class="num"><b>' + cMoney(v.total, v.currency) + '</b></td>' +
+      '<td>' + (v.periodStart ? esc(fmtDate(v.periodStart)) + ' – ' + esc(fmtDate(v.periodEnd)) : '<span class="muted">—</span>') + '</td><td class="num">' + ((h => h ? esc(h) : '<span class="muted">—</span>')(Math.round(v.lines.reduce((s, l) => s + Number(l.hours || 0), 0) * 100) / 100)) + '</td><td class="num"><b>' + cMoney(v.total, v.currency) + '</b></td>' +
       '<td>' + invStatus(v) + (v.balance>0 ? '<br><small>Balance '+cMoney(v.balance,v.currency)+'</small>' : '') + (v.status === 'Paid' && v.paidAmount !== null && Math.abs(v.paidAmount - v.total) > 0.005 ? '<br><small class="muted">received ' + cMoney(v.paidAmount, v.currency) + '</small>' : '') + (v.sentTo ? '<br><small class="muted">emailed to ' + esc(v.sentTo) + '</small>' : '') + '</td>' +
       '<td><small>' + esc(v.status === 'Paid' ? 'paid ' + fmtDate(v.paidAt) : v.status === 'Void' ? '' : fmtDate(v.dueDate)) + '</small></td>' +
       '<td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="cinv-view" data-id="' + esc(v.id) + '">' + ic('eye') + 'View</button>' +
         (can('billing.manage') && v.status === 'Draft' ? '<button class="btn xs" data-action="cinv-send" data-id="' + esc(v.id) + '">' + ic('send') + 'Send</button>' : '') +
         (can('billing.manage') && v.balance > 0 ? '<button class="btn xs" data-action="cinv-paid" data-id="' + esc(v.id) + '" data-total="' + esc(v.balance) + '">' + ic('check') + 'Record payment</button>' : '') +
-        (can('billing.manage') && (v.status === 'Draft' || v.status === 'Sent') ? moreMenu((v.status === 'Sent' && !v.imported ? '<button type="button" data-action="cinv-act" data-a="draft" data-id="' + esc(v.id) + '">' + ic('edit') + 'Back to draft</button>' : '') + '<button type="button" class="danger" data-action="cinv-void" data-id="' + esc(v.id) + '">' + ic('trash') + 'Void</button>') : '') +
+        (can('billing.manage') && (v.status === 'Draft' || v.status === 'Sent' || v.hasFile) ? moreMenu((v.hasFile ? '<button type="button" data-action="cinv-reread" data-id="' + esc(v.id) + '">' + ic('refresh') + 'Re-read the original file</button>' : '') +
+          (v.status === 'Sent' && !v.imported ? '<button type="button" data-action="cinv-act" data-a="draft" data-id="' + esc(v.id) + '">' + ic('edit') + 'Back to draft</button>' : '') +
+          (v.status === 'Draft' || v.status === 'Sent' ? '<button type="button" class="red" data-action="cinv-void" data-id="' + esc(v.id) + '">' + ic('trash') + 'Void</button>' : '')) : '') +
       '</div></td></tr>').join('') + '</tbody></table></div>';
 }
 PAGES.client = async parts => {
@@ -5310,10 +5322,14 @@ function invoiceHtml(v) {
   const period = v.periodStart ? (v.periodLabel ? '<b>' + esc(v.periodLabel) + '</b><div class="muted">' + esc(fmtDate(v.periodStart)) + ' – ' + esc(fmtDate(v.periodEnd)) + '</div>' : '<b>' + esc(fmtDate(v.periodStart)) + ' – ' + esc(fmtDate(v.periodEnd)) + '</b>') : '<span class="muted">—</span>';
   const meta = [['Invoice #', v.number], ['Date', fmtDate(v.issueDate)], ['Due date', fmtDate(v.dueDate)], ['Terms', v.terms], ['PO #', v.poNumber]].filter(r => r[1]);
   const rows = [];
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const per = (a, b) => { if (!a) return ''; b = b || a; const ma = MON[Number(a.slice(5, 7)) - 1], mb = MON[Number(b.slice(5, 7)) - 1], last = new Date(Date.UTC(+b.slice(0, 4), +b.slice(5, 7), 0)).getUTCDate();
+    if (a.slice(0, 7) === b.slice(0, 7) && a.slice(8) === '01' && Number(b.slice(8)) === last) return ma + ' ' + a.slice(0, 4);
+    return ma + ' ' + Number(a.slice(8)) + ' – ' + (a.slice(0, 7) === b.slice(0, 7) ? '' : mb + ' ') + Number(b.slice(8)) + ', ' + b.slice(0, 4); };
   (v.lines || []).forEach(l => {
-    const date = l.date || v.periodEnd || '', item = l.item || l.name, desc = l.description || (l.item ? '' : l.jobTitle || '');
+    const date = per(l.periodStart, l.periodEnd) || per(v.periodStart, v.periodEnd) || (l.date ? fmtDate(l.date) : ''), item = l.item || l.name, desc = l.description || (l.item ? '' : l.jobTitle || '');
     const multi = l.rates && l.rates.length > 1;
-    (multi ? l.rates : [{ hours: l.hours, rate: l.rate, amount: l.amount }]).forEach((r, i) => rows.push('<tr><td>' + (i ? '' : esc(date ? fmtDate(date) : '')) + '</td><td>' + (i ? '<div class="invx-desc">at a different rate</div>' :
+    (multi ? l.rates : [{ hours: l.hours, rate: l.rate, amount: l.amount }]).forEach((r, i) => rows.push('<tr><td>' + (i ? '' : esc(date)) + '</td><td>' + (i ? '<div class="invx-desc">at a different rate</div>' :
       '<div class="invx-item">' + esc(item || '') + '</div>' + (desc ? '<div class="invx-desc">' + esc(desc) + '</div>' : '')) + '</td><td class="num">' + (r.hours ? esc(r.hours) : '') + '</td><td class="num">' + (r.rate ? m(r.rate) : '') + '</td><td class="num">' + m(r.amount !== undefined ? r.amount : r.hours * r.rate) + '</td></tr>'));
   });
   const pays = (v.payments || []).map(p => '<tr><td>Payment received' + (p.date ? ' ' + esc(fmtDate(p.date)) : '') + '</td><td class="num">−' + m(p.amount) + '</td></tr>').join('') ||
@@ -5326,7 +5342,7 @@ function invoiceHtml(v) {
     '<div class="invx-parties"><div><h6>Bill to</h6><b>' + esc(C.legalName || C.name || v.clientName) + '</b>' + addr(C.address) + (C.contactName ? '<div class="muted">Attn: ' + esc(C.contactName) + '</div>' : '') + '</div>' +
       '<div><h6>Ship to</h6>' + (v.shipTo ? '<b>' + esc(v.shipTo.name) + '</b>' + addr(v.shipTo.address) : '<b>' + esc(C.legalName || C.name || v.clientName) + '</b>' + addr(C.address)) + '</div>' +
       '<div><h6>Service period</h6>' + period + '</div></div>' +
-    '<table class="invx-lines"><thead><tr><th style="width:92px">Date</th><th>Description</th><th class="num" style="width:64px">Qty</th><th class="num" style="width:90px">Rate</th><th class="num" style="width:110px">Amount</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
+    '<table class="invx-lines"><thead><tr><th style="width:112px">Period</th><th>Description</th><th class="num" style="width:64px">Qty</th><th class="num" style="width:90px">Rate</th><th class="num" style="width:110px">Amount</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
     '<div class="invx-foot"><div class="invx-pay">' + (F.payNote ? '<h6>How to pay</h6>' + esc(F.payNote) + '\n' : '') + '<span class="muted">Please include invoice # ' + esc(v.number) + ' with your payment.</span>' + (v.notes ? '\n\n' + esc(v.notes) : '') + '</div>' +
       '<table class="invx-totals"><tr><td>Subtotal</td><td class="num">' + m(v.total) + '</td></tr>' + pays + '<tr class="due"><td>Balance due</td><td class="num">' + m(v.status === 'Void' ? 0 : bal) + '</td></tr></table></div>' +
     '<div class="invx-thanks">Thank you for your business — ' + esc(F.name || org.legalName || org.name) + '</div></div>';
@@ -5453,6 +5469,19 @@ FORMS['cinv-import-commit'] = async (v, form) => {
   else toast(res.imported + ' invoice' + (res.imported === 1 ? '' : 's') + ' imported' + (res.newClients ? ' · ' + res.newClients + ' new client' + (res.newClients === 1 ? '' : 's') : '') + ((res.clientUpdates || []).length ? ' · client details filled in from the invoices' : ''), 'ok', 6000);
   await reloadCurrent();
 };
+
+ACTIONS['cinv-reread'] = async el => {
+  const id = el.dataset.id, r = await busy(el, call('rereadClientInvoice', { id: id }));
+  const li = xs => xs.map(c => '<li><b>' + esc(c.label) + ':</b> ' + esc(c.value) + '</li>').join('');
+  const any = r.changes.length || r.clientChanges.length;
+  openModal('Re-read the original file', '<p class="muted">Read by ' + esc(r.readBy) + '. Only details missing from IntelliEmp are added — the invoice number, amounts and payments stay as they are.</p>' +
+    (r.changes.length ? '<h4>' + ic('doc') + 'On the invoice</h4><ul>' + li(r.changes) + '</ul>' : '') +
+    (r.clientChanges.length ? '<h4>' + ic('globe') + 'On the client (' + esc(r.clientName) + ')</h4><ul>' + li(r.clientChanges) + '</ul>' : '') +
+    (r.notes.length ? '<div class="banner warn">' + ic('alert') + '<div>' + r.notes.map(esc).join('<br>') + '</div></div>' : '') +
+    (any ? '' : '<p>' + ic('check') + ' Nothing new — the invoice already has everything the file shows.</p>') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">' + (any ? 'Cancel' : 'Close') + '</button>' + (any ? '<button type="button" class="btn" data-action="cinv-reread-apply" data-id="' + esc(id) + '">' + ic('check') + 'Add these details</button>' : '') + '</div>', true);
+};
+ACTIONS['cinv-reread-apply'] = async el => { const r = await busy(el, call('rereadClientInvoice', { id: el.dataset.id, apply: true })); closeModal(); toast('Added ' + (r.updated + r.clientUpdated) + ' detail' + (r.updated + r.clientUpdated === 1 ? '' : 's'), 'ok'); await reloadCurrent(); };
 async function askReason(title, body) {
   const r = await ask({ title: title, body: body, input: { label: 'Reason', required: true, placeholder: 'Entered by mistake' }, ok: 'Void', tone: 'danger', icon: 'trash' });
   return r ? String(r).trim() : '';
