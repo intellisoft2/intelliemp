@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.35"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.36"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -197,7 +197,7 @@ tr.pii-row{cursor:pointer}tr.pii-row:hover{background:var(--tealbg)}td.pii-pen{w
 
 .modal-bg{position:fixed;inset:0;background:rgba(9,22,38,.55);display:flex;align-items:flex-start;justify-content:center;padding:6vh 14px;z-index:100;overflow:auto}
 .modal{background:#fff;border-radius:16px;width:100%;max-width:560px;padding:22px 22px 18px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.35)}
-.modal.wide{max-width:860px}.modal h3{margin-right:30px;font-size:19px}
+.modal.wide{max-width:860px}.modal.xwide{max-width:min(1240px,96vw)}.imp-tbl td{vertical-align:top;padding:8px 6px}.imp-tbl input,.imp-tbl select{font-size:13px;padding:5px 7px;height:auto;min-height:0}.imp-tbl input[type=date]{width:136px}.imp-tbl select.imp-client{min-width:170px;max-width:210px}.imp-tbl input.imp-num{width:96px}.imp-tbl input.imp-amt{width:96px}.imp-tbl .imp-lines{min-width:200px;max-width:300px}.imp-tbl .imp-lines select{max-width:190px}.modal h3{margin-right:30px;font-size:19px}
 .modal .x{position:absolute;right:12px;top:10px;border:0;background:none;font-size:26px;color:var(--mute);cursor:pointer;line-height:1}
 .modal .foot-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap}
 
@@ -638,7 +638,7 @@ function toast(msg, kind, ms, onClick) {
 document.addEventListener('keydown', ev => { const t = $('toast'); if (ev.key === 'Escape' && t && /\bshow\b/.test(t.className) && !document.querySelector('.askbg,.modal-bg.show')) { t.className = ''; } });
 function fail(e) { toast(e && e.message ? e.message : String(e), 'error'); }
 function openModal(title, body, wide) {
-  S.modal = { title: title, body: body, wide: !!wide }; paintModal();
+  S.modal = { title: title, body: body, wide: wide === 'x' ? 'x' : !!wide }; paintModal();
   restoreDrafts();
   document.querySelectorAll('.modal form').forEach(f => { if (typeof payRateSync === 'function') payRateSync(f); });
   const f = document.querySelector('.modal input:not([type=hidden]),.modal select,.modal textarea'); if (f) setTimeout(() => f.focus(), 30);
@@ -693,7 +693,7 @@ function userClose(how) {
 }));
 function paintModal() {
   let m = $('modal-root'); if (!m) { m = document.createElement('div'); m.id = 'modal-root'; document.body.appendChild(m); }
-  m.innerHTML = S.modal ? '<div class="modal-bg" data-action="modal-bg"><div class="modal ' + (S.modal.wide ? 'wide' : '') + '" role="dialog" aria-modal="true" aria-label="' + esc(S.modal.title) + '">' +
+  m.innerHTML = S.modal ? '<div class="modal-bg" data-action="modal-bg"><div class="modal ' + (S.modal.wide ? 'wide' + (S.modal.wide === 'x' ? ' xwide' : '') : '') + '" role="dialog" aria-modal="true" aria-label="' + esc(S.modal.title) + '">' +
     '<button class="x" data-action="close-modal" aria-label="Close">×</button><h3>' + esc(S.modal.title) + '</h3>' + S.modal.body + '</div></div>' : '';
 }
 async function busy(btn, p) {
@@ -720,7 +720,7 @@ async function readFile(file) {
   } finally { longTask(''); }
   return { name: file.name, uploadId: id };
 }
-const FILE_FNS = { inv: 'getInvoiceFile', doc: 'getDocumentFile', corp: 'getCorpDocFile', ts: 'getTimesheetFile', handbook: 'getHandbookFile' };
+const FILE_FNS = { cinv: 'getClientInvoiceFile', inv: 'getInvoiceFile', doc: 'getDocumentFile', corp: 'getCorpDocFile', ts: 'getTimesheetFile', handbook: 'getHandbookFile' };
 function docMode() { return ((D().org || {}).docAccess || {}).mine || 'both'; }
 function fileBtns(kind, id, opt) {
   opt = opt || {}; const m = docMode(), sm = opt.size || 'xs', out = [];
@@ -5236,20 +5236,20 @@ PAGES.clients = async (parts, params) => {
 async function clientInvoicesPage(params) {
   const st = params.status || '', list = await call('listClientInvoices', { status: st }); S.cache.cinvList = list;
   const f = [['', 'All'], ['Draft', 'Drafts'], ['Sent', 'Sent'], ['Partially Paid', 'Partially paid'], ['Overdue', 'Overdue'], ['Paid', 'Paid'], ['Void', 'Void']];
-  return head('Clients', 'Invoices sent to clients') + clientTabs('invoices') +
+  return head('Clients', 'Invoices sent to clients', can('billing.manage') ? '<button class="btn ghost" data-action="cinv-import">' + ic('upload') + 'Import existing invoices</button>' : '') + clientTabs('invoices') +
     '<div class="card"><div class="filters"><span class="muted">Show</span> ' + f.map(o => '<a class="btn sm ' + (st === o[0] ? '' : 'ghost') + '" href="#app/clients?view=invoices' + (o[0] ? '&status=' + o[0] : '') + '">' + o[1] + '</a>').join(' ') + '</div>' +
-    (list.length ? invoiceTable(list, true) : '<div class="empty">' + ic('doc') + '<p>No invoices' + (st ? ' with this status' : ' yet — open a client and choose New invoice') + '.</p></div>') + '</div>';
+    (list.length ? invoiceTable(list, true) : '<div class="empty">' + ic('doc') + '<p>No invoices' + (st ? ' with this status' : ' yet — open a client and choose New invoice, or import the invoices you sent before') + '.</p></div>') + '</div>';
 }
 function invoiceTable(list, withClient) {
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Invoice</th>' + (withClient ? '<th>Client</th>' : '') + '<th>Period</th><th class="num">Hours</th><th class="num">Total</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody>' +
-    list.map(v => '<tr><td><b>' + esc(v.number) + '</b><br><small class="muted">' + esc(fmtDate(v.issueDate)) + '</small></td>' + (withClient ? '<td><a href="#app/client/' + encodeURIComponent(v.clientId || 'name:' + v.clientName) + '">' + esc(v.clientName) + '</a></td>' : '') +
-      '<td>' + esc(fmtDate(v.periodStart)) + ' – ' + esc(fmtDate(v.periodEnd)) + '</td><td class="num">' + esc(Math.round(v.lines.reduce((s, l) => s + Number(l.hours || 0), 0) * 100) / 100) + '</td><td class="num"><b>' + cMoney(v.total, v.currency) + '</b></td>' +
+    list.map(v => '<tr><td><b>' + esc(v.number) + '</b>' + (v.imported ? ' ' + chip('Imported') : '') + '<br><small class="muted">' + esc(fmtDate(v.issueDate)) + '</small>' + (v.hasFile ? '<br>' + fileBtns('cinv', v.id, { iconOnly: true }) : '') + '</td>' + (withClient ? '<td><a href="#app/client/' + encodeURIComponent(v.clientId || 'name:' + v.clientName) + '">' + esc(v.clientName) + '</a></td>' : '') +
+      '<td>' + (v.periodStart ? esc(fmtDate(v.periodStart)) + ' – ' + esc(fmtDate(v.periodEnd)) : '<span class="muted">—</span>') + '</td><td class="num">' + esc(Math.round(v.lines.reduce((s, l) => s + Number(l.hours || 0), 0) * 100) / 100) + '</td><td class="num"><b>' + cMoney(v.total, v.currency) + '</b></td>' +
       '<td>' + invStatus(v) + (v.balance>0 ? '<br><small>Balance '+cMoney(v.balance,v.currency)+'</small>' : '') + (v.status === 'Paid' && v.paidAmount !== null && Math.abs(v.paidAmount - v.total) > 0.005 ? '<br><small class="muted">received ' + cMoney(v.paidAmount, v.currency) + '</small>' : '') + (v.sentTo ? '<br><small class="muted">emailed to ' + esc(v.sentTo) + '</small>' : '') + '</td>' +
       '<td><small>' + esc(v.status === 'Paid' ? 'paid ' + fmtDate(v.paidAt) : v.status === 'Void' ? '' : fmtDate(v.dueDate)) + '</small></td>' +
       '<td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="cinv-view" data-id="' + esc(v.id) + '">' + ic('eye') + 'View</button>' +
         (can('billing.manage') && v.status === 'Draft' ? '<button class="btn xs" data-action="cinv-send" data-id="' + esc(v.id) + '">' + ic('send') + 'Send</button>' : '') +
         (can('billing.manage') && v.balance > 0 ? '<button class="btn xs" data-action="cinv-paid" data-id="' + esc(v.id) + '" data-total="' + esc(v.balance) + '">' + ic('check') + 'Record payment</button>' : '') +
-        (can('billing.manage') && (v.status === 'Draft' || v.status === 'Sent') ? moreMenu((v.status === 'Sent' ? '<button type="button" data-action="cinv-act" data-a="draft" data-id="' + esc(v.id) + '">' + ic('edit') + 'Back to draft</button>' : '') + '<button type="button" class="danger" data-action="cinv-void" data-id="' + esc(v.id) + '">' + ic('trash') + 'Void</button>') : '') +
+        (can('billing.manage') && (v.status === 'Draft' || v.status === 'Sent') ? moreMenu((v.status === 'Sent' && !v.imported ? '<button type="button" data-action="cinv-act" data-a="draft" data-id="' + esc(v.id) + '">' + ic('edit') + 'Back to draft</button>' : '') + '<button type="button" class="danger" data-action="cinv-void" data-id="' + esc(v.id) + '">' + ic('trash') + 'Void</button>') : '') +
       '</div></td></tr>').join('') + '</tbody></table></div>';
 }
 PAGES.client = async parts => {
@@ -5367,6 +5367,56 @@ FORMS['cinv-create'] = async (v, form) => {
   if (!ids.length) throw new Error('Tick at least one person.');
   const r = await call('createClientInvoice', { clientId: S.cache.client.client.id, from: v.from, to: v.to, employeeIds: ids, issueDate: v.issueDate, notes: v.notes });
   closeModal(); toast('Draft invoice ' + r.invoice.number + ' created — ' + cMoney(r.invoice.total, r.invoice.currency), 'ok', 7000); await reloadCurrent();
+};
+
+ACTIONS['cinv-import'] = () => openModal('Import existing invoices', '<form data-form="cinv-import"><p>Bring in invoices you sent before IntelliEmp, so balances, payments and "already billed" checks are complete.</p>' +
+  '<ul class="hint"><li><b>A list</b> — a QuickBooks "Invoice List" / "Sales by Customer Detail" export, or any Excel / CSV with columns such as <i>Invoice #, Date, Customer, Amount, Open balance, Due date</i> (optional: <i>Status, Period, Employee, Hours, Rate, PO</i>). Several rows with the same invoice number are one invoice.</li>' +
+  '<li><b>The invoices themselves</b> — PDFs, Word files or scans (several at once). Each is read and kept with its invoice.</li></ul>' +
+  field('Files', '<input type="file" name="files" multiple required accept=".pdf,.csv,.xlsx,.xls,.doc,.docx,.png,.jpg,.jpeg,.txt">') +
+  '<p class="hint">Nothing is saved until you check what was found and choose Import.</p><div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + ic('spark') + 'Read the files</button></div></form>');
+FORMS['cinv-import'] = async (v, form) => {
+  const fl = Array.from(form.querySelector('input[type=file]').files || []);
+  if (!fl.length) throw new Error('Choose the files.');
+  if (fl.length > 25) throw new Error('Up to 25 files at a time.');
+  const files = []; for (const f of fl) files.push(await readFile(f));
+  const r = await call('previewInvoiceImport', { files: files });
+  S.cache.cinvImport = r; cinvImportReview();
+};
+function cinvImportReview() {
+  const r = S.cache.cinvImport, cl = r.clients, em = r.employees;
+  const clientSel = x => '<select class="imp-client" data-native="1" name="client_' + x.key + '"><option value="">' + (x.newClient ? '+ New client: ' + esc(x.clientName) : '— choose —') + '</option>' + cl.map(c => '<option value="' + esc(c.id) + '"' + (c.id === x.clientId ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('') + '</select>';
+  const total = r.invoices.filter(x => x.ready).reduce((s, x) => s + Number(x.total || 0), 0);
+  openModal('Check the invoices found (' + r.invoices.length + ')', '<form data-form="cinv-import-commit">' +
+    (r.problems.length ? '<div class="banner warn">' + ic('alert') + '<div>' + r.problems.map(esc).join('<br>') + '</div></div>' : '') +
+    (r.invoices.length ? '<p class="muted">Ticked invoices are imported as already issued — sent, partly paid or paid, with the payment received. Change a client, date or amount here if it was read wrong. Duplicates and incomplete rows are not ticked.</p>' +
+    '<div class="tblwrap"><table class="tbl imp-tbl"><thead><tr><th></th><th>Invoice</th><th>Client</th><th>Date / due</th><th>Period</th><th class="num">Total</th><th class="num">Paid</th><th>Lines</th></tr></thead><tbody>' +
+    r.invoices.map(x => '<tr><td><input type="checkbox" name="pick_' + x.key + '"' + (x.ready ? ' checked' : '') + '></td>' +
+      '<td><input name="number_' + x.key + '" value="' + esc(x.number || '') + '" maxlength="40" class="imp-num"><br><small class="muted">' + esc(x.source || '') + (x.readBy ? ' · ' + esc(x.readBy) : '') + '</small>' +
+        (x.duplicate ? '<br>' + chip('Already in IntelliEmp: ' + x.duplicate, 'warn') : '') + (x.status === 'Void' ? '<br>' + chip('Void') : '') + '</td>' +
+      '<td>' + clientSel(x) + '</td>' +
+      '<td><input type="date" name="issue_' + x.key + '" value="' + esc(x.issueDate || '') + '"><br><input type="date" name="due_' + x.key + '" value="' + esc(x.dueDate || '') + '" title="Due date (blank: the client\'s terms)"></td>' +
+      '<td><input type="date" name="from_' + x.key + '" value="' + esc(x.periodStart || '') + '"><br><input type="date" name="to_' + x.key + '" value="' + esc(x.periodEnd || '') + '"></td>' +
+      '<td class="num"><input type="number" step="0.01" min="0" name="total_' + x.key + '" value="' + esc(x.total === null ? '' : x.total) + '" class="imp-amt"></td>' +
+      '<td class="num"><input type="number" step="0.01" min="0" name="paid_' + x.key + '" value="' + esc(x.paid || 0) + '" class="imp-amt"></td>' +
+      '<td class="imp-lines"><small>' + (x.lines.length ? x.lines.map((l, i) => (l.name ? '<select data-native="1" name="emp_' + x.key + '_' + i + '"><option value="">' + esc(l.name) + ' (name only)</option>' + em.map(e => '<option value="' + esc(e.id) + '"' + (e.id === l.employeeId ? ' selected' : '') + '>' + esc(e.name) + '</option>').join('') + '</select> ' : esc(l.description || 'Line') + ' ') +
+        (l.hours !== null ? esc(l.hours) + ' h' : '') + (l.rate !== null ? ' × ' + esc(l.rate) : '') + (l.amount !== null ? ' = ' + esc(l.amount) : '')).join('<br>') : '<span class="muted">one line for the total</span>') +
+        (x.problems.length ? '<br><span style="color:var(--amber)">' + x.problems.map(esc).join('<br>') + '</span>' : '') + '</small></td></tr>').join('') + '</tbody></table></div>' +
+    '<p class="hint">Lines matched to an employee stop the same person and period being billed again on a new invoice.</p>' : '<p>No invoices were found in these files.</p>') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button>' + (r.invoices.length ? '<button class="btn">' + ic('upload') + 'Import ticked invoices</button>' : '') + '</div></form>', 'x');
+}
+FORMS['cinv-import-commit'] = async (v, form) => {
+  const r = S.cache.cinvImport, g = n => (form.querySelector('[name="' + n + '"]') || {}).value || '';
+  const picked = r.invoices.filter(x => (form.querySelector('[name="pick_' + x.key + '"]') || {}).checked);
+  if (!picked.length) throw new Error('Tick the invoices to import.');
+  const invoices = picked.map(x => ({ number: g('number_' + x.key), clientId: g('client_' + x.key), clientName: g('client_' + x.key) ? '' : x.clientName, issueDate: g('issue_' + x.key), dueDate: g('due_' + x.key),
+    periodStart: g('from_' + x.key), periodEnd: g('to_' + x.key), total: g('total_' + x.key), paid: g('paid_' + x.key), paidOn: x.paidOn || '', status: x.status === 'Void' ? 'Void' : '', poNumber: x.poNumber || '',
+    currency: x.currency || '', fileIdx: x.fileIdx, source: x.source,
+    lines: x.lines.map((l, i) => ({ name: l.name, description: l.description, hours: l.hours, rate: l.rate, amount: l.amount, employeeId: l.name ? g('emp_' + x.key + '_' + i) : '' })) }));
+  const res = await call('commitInvoiceImport', { token: r.token, invoices: invoices });
+  closeModal();
+  if (res.skipped.length) await ask({ title: res.imported + ' imported, ' + res.skipped.length + ' not', body: res.skipped.join('\n'), ok: 'OK', cancel: 'Close', tone: 'warn', icon: 'alert' });
+  else toast(res.imported + ' invoice' + (res.imported === 1 ? '' : 's') + ' imported' + (res.newClients ? ' · ' + res.newClients + ' new client' + (res.newClients === 1 ? '' : 's') : ''), 'ok', 5000);
+  await reloadCurrent();
 };
 async function askReason(title, body) {
   const r = await ask({ title: title, body: body, input: { label: 'Reason', required: true, placeholder: 'Entered by mistake' }, ok: 'Void', tone: 'danger', icon: 'trash' });
