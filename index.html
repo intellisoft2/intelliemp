@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.38"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.39"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -197,7 +197,7 @@ tr.pii-row{cursor:pointer}tr.pii-row:hover{background:var(--tealbg)}td.pii-pen{w
 
 .modal-bg{position:fixed;inset:0;background:rgba(9,22,38,.55);display:flex;align-items:flex-start;justify-content:center;padding:6vh 14px;z-index:100;overflow:auto}
 .modal{background:#fff;border-radius:16px;width:100%;max-width:560px;padding:22px 22px 18px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.35)}
-.modal.wide{max-width:860px}.modal.xwide{max-width:min(1240px,96vw)}.imp-tbl td{vertical-align:top;padding:8px 6px}.imp-tbl input,.imp-tbl select{font-size:13px;padding:5px 7px;height:auto;min-height:0}.imp-tbl input[type=date]{width:136px}.imp-tbl select.imp-client{min-width:170px;max-width:210px}.imp-tbl input.imp-num{width:96px}.imp-tbl input.imp-amt{width:96px}.imp-tbl .imp-lines{min-width:200px;max-width:300px}.imp-tbl .imp-lines select{max-width:190px}.modal h3{margin-right:30px;font-size:19px}
+.sales-card{padding-top:20px}.sales-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:10px}.sales-tile{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:12px;border:1px solid #e8edf2;text-decoration:none;color:var(--ink);transition:box-shadow .15s,border-color .15s;background:#fff}.sales-tile:hover{box-shadow:0 6px 18px -10px rgba(9,22,38,.35)}.sales-tile b{font-size:22px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}.sales-tile span{font-size:13px;color:var(--mute)}.sales-tile.bad b{color:#c2410c}.sales-tile.ok b{color:#2e7d32}.sales-tile.credit b{color:#2563eb}.sales-tile.on{border-color:var(--teal,#0f766e);box-shadow:0 0 0 2px rgba(15,118,110,.15)}.sales-bar{display:flex;gap:3px;height:10px;border-radius:6px;overflow:hidden;margin:4px 0 18px;background:#eef2f6}.sales-bar i{display:block;height:100%}.sales-bar i.bad{background:#f08a3c}.sales-bar i.open{background:#cfd6de}.sales-bar i.ok{background:#4caf50}.sales-bar i.credit{background:#7aa7f7}.sales-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:0 0 14px}.sales-f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.04em}.sales-f select{min-width:180px;font-size:14px;text-transform:none;letter-spacing:0;font-weight:500;color:var(--ink)}.sales-tbl td{vertical-align:middle;white-space:nowrap}.sales-tbl td .btns{flex-wrap:nowrap}.sales-tbl .muted-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#94a3b8;margin-left:6px;vertical-align:middle}.sales-tbl tr.void td{opacity:.55}.sales-tbl tfoot td{border-top:2px solid #e3e8ee;padding-top:12px}.sales-st{display:flex;gap:8px;align-items:flex-start}.sales-st svg.i{width:18px;height:18px;flex:none;margin-top:1px}.sales-st b{display:block;font-weight:600}.sales-st small{display:block;color:var(--mute);font-size:12px}.sales-st.bad svg.i{color:#e8590c}.sales-st.ok svg.i{color:#2e7d32}.sales-st.open svg.i{color:#64748b}.sales-st.warn svg.i{color:#d97706}.sales-st.void svg.i,.sales-st.draft svg.i{color:#94a3b8}@media (max-width:900px){.sales-sum{grid-template-columns:repeat(2,1fr)}}.modal.wide{max-width:860px}.modal.xwide{max-width:min(1240px,96vw)}.imp-tbl td{vertical-align:top;padding:8px 6px}.imp-tbl input,.imp-tbl select{font-size:13px;padding:5px 7px;height:auto;min-height:0}.imp-tbl input[type=date]{width:136px}.imp-tbl select.imp-client{min-width:170px;max-width:210px}.imp-tbl input.imp-num{width:96px}.imp-tbl input.imp-amt{width:96px}.imp-tbl .imp-lines{min-width:200px;max-width:300px}.imp-tbl .imp-lines select{max-width:190px}.modal h3{margin-right:30px;font-size:19px}
 .modal .x{position:absolute;right:12px;top:10px;border:0;background:none;font-size:26px;color:var(--mute);cursor:pointer;line-height:1}
 .modal .foot-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap}
 
@@ -5224,7 +5224,7 @@ const invStatus = v => chip(v.overdue ? (v.status==='Partially Paid'?'Partially 
 const cMoney = (n, cur) => n === null || n === undefined || n === '' ? '—' : (!cur || cur === 'USD' ? '$' : cur === 'INR' ? '₹' : cur + ' ') + Number(n).toLocaleString(cur === 'INR' ? 'en-IN' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const clientHref = c => '#app/client/' + encodeURIComponent(c.id);
 function clientTabs(cur) {
-  return '<nav class="tabs"><a href="#app/clients" class="' + (cur === 'clients' ? 'on' : '') + '">' + ic('globe') + 'Clients</a><a href="#app/clients?view=invoices" class="' + (cur === 'invoices' ? 'on' : '') + '">' + ic('doc') + 'Client invoices</a>' +
+  return '<nav class="tabs"><a href="#app/clients" class="' + (cur === 'clients' ? 'on' : '') + '">' + ic('globe') + 'Clients</a><a href="#app/clients?view=invoices" class="' + (cur === 'invoices' ? 'on' : '') + '">' + ic('doc') + 'Sales</a>' +
     (D().org.assignmentsPreview && can('pay.view') ? '<a href="#app/assignments" class="' + (cur === 'assignments' ? 'on' : '') + '">' + ic('calendar') + 'Assignments <small class="muted">preview</small></a>' : '') + '</nav>';
 }
 PAGES.clients = async (parts, params) => {
@@ -5245,13 +5245,132 @@ PAGES.clients = async (parts, params) => {
         '<td><small class="muted">' + (c.paymentTerms !== '' && c.paymentTerms !== undefined ? 'Net ' + esc(c.paymentTerms) : 'Net 30') + '</small></td><td class="num">' + ic('chev') + '</td></tr>').join('') + '</tbody></table></div>'
       : '<div class="empty">' + ic('globe') + '<p>No clients yet. Add one, or set the client on an employee and it appears here.</p></div>') + '</div>';
 };
-async function clientInvoicesPage(params) {
-  const st = params.status || '', list = await call('listClientInvoices', { status: st }); S.cache.cinvList = list;
-  const f = [['', 'All'], ['Draft', 'Drafts'], ['Sent', 'Sent'], ['Partially Paid', 'Partially paid'], ['Overdue', 'Overdue'], ['Paid', 'Paid'], ['Void', 'Void']];
-  return head('Clients', 'Invoices sent to clients', can('billing.manage') ? '<button class="btn ghost" data-action="cinv-import">' + ic('upload') + 'Import existing invoices</button>' : '') + clientTabs('invoices') +
-    '<div class="card"><div class="filters"><span class="muted">Show</span> ' + f.map(o => '<a class="btn sm ' + (st === o[0] ? '' : 'ghost') + '" href="#app/clients?view=invoices' + (o[0] ? '&status=' + o[0] : '') + '">' + o[1] + '</a>').join(' ') + '</div>' +
-    (list.length ? invoiceTable(list, true) : '<div class="empty">' + ic('doc') + '<p>No invoices' + (st ? ' with this status' : ' yet — open a client and choose New invoice, or import the invoices you sent before') + '.</p></div>') + '</div>';
+const SALES_DATES = [['', 'All dates'], ['tm', 'This month'], ['lm', 'Last month'], ['tq', 'This quarter'], ['ty', 'This year'], ['ly', 'Last year'], ['12', 'Last 12 months']];
+function salesRange(k) {
+  const t = (D().today || new Date().toISOString()).slice(0, 10), y = +t.slice(0, 4), m = +t.slice(5, 7), iso = (Y, M, d) => new Date(Date.UTC(Y, M - 1, d)).toISOString().slice(0, 10);
+  if (k === 'tm') return [iso(y, m, 1), iso(y, m + 1, 0)]; if (k === 'lm') return [iso(y, m - 1, 1), iso(y, m, 0)];
+  if (k === 'tq') { const q = Math.floor((m - 1) / 3) * 3 + 1; return [iso(y, q, 1), iso(y, q + 3, 0)]; }
+  if (k === 'ty') return [y + '-01-01', y + '-12-31']; if (k === 'ly') return [(y - 1) + '-01-01', (y - 1) + '-12-31']; if (k === '12') return [iso(y - 1, m, +t.slice(8) + 1), t];
+  return null;
 }
+const daysFrom = (a, b) => Math.round((new Date(b + 'T00:00:00Z') - new Date(a + 'T00:00:00Z')) / 86400000);
+function salesStatus(v, today) {
+  if (v.kind === 'payment') return v.status === 'Void' ? { t: 'Void', cls: 'void', icon: 'x' } : v.unapplied > 0.004 ? { t: 'Unapplied ' + cMoney(v.unapplied, 'USD'), sub: v.applied.length ? 'Applied to ' + v.applied.map(a => a.number).join(', ') : 'Not applied yet', cls: 'warn', icon: 'alert' }
+    : { t: 'Closed', sub: v.applied.length ? 'Paid ' + v.applied.map(a => a.number).join(', ') : '', cls: 'ok', icon: 'check' };
+  if (v.status === 'Void') return { t: 'Void', cls: 'void', icon: 'x' };
+  if (v.status === 'Draft') return { t: 'Draft', sub: 'Not sent yet', cls: 'draft', icon: 'edit' };
+  if (v.status === 'Paid') return { t: 'Paid', sub: v.paidAt ? 'on ' + fmtDate(v.paidAt) : '', cls: 'ok', icon: 'check' };
+  const part = v.status === 'Partially Paid' ? ' · ' + cMoney(v.balance, v.currency) + ' due' : '';
+  if (v.dueDate && v.dueDate < today) { const n = daysFrom(v.dueDate, today); return { t: 'Overdue ' + n + ' day' + (n === 1 ? '' : 's'), sub: (v.status === 'Partially Paid' ? 'Partly paid' + part : v.sentAt ? 'Sent ' + fmtDate(String(v.sentAt).slice(0, 10)) : ''), cls: 'bad', icon: 'alert' }; }
+  if (v.dueDate) { const n = daysFrom(today, v.dueDate); return { t: n === 0 ? 'Due today' : 'Due in ' + n + ' day' + (n === 1 ? '' : 's'), sub: (v.status === 'Partially Paid' ? 'Partly paid' + part : v.sentAt ? 'Sent ' + fmtDate(String(v.sentAt).slice(0, 10)) : ''), cls: 'open', icon: 'clock' }; }
+  return { t: v.status, cls: 'open', icon: 'clock' };
+}
+async function clientInvoicesPage(params) {
+  const [inv, pays] = await Promise.all([call('listClientInvoices', {}), call('listClientPayments', {})]);
+  S.cache.cinvList = inv; S.cache.cpayList = pays;
+  const today = (D().today || new Date().toISOString()).slice(0, 10), q = Object.assign({ type: '', date: '', client: '', status: '' }, params || {});
+  const legacy = { Overdue: 'overdue', Paid: 'paid', Sent: 'open', 'Partially Paid': 'partial', Draft: 'draft', Void: 'void' }; if (legacy[q.status]) q.status = legacy[q.status];
+  const clients = []; inv.concat(pays).forEach(x => { if (x.clientName && clients.indexOf(x.clientName) < 0) clients.push(x.clientName); }); clients.sort();
+  const allRows = inv.map(v => Object.assign({ kind: 'invoice', date: v.issueDate }, v)).concat(pays.map(p => Object.assign({ kind: 'payment' }, p)));
+  const forClient = r => !q.client || r.clientName === q.client;
+  const live = inv.filter(forClient).filter(v => v.status !== 'Void' && v.status !== 'Draft');
+  const overdue = live.filter(v => v.balance > 0 && v.dueDate && v.dueDate < today), notDue = live.filter(v => v.balance > 0 && !(v.dueDate && v.dueDate < today));
+  const since = new Date(Date.parse(today + 'T00:00:00Z') - 30 * 86400000).toISOString().slice(0, 10);
+  const recent = pays.filter(forClient).filter(p => p.status !== 'Void' && p.date >= since), credit = pays.filter(forClient).filter(p => p.status !== 'Void' && p.unapplied > 0.004);
+  const sum = (xs, f) => xs.reduce((s, x) => s + Number(f(x) || 0), 0);
+  const tiles = [['bad', sum(overdue, v => v.balance), overdue.length + ' overdue invoice' + (overdue.length === 1 ? '' : 's'), 'overdue'], ['open', sum(notDue, v => v.balance), notDue.length + ' open, not due yet', 'open'],
+    ['ok', sum(recent, p => p.amount), recent.length + ' payment' + (recent.length === 1 ? '' : 's') + ' in the last 30 days', 'recent'], ['credit', sum(credit, p => p.unapplied), credit.length + ' unapplied payment' + (credit.length === 1 ? '' : 's'), 'credit']];
+  const totalBar = tiles.reduce((s, t) => s + t[1], 0) || 1;
+  const href = o => '#app/clients?view=invoices' + Object.entries(Object.assign({}, q, o)).filter(([k, v]) => v && k !== 'view').map(([k, v]) => '&' + k + '=' + encodeURIComponent(v)).join('');
+  const sumHtml = '<div class="sales-sum">' + tiles.map(t => '<a class="sales-tile ' + t[0] + (q.status === t[3] ? ' on' : '') + '" href="' + href({ status: q.status === t[3] ? '' : t[3], type: t[3] === 'recent' || t[3] === 'credit' ? 'payment' : t[3] === q.status ? '' : 'invoice' }) + '"><b>' + esc(cMoney(t[1], 'USD')) + '</b><span>' + esc(t[2]) + '</span></a>').join('') + '</div>' +
+    '<div class="sales-bar">' + tiles.map(t => t[1] > 0 ? '<i class="' + t[0] + '" style="flex:' + Math.max(2, Math.round(t[1] / totalBar * 1000)) + '"></i>' : '').join('') + '</div>';
+  const rng = salesRange(q.date);
+  let rows = allRows.filter(forClient).filter(r => !q.type || r.kind === q.type).filter(r => !rng || (r.date >= rng[0] && r.date <= rng[1]));
+  const st = q.status;
+  if (st) rows = rows.filter(r => r.kind === 'invoice' ? (st === 'overdue' ? r.balance > 0 && r.dueDate && r.dueDate < today && r.status !== 'Void' && r.status !== 'Draft' : st === 'open' ? r.balance > 0 && !(r.dueDate && r.dueDate < today) && r.status !== 'Draft' && r.status !== 'Void'
+    : st === 'paid' ? r.status === 'Paid' : st === 'partial' ? r.status === 'Partially Paid' : st === 'draft' ? r.status === 'Draft' : st === 'void' ? r.status === 'Void' : false)
+    : (st === 'recent' ? r.date >= since && r.status !== 'Void' : st === 'credit' ? r.unapplied > 0.004 && r.status !== 'Void' : st === 'void' ? r.status === 'Void' : st === 'paid' ? r.status !== 'Void' : false));
+  rows.sort((a, b) => String(b.date).localeCompare(String(a.date)) || (a.kind === b.kind ? String(b.number || '').localeCompare(String(a.number || '')) : a.kind === 'invoice' ? 1 : -1));
+  const total = sum(rows.filter(r => r.status !== 'Void'), r => r.kind === 'payment' ? -r.amount : r.total);
+  const filt = (name, label, opts, cur) => '<label class="sales-f"><span>' + esc(label) + '</span><select data-native="1" data-change="sales-filter" data-k="' + name + '">' + opts.map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === cur ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select></label>';
+  const filters = '<div class="sales-filters">' + filt('type', 'Type', [['', 'All transactions'], ['invoice', 'Invoices'], ['payment', 'Payments']], q.type) + filt('date', 'Date', SALES_DATES, q.date) +
+    filt('client', 'Customer', [['', 'All customers']].concat(clients.map(c => [c, c])), q.client) +
+    filt('status', 'Status', [['', 'All statuses'], ['overdue', 'Overdue'], ['open', 'Open (not due yet)'], ['partial', 'Partially paid'], ['paid', 'Paid / closed'], ['draft', 'Draft'], ['void', 'Void'], ['recent', 'Paid in the last 30 days'], ['credit', 'Unapplied payments']], st) +
+    (q.type || q.date || q.client || q.status ? '<a class="btn sm ghost" href="#app/clients?view=invoices">Clear</a>' : '') + '</div>';
+  const W = can('billing.manage');
+  const tbl = rows.length ? '<div class="tblwrap"><table class="tbl sales-tbl"><thead><tr><th>Date</th><th>Type</th><th>No.</th><th>Customer</th><th>Due date</th><th class="num">Amount</th><th>Status</th><th class="num">Action</th></tr></thead><tbody>' +
+    rows.map(r => { const s2 = salesStatus(r, today), isInv = r.kind === 'invoice';
+      return '<tr class="' + (r.status === 'Void' ? 'void' : '') + '"><td>' + esc(fmtDate(r.date)) + '</td><td>' + (isInv ? 'Invoice' + (r.imported ? '<span class="muted-dot" title="Imported from your previous system"></span>' : '') : 'Payment' + (r.method ? ' <small class="muted">· ' + esc(r.method) + '</small>' : '') + (r.source === 'Imported' ? '<span class="muted-dot" title="Imported from your previous system"></span>' : '')) + '</td>' +
+        '<td>' + (isInv ? '<b>' + esc(r.number) + '</b>' : '<small class="muted">' + esc(r.reference || '') + '</small>') + '</td><td><a href="#app/client/' + encodeURIComponent(r.clientId || 'name:' + r.clientName) + '">' + esc(r.clientName) + '</a></td>' +
+        '<td>' + (isInv && r.dueDate ? esc(fmtDate(r.dueDate)) : '<span class="muted">—</span>') + '</td><td class="num"><b>' + (isInv ? esc(cMoney(r.total, r.currency)) : '−' + esc(cMoney(r.amount, 'USD'))) + '</b></td>' +
+        '<td><div class="sales-st ' + s2.cls + '">' + ic(s2.icon) + '<div><b>' + esc(s2.t) + '</b>' + (s2.sub ? '<small>' + esc(s2.sub) + '</small>' : '') + '</div></div></td>' +
+        '<td class="num"><div class="btns" style="justify-content:flex-end">' + (isInv ? '<button class="btn xs ghost" data-action="cinv-view" data-id="' + esc(r.id) + '">' + ic('eye') + 'View</button>' +
+          (W && r.status === 'Draft' ? '<button class="btn xs" data-action="cinv-send" data-id="' + esc(r.id) + '">' + ic('send') + 'Send</button>' : '') +
+          (W && r.balance > 0 && r.status !== 'Draft' && r.status !== 'Void' ? '<button class="btn xs" data-action="cpay-new" data-client="' + esc(r.clientId || r.clientName) + '" data-inv="' + esc(r.id) + '" title="Receive payment">' + ic('check') + 'Receive</button>' : '') +
+          (W && (r.status === 'Draft' || r.status === 'Sent' || r.hasFile) ? moreMenu((r.hasFile ? '<button type="button" data-action="cinv-reread" data-id="' + esc(r.id) + '">' + ic('refresh') + 'Re-read the original file</button>' : '') +
+            (r.status === 'Sent' && !r.imported ? '<button type="button" data-action="cinv-act" data-a="draft" data-id="' + esc(r.id) + '">' + ic('edit') + 'Back to draft</button>' : '') +
+            (r.status === 'Draft' || r.status === 'Sent' ? '<button type="button" class="red" data-action="cinv-void" data-id="' + esc(r.id) + '">' + ic('trash') + 'Void</button>' : '')) : '')
+        : '<button class="btn xs ghost" data-action="cpay-view" data-id="' + esc(r.id) + '">' + ic('eye') + 'View</button>' + (W && r.status !== 'Void' ? moreMenu('<button type="button" class="red" data-action="cpay-void" data-id="' + esc(r.id) + '">' + ic('trash') + 'Void payment</button>') : '')) +
+        '</div></td></tr>'; }).join('') +
+    '</tbody><tfoot><tr><td colspan="5"><b>Total</b> <small class="muted">' + rows.length + ' transaction' + (rows.length === 1 ? '' : 's') + (q.type === '' ? ' · invoices less payments' : '') + '</small></td><td class="num"><b>' + esc(cMoney(total, 'USD')) + '</b></td><td colspan="2"></td></tr></tfoot></table></div>'
+    : '<div class="empty">' + ic('doc') + '<p>' + (allRows.length ? 'Nothing matches these filters.' : 'No invoices or payments yet — open a client and choose New invoice, or import your QuickBooks sales list.') + '</p></div>';
+  return head('Clients', 'Sales — invoices and payments', W ? '<button class="btn ghost" data-action="cinv-import">' + ic('upload') + 'Import</button> <button class="btn" data-action="cpay-new" data-client="' + esc(q.client ? 'name:' + q.client : '') + '">' + ic('check') + 'Receive payment</button>' : '') +
+    clientTabs('invoices') + '<div class="card sales-card">' + sumHtml + filters + tbl + '</div>';
+}
+CHANGES['sales-filter'] = el => {
+  const q = {}; (location.hash.split('?')[1] || '').split('&').filter(Boolean).forEach(kv => { const i = kv.indexOf('='); q[decodeURIComponent(kv.slice(0, i < 0 ? kv.length : i))] = i < 0 ? '' : decodeURIComponent(kv.slice(i + 1)); });
+  q.view = 'invoices'; if (el.value) q[el.dataset.k] = el.value; else delete q[el.dataset.k];
+  if (el.dataset.k === 'status' && (el.value === 'recent' || el.value === 'credit')) q.type = 'payment';
+  go('#app/clients?' + Object.keys(q).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(q[k])).join('&'));
+};
+ACTIONS['cpay-new'] = async el => {
+  const inv = S.cache.cinvList || (await call('listClientInvoices', {}));
+  const open = inv.filter(v => v.balance > 0 && v.status !== 'Draft' && v.status !== 'Void');
+  const names = []; open.forEach(v => { if (names.indexOf(v.clientName) < 0) names.push(v.clientName); });
+  const want = el.dataset.client || '', pre = (inv.find(v => v.clientId === want || 'name:' + v.clientName === want || v.clientName === want) || {}).clientName || (names.length === 1 ? names[0] : '');
+  S.cache.cpayOpen = open; S.cache.cpayInv = el.dataset.inv || '';
+  openModal('Receive payment', '<form data-form="cpay-save"><div class="grid g3">' +
+    field('Customer', '<select name="clientName" required data-change="cpay-client" data-native="1"><option value="">— choose —</option>' + (await (async () => { const all = (S.cache.cinvList || []).map(v => v.clientName); const u = []; all.concat(names).forEach(n => { if (n && u.indexOf(n) < 0) u.push(n); }); return u.sort(); })()).map(n => '<option' + (n === pre ? ' selected' : '') + '>' + esc(n) + '</option>').join('') + '</select>') +
+    field('Payment date', inp('date', D().today || '', 'type="date" required')) + field('Amount received', inp('amount', '', 'type="number" step="0.01" min="0.01" required data-change="cpay-amount" placeholder="0.00"')) +
+    field('Method', sel('method', [['', '—']].concat(['Check', 'ACH', 'Wire', 'Zelle', 'Credit card', 'Cash', 'Other'].map(m => [m, m])), '')) + field('Reference no.', inp('reference', '', 'maxlength="60" placeholder="Check #, ACH trace…"')) + '<div></div></div>' +
+    '<div id="cpay-open"></div><div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button><button class="btn">' + ic('check') + 'Save payment</button></div></form>', true);
+  cpayDraw(pre, S.cache.cpayInv);
+};
+function cpayDraw(client, onlyInv) {
+  const box = document.getElementById('cpay-open'); if (!box) return;
+  const list = (S.cache.cpayOpen || []).filter(v => v.clientName === client).sort((a, b) => String(a.issueDate).localeCompare(String(b.issueDate)));
+  if (!client) { box.innerHTML = '<p class="hint">Choose the customer to see their open invoices.</p>'; return; }
+  if (!list.length) { box.innerHTML = '<p class="hint">' + esc(client) + ' has no open invoices — the payment is kept as an unapplied credit.</p>'; return; }
+  box.innerHTML = '<h4 style="margin:14px 0 6px">Open invoices · ' + esc(client) + '</h4><div class="tblwrap"><table class="tbl"><thead><tr><th></th><th>Invoice</th><th>Date</th><th>Due</th><th class="num">Original</th><th class="num">Open balance</th><th class="num">Payment</th></tr></thead><tbody>' +
+    list.map(v => '<tr><td><input type="checkbox" class="cpay-pick" data-id="' + esc(v.id) + '" data-bal="' + esc(v.balance) + '"' + (!onlyInv || onlyInv === v.id ? ' checked' : '') + ' data-change="cpay-amount"></td><td><b>' + esc(v.number) + '</b></td><td>' + esc(fmtDate(v.issueDate)) + '</td><td>' + esc(fmtDate(v.dueDate)) + (v.dueDate < (D().today || '') ? ' ' + chip('Overdue', 'bad') : '') + '</td>' +
+      '<td class="num">' + esc(cMoney(v.total, v.currency)) + '</td><td class="num">' + esc(cMoney(v.balance, v.currency)) + '</td><td class="num"><input type="number" step="0.01" min="0" class="cpay-amt" data-id="' + esc(v.id) + '" style="width:120px;text-align:right" value=""></td></tr>').join('') +
+    '</tbody></table></div><p class="hint" id="cpay-sum"></p>';
+  if (onlyInv) { const v = list.find(x => x.id === onlyInv); const a = document.querySelector('.modal [name=amount]'); if (v && a && !a.value) a.value = v.balance; }
+  cpaySpread();
+}
+function cpaySpread() {
+  const a = Number((document.querySelector('.modal [name=amount]') || {}).value || 0); let left = a;
+  document.querySelectorAll('.modal .cpay-pick').forEach(c => { const inp2 = document.querySelector('.modal .cpay-amt[data-id="' + c.dataset.id + '"]'); const take = c.checked ? Math.max(0, Math.min(left, Number(c.dataset.bal))) : 0; inp2.value = take ? take.toFixed(2) : ''; left = Math.round((left - take) * 100) / 100; });
+  const s2 = document.getElementById('cpay-sum'); if (s2) s2.innerHTML = a ? 'Applied ' + esc(cMoney(a - left, 'USD')) + (left > 0 ? ' · <b>' + esc(cMoney(left, 'USD')) + '</b> stays as an unapplied credit' : '') : 'Enter the amount — it is spread over the ticked invoices, oldest first. You can change each amount.';
+}
+CHANGES['cpay-client'] = el => cpayDraw(el.value, '');
+CHANGES['cpay-amount'] = () => cpaySpread();
+FORMS['cpay-save'] = async v => {
+  const apply = []; document.querySelectorAll('.modal .cpay-amt').forEach(i => { const n = Number(i.value || 0); if (n > 0) apply.push({ invoiceId: i.dataset.id, amount: n }); });
+  const r = await call('recordClientPayment', { clientId: 'name:' + v.clientName, amount: v.amount, date: v.date, method: v.method, reference: v.reference, apply: apply.length ? apply : null });
+  closeModal(); toast('Payment saved' + (r.payment.applied.length ? ' · applied to ' + r.payment.applied.map(a => a.number).join(', ') : '') + (r.payment.unapplied > 0 ? ' · ' + cMoney(r.payment.unapplied, 'USD') + ' unapplied' : ''), 'ok', 6000); await reloadCurrent();
+};
+ACTIONS['cpay-view'] = el => {
+  const p = (S.cache.cpayList || []).find(x => x.id === el.dataset.id); if (!p) return;
+  openModal('Payment · ' + p.clientName, '<dl class="kv"><dt>Date</dt><dd>' + esc(fmtDate(p.date)) + '</dd><dt>Amount</dt><dd><b>' + esc(cMoney(p.amount, 'USD')) + '</b></dd>' + (p.method ? '<dt>Method</dt><dd>' + esc(p.method) + '</dd>' : '') + (p.reference ? '<dt>Reference</dt><dd>' + esc(p.reference) + '</dd>' : '') +
+    '<dt>Status</dt><dd>' + (p.status === 'Void' ? chip('Void', 'bad') + ' ' + esc(p.voidReason || '') : p.unapplied > 0.004 ? chip(cMoney(p.unapplied, 'USD') + ' unapplied', 'warn') : chip('Fully applied', 'ok')) + '</dd>' + (p.source ? '<dt>Source</dt><dd>' + esc(p.source) + '</dd>' : '') + '</dl>' +
+    (p.applied.length ? '<h4>Applied to</h4><table class="tbl"><tbody>' + p.applied.map(a => '<tr><td><b>' + esc(a.number) + '</b></td><td class="num">' + esc(cMoney(a.amount, 'USD')) + '</td></tr>').join('') + '</tbody></table>' : '') +
+    '<div class="foot-btns"><button type="button" class="btn" data-action="close-modal">Close</button></div>');
+};
+ACTIONS['cpay-void'] = async el => {
+  const why = await ask({ title: 'Void this payment?', body: 'It comes off the invoices it paid — they reopen. The payment is kept, marked void.', input: { label: 'Reason', required: true, placeholder: 'Bounced / entered twice' }, ok: 'Void payment', tone: 'danger', icon: 'trash' });
+  if (!why) return; await busy(el, call('voidClientPayment', { id: el.dataset.id, reason: String(why) })); toast('Payment voided', 'ok'); await reloadCurrent();
+};
 function invoiceTable(list, withClient) {
   return '<div class="tblwrap"><table class="tbl"><thead><tr><th>Invoice</th>' + (withClient ? '<th>Client</th>' : '') + '<th>Period</th><th class="num">Hours</th><th class="num">Total</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody>' +
     list.map(v => '<tr><td><b>' + esc(v.number) + '</b>' + (v.imported ? ' ' + chip('Imported') : '') + '<br><small class="muted">' + esc(fmtDate(v.issueDate)) + '</small>' + (v.hasFile ? '<br>' + fileBtns('cinv', v.id, { iconOnly: true }) : '') + '</td>' + (withClient ? '<td><a href="#app/client/' + encodeURIComponent(v.clientId || 'name:' + v.clientName) + '">' + esc(v.clientName) + '</a></td>' : '') +
@@ -5260,7 +5379,7 @@ function invoiceTable(list, withClient) {
       '<td><small>' + esc(v.status === 'Paid' ? 'paid ' + fmtDate(v.paidAt) : v.status === 'Void' ? '' : fmtDate(v.dueDate)) + '</small></td>' +
       '<td class="num"><div class="btns" style="justify-content:flex-end"><button class="btn xs ghost" data-action="cinv-view" data-id="' + esc(v.id) + '">' + ic('eye') + 'View</button>' +
         (can('billing.manage') && v.status === 'Draft' ? '<button class="btn xs" data-action="cinv-send" data-id="' + esc(v.id) + '">' + ic('send') + 'Send</button>' : '') +
-        (can('billing.manage') && v.balance > 0 ? '<button class="btn xs" data-action="cinv-paid" data-id="' + esc(v.id) + '" data-total="' + esc(v.balance) + '">' + ic('check') + 'Record payment</button>' : '') +
+        (can('billing.manage') && v.balance > 0 ? '<button class="btn xs" data-action="cpay-new" data-client="' + esc(v.clientId || v.clientName) + '" data-inv="' + esc(v.id) + '">' + ic('check') + 'Receive payment</button>' : '') +
         (can('billing.manage') && (v.status === 'Draft' || v.status === 'Sent' || v.hasFile) ? moreMenu((v.hasFile ? '<button type="button" data-action="cinv-reread" data-id="' + esc(v.id) + '">' + ic('refresh') + 'Re-read the original file</button>' : '') +
           (v.status === 'Sent' && !v.imported ? '<button type="button" data-action="cinv-act" data-a="draft" data-id="' + esc(v.id) + '">' + ic('edit') + 'Back to draft</button>' : '') +
           (v.status === 'Draft' || v.status === 'Sent' ? '<button type="button" class="red" data-action="cinv-void" data-id="' + esc(v.id) + '">' + ic('trash') + 'Void</button>' : '')) : '') +
@@ -5452,21 +5571,28 @@ function cinvImportReview() {
       '<td class="imp-lines"><small>' + (x.lines.length ? x.lines.map((l, i) => (l.name ? '<select data-native="1" name="emp_' + x.key + '_' + i + '"><option value="">' + esc(l.name) + ' (name only)</option>' + em.map(e => '<option value="' + esc(e.id) + '"' + (e.id === l.employeeId ? ' selected' : '') + '>' + esc(e.name) + '</option>').join('') + '</select> ' : esc(l.description || 'Line') + ' ') +
         (l.item ? '<b>' + esc(l.item) + '</b> ' : '') + (l.hours !== null ? esc(l.hours) + ' h' : '') + (l.rate !== null ? ' × ' + esc(l.rate) : '') + (l.amount !== null ? ' = ' + esc(l.amount) : '')).join('<br>') : '<span class="muted">one line for the total</span>') +
         (x.problems.length ? '<br><span style="color:var(--amber)">' + x.problems.map(esc).join('<br>') + '</span>' : '') + '</small></td></tr>').join('') + '</tbody></table></div>' +
-    '<p class="hint">Lines matched to an employee stop the same person and period being billed again on a new invoice.</p>' : '<p>No invoices were found in these files.</p>') +
-    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button>' + (r.invoices.length ? '<button class="btn">' + ic('upload') + 'Import ticked invoices</button>' : '') + '</div></form>', 'x');
+    '<p class="hint">Lines matched to an employee stop the same person and period being billed again on a new invoice.</p>' : (r.payments || []).length ? '' : '<p>No invoices were found in these files.</p>') +
+    ((r.payments || []).length ? '<h4 style="margin-top:18px">' + ic('check') + 'Payments found (' + r.payments.length + ' · ' + esc(cMoney(r.payments.reduce((s, p) => s + p.amount, 0), 'USD')) + ')</h4>' +
+      '<p class="muted">Each becomes a payment received. For each customer they pay the invoices marked paid above, oldest first (a payment of exactly one invoice\'s amount pays that invoice); anything left is kept as an unapplied credit.</p>' +
+      '<div class="tblwrap" style="max-height:260px;overflow:auto"><table class="tbl imp-tbl"><thead><tr><th><input type="checkbox" data-change="cinv-pay-all" checked title="All"></th><th>Date</th><th>Customer</th><th class="num">Amount</th><th>Reference</th><th></th></tr></thead><tbody>' +
+      r.payments.map(p => '<tr><td><input type="checkbox" class="imp-pay" name="ppick_' + p.key + '"' + (p.ready ? ' checked' : '') + '></td><td>' + esc(fmtDate(p.date)) + '</td><td>' + esc(p.clientName) + (p.newClient ? ' <small class="muted">(new)</small>' : '') + '</td><td class="num">' + esc(cMoney(p.amount, 'USD')) + '</td><td><small>' + esc(p.reference || '') + '</small></td><td>' +
+        (p.duplicate ? chip('Already in IntelliEmp', 'warn') : '') + (p.problems.length ? '<small style="color:var(--amber)">' + p.problems.map(esc).join(' ') + '</small>' : '') + '</td></tr>').join('') + '</tbody></table></div>' : '') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button>' + (r.invoices.length || (r.payments || []).length ? '<button class="btn">' + ic('upload') + 'Import ticked ' + (r.invoices.length && (r.payments || []).length ? 'invoices and payments' : r.invoices.length ? 'invoices' : 'payments') + '</button>' : '') + '</div></form>', 'x');
 }
 FORMS['cinv-import-commit'] = async (v, form) => {
   const r = S.cache.cinvImport, g = n => (form.querySelector('[name="' + n + '"]') || {}).value || '';
   const picked = r.invoices.filter(x => (form.querySelector('[name="pick_' + x.key + '"]') || {}).checked);
-  if (!picked.length) throw new Error('Tick the invoices to import.');
+  const pPicked = (r.payments || []).filter(p => (form.querySelector('[name="ppick_' + p.key + '"]') || {}).checked);
+  if (!picked.length && !pPicked.length) throw new Error('Tick the invoices or payments to import.');
   const invoices = picked.map(x => ({ number: g('number_' + x.key), clientId: g('client_' + x.key), clientName: g('client_' + x.key) ? '' : x.clientName, issueDate: g('issue_' + x.key), dueDate: g('due_' + x.key),
     periodStart: g('from_' + x.key), periodEnd: g('to_' + x.key), total: g('total_' + x.key), paid: g('paid_' + x.key), paidOn: x.paidOn || '', status: x.status === 'Void' ? 'Void' : '', poNumber: x.poNumber || '',
     currency: x.currency || '', fileIdx: x.fileIdx, source: x.source, terms: x.terms || '', billTo: x.billTo || null, shipTo: x.shipTo || null,
     lines: x.lines.map((l, i) => ({ name: l.name, date: l.date || '', item: l.item || '', description: l.description, hours: l.hours, rate: l.rate, amount: l.amount, employeeId: l.name ? g('emp_' + x.key + '_' + i) : '' })) }));
-  const res = await call('commitInvoiceImport', { token: r.token, invoices: invoices });
+  const payments = pPicked.map(p => ({ date: p.date, clientId: p.clientId, clientName: p.clientId ? '' : p.clientName, amount: p.amount, reference: p.reference, method: p.method, importKey: p.importKey }));
+  const res = await call('commitInvoiceImport', { token: r.token, invoices: invoices, payments: payments });
   closeModal();
   if (res.skipped.length) await ask({ title: res.imported + ' imported, ' + res.skipped.length + ' not', body: res.skipped.join('\n'), ok: 'OK', cancel: 'Close', tone: 'warn', icon: 'alert' });
-  else toast(res.imported + ' invoice' + (res.imported === 1 ? '' : 's') + ' imported' + (res.newClients ? ' · ' + res.newClients + ' new client' + (res.newClients === 1 ? '' : 's') : '') + ((res.clientUpdates || []).length ? ' · client details filled in from the invoices' : ''), 'ok', 6000);
+  else toast(res.imported + ' invoice' + (res.imported === 1 ? '' : 's') + (res.payments ? ' and ' + res.payments + ' payment' + (res.payments === 1 ? '' : 's') : '') + ' imported' + (res.newClients ? ' · ' + res.newClients + ' new client' + (res.newClients === 1 ? '' : 's') : '') + ((res.clientUpdates || []).length ? ' · client details filled in from the invoices' : ''), 'ok', 6000);
   await reloadCurrent();
 };
 
@@ -5482,6 +5608,7 @@ ACTIONS['cinv-reread'] = async el => {
     '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">' + (any ? 'Cancel' : 'Close') + '</button>' + (any ? '<button type="button" class="btn" data-action="cinv-reread-apply" data-id="' + esc(id) + '">' + ic('check') + 'Add these details</button>' : '') + '</div>', true);
 };
 ACTIONS['cinv-reread-apply'] = async el => { const r = await busy(el, call('rereadClientInvoice', { id: el.dataset.id, apply: true })); closeModal(); toast('Added ' + (r.updated + r.clientUpdated) + ' detail' + (r.updated + r.clientUpdated === 1 ? '' : 's'), 'ok'); await reloadCurrent(); };
+CHANGES['cinv-pay-all'] = el => document.querySelectorAll('.modal .imp-pay').forEach(c => { c.checked = el.checked; });
 async function askReason(title, body) {
   const r = await ask({ title: title, body: body, input: { label: 'Reason', required: true, placeholder: 'Entered by mistake' }, ok: 'Void', tone: 'danger', icon: 'trash' });
   return r ? String(r).trim() : '';
@@ -5608,7 +5735,7 @@ document.addEventListener('submit', async ev => {
 });
 const onChange = async ev => { const el = ev.target.closest && ev.target.closest('[data-change]'); if (!el || !CHANGES[el.dataset.change]) return; try { await CHANGES[el.dataset.change](el, ev); } catch (e) { fail(e); } };
 document.addEventListener('change', onChange);
-document.addEventListener('input', ev => { if (ev.target.dataset && ['ts-sum', 'w4-calc', 'md-tot'].indexOf(ev.target.dataset.change) >= 0) onChange(ev); });
+document.addEventListener('input', ev => { if (ev.target.dataset && ['ts-sum', 'w4-calc', 'md-tot', 'cpay-amount'].indexOf(ev.target.dataset.change) >= 0) onChange(ev); });
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && S.modal) userClose('esc'); });
 window.addEventListener('beforeunload', ev => { if (S.modal && S.modal.dirty) { ev.preventDefault(); ev.returnValue = ''; } });
 ['dragover', 'dragleave', 'drop'].forEach(t => document.addEventListener(t, ev => {
