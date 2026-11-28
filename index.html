@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.34"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.35"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -1572,7 +1572,7 @@ function empProfile(E) {
     R('Full legal name', e.middleName ? esc([e.firstName, e.middleName, e.lastName].join(' ')) : esc(e.name), [F('firstName', 'text', e.firstName, 'First'), F('middleName', 'text', e.middleName, 'Middle (optional)'), F('lastName', 'text', e.lastName, 'Last')]) +
     R('Job title', esc(e.jobTitle), [F('jobTitle', 'text', e.jobTitle, 'Job title')]) + R('Department', esc(e.department), [F('department', 'text', e.department, 'Department')]) +
     R('Employment', esc(e.employmentType), [F('employmentType', 'select', e.employmentType, '', L('empTypes'))], { confirm: 'Changing W-2 / 1099 updates the onboarding checklist. Continue?' }) +
-    (e.ssnLast4 || e.ssnStatus === 'Cleared' ? kv('Social Security no.', e.ssnLast4 ? '***-**-' + esc(e.ssnLast4) + ' ' + (e.ssnStatus === 'Verified' ? chip('Verified', 'ok') + ' <small class="muted">' + esc(e.ssnVerifiedBy || '') + '</small>' : chip('Entered by employee', 'warn')) +
+    (e.ssnLast4 || e.ssnStatus === 'Cleared' ? kv('Social Security no.', e.ssnLast4 ? '***-**-' + esc(e.ssnLast4) + ' ' + (e.ssnStatus === 'Verified' ? chip('Verified', 'ok') + (e.ssnVerifiedBy ? ' <small class="muted">by ' + esc(e.ssnVerifiedBy) + '</small>' : '') : chip('Entered by employee', 'warn')) +
       (can('onboarding.manage') ? ' ' + (e.ssnStatus !== 'Verified' ? '<button class="btn xs" data-action="ssn-verify" data-emp="' + e.id + '">Mark verified</button> ' : '') + '<button class="btn xs ghost" data-action="ssn-clear" data-emp="' + e.id + '" title="Removes it so the employee is asked again on the next form">Ask again</button>' : '')
       : '<span class="muted">Will be asked on the next form</span>') : '') +
     (pay ? R('Pay', e.payRate === '' ? '' : esc(money(e.payRate, e.payType, e.currency)) + (e.payFrequency || D().org.payFrequency ? ' <small class="muted">· paid ' + esc(e.payFrequency || D().org.payFrequency) + '</small>' : ''),
@@ -1597,7 +1597,7 @@ function empProfile(E) {
       R('I-94 admit until', e.i94Expiry ? expiryChip(e.i94Expiry) : '', [F('i94Expiry', 'date', e.i94Expiry)], { hideEmpty: !uses('i94') }) +
       R(wa.receipt || 'Receipt number', esc(e.receiptNumber), [F('receiptNumber', 'text', e.receiptNumber, 'e.g. IOE0123456789')], { hideEmpty: !uses('receipt') }) +
       (wa.note ? '<dt></dt><dd><small class="muted">' + esc(wa.note) + '</small></dd>' : '') +
-      R('E-Verify case', esc(e.eVerifyCase) + (e.eVerifyStatus ? ' · ' + esc(e.eVerifyStatus) : ''), [F('eVerifyCase', 'text', e.eVerifyCase, 'Case number'), F('eVerifyStatus', 'text', e.eVerifyStatus, 'Status, e.g. Employment authorized')]) + '</dl>' : '') + '</div>' +
+      R('E-Verify case', esc(e.eVerifyCase) + (e.eVerifyStatus ? ' · ' + esc(e.eVerifyStatus) : ''), [F('eVerifyCase', 'text', e.eVerifyCase, 'Case number'), F('eVerifyStatus', 'text', e.eVerifyStatus, 'Status, e.g. Employment authorized')]) + '</dl>' + immDriftHtml(E.immDrift, e.id) : '') + '</div>' +
     ieCard(e.id, 'contact', ic('user') + 'Contact') + '<dl class="kv">' +
     R('Work email', esc(e.email), [F('email', 'email', e.email, 'name@company.com')], { confirm: signedIn && e.email && E.member && E.member.email === e.email ? 'They sign in with ' + e.email + '. Their sign-in address does not change — only the work email on the record. Continue?' : '' }) +
     R('Personal email', esc(e.personalEmail), [F('personalEmail', 'email', e.personalEmail, 'name@gmail.com')]) + R('Phone', esc(e.phone), [F('phone', 'tel', e.phone, 'Phone')]) +
@@ -1871,6 +1871,14 @@ function waBlock(e) {
   }
   return '<div id="wa-wrap"><div class="grid g3">' + cSel + '</div>' + waBlockUs(e) + '</div>';
 }
+function immDriftHtml(items, empId) {
+  if (!items || !items.length || !can('immigration.manage')) return '';
+  return '<div class="banner warn" style="margin-top:10px">' + ic('alert') + '<div><b>The immigration history is newer than this record.</b><br>' +
+    items.map(i => esc(i.label) + ': ' + (i.from ? '<s class="muted">' + esc(/\d{4}-\d{2}-\d{2}/.test(i.from) ? fmtDate(i.from) : i.from) + '</s> → ' : '') + '<b>' + esc(/\d{4}-\d{2}-\d{2}/.test(i.to) ? fmtDate(i.to) : i.to) + '</b>' + (i.why ? ' <small class="muted">(from ' + esc(i.why) + ')</small>' : '')).join('<br>') +
+    (can('employees.edit') ? '<div class="btns" style="margin-top:8px"><button type="button" class="btn sm" data-action="imm-apply" data-emp="' + esc(empId) + '">' + ic('check') + 'Update the record</button>' +
+      '<a class="btn sm ghost" href="#app/employee/' + esc(empId) + '/immigration">Check the history</a></div>' : '') + '</div></div>';
+}
+ACTIONS['imm-apply'] = async el => { const r = await busy(el, call('applyImmProfile', { employeeId: el.dataset.emp })); toast(r.updated.length ? 'Updated from the immigration history' : 'Already up to date', 'ok'); await reloadCurrent(); };
 function tsRuleWaives(e) { return D().org.waiveSalariedTs !== false && e.employmentType === 'W2 Full-time (salary)' && e.payType !== 'Hourly' && (e.placement === 'Internal' || (!e.placement && !e.clientName && !e.clientManagerEmail)); }
 function tsReqOpts(e) { return [['', 'Company rule — ' + (tsRuleWaives(e || {}) ? 'not required (salaried, no client)' : 'required')], ['Yes', 'Required'], ['No', 'Not required']]; }
 function tsNeedText(e) {
