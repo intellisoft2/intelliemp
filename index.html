@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2226%22%20fill%3D%22%2312304d%22%20stroke%3D%22%232a4a68%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2242%22%20r%3D%2215%22%20fill%3D%22%234de0c3%22%2F%3E%3Cpath%20d%3D%22M30%2092c3-17%2015-27%2030-27s27%2010%2030%2027%22%20fill%3D%22none%22%20stroke%3D%22%2370aaff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M48%2088l9%208%2017-19%22%20fill%3D%22none%22%20stroke%3D%22%23bff5ea%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <link rel="canonical" href="https://employee.intellisoft-tech.com/">
-<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.46"};</script>
+<script>window.IE_CONFIG = {"e":"Y2V4ZS85M3phd3dNZWVpUzF5VkV2YVhmb2F3blpsSnJRSTN2X3hWOW96aThIZXI3VlEtUXBXZVlKMkkzZnlGdk5JMU1DS3diY3lmS0Evcy9zb3JjYW0vbW9jLmVsZ29vZy50cGlyY3MvLzpzcHR0aA==","version":"1.1.48"};</script>
 <style>
 
 :root{--navy:#0b1b2e;--navy2:#12263d;--navy3:#1b3553;--line:#e3e8ef;--ink:#0f1c2b;--ink2:#41526a;--mute:#6b7a90;--bg:#f4f6f9;--card:#fff;
@@ -5495,7 +5495,8 @@ function invoiceHtml(v) {
     if (a.slice(0, 7) === b.slice(0, 7) && a.slice(8) === '01' && Number(b.slice(8)) === last) return ma + ' ' + a.slice(0, 4);
     return ma + ' ' + Number(a.slice(8)) + ' – ' + (a.slice(0, 7) === b.slice(0, 7) ? '' : mb + ' ') + Number(b.slice(8)) + ', ' + b.slice(0, 4); };
   (v.lines || []).forEach(l => {
-    const date = per(l.periodStart, l.periodEnd) || per(v.periodStart, v.periodEnd) || (l.date ? fmtDate(l.date) : ''), item = l.item || l.name, desc = l.description || (l.item ? '' : l.jobTitle || '');
+    const date = per(l.periodStart, l.periodEnd) || per(v.periodStart, v.periodEnd) || (l.date ? fmtDate(l.date) : ''), item = l.item || l.name;
+    let desc = l.description || (l.item ? '' : l.jobTitle || ''); if (item && desc.indexOf(item) === 0) desc = desc.slice(item.length).trim();   // a description that repeats the service name
     const multi = l.rates && l.rates.length > 1;
     (multi ? l.rates : [{ hours: l.hours, rate: l.rate, amount: l.amount }]).forEach((r, i) => rows.push('<tr><td>' + (i ? '' : esc(date)) + '</td><td>' + (i ? '<div class="invx-desc">at a different rate</div>' :
       '<div class="invx-item">' + esc(item || '') + '</div>' + (desc ? '<div class="invx-desc">' + esc(desc) + '</div>' : '')) + '</td><td class="num">' + (r.hours ? esc(r.hours) : '') + '</td><td class="num">' + (r.rate ? m(r.rate) : '') + '</td><td class="num">' + m(r.amount !== undefined ? r.amount : r.hours * r.rate) + '</td></tr>'));
@@ -5529,7 +5530,13 @@ Object.assign(ACTIONS, {
     const v = cinvFind(el.dataset.id);
     if (!v) return;
     S.cache.cinvView = v;
-    openModal('Invoice ' + v.number, invoiceHtml(v) + '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Close</button><button type="button" class="btn" data-action="cinv-print">' + ic('download') + 'Print / save as PDF</button></div>', true);
+    const all = [].concat(S.cache.client ? S.cache.client.invoices : [], S.cache.cinvList || []), sameC = x => x.id !== v.id && x.status !== 'Void' && (x.clientId === v.clientId || x.clientName === v.clientName);
+    const thin = x => x.status !== 'Draft' && x.lines.length <= 2 && !x.lines.some(l => l.employeeId) && x.lines.every(l => !Number(l.hours));
+    const good = all.filter((x, i, a) => a.findIndex(y => y.id === x.id) === i).filter(x => sameC(x) && x.lines.filter(l => !/^Other charges/.test(l.name || '')).length === 1 && x.lines.some(l => l.employeeId || l.item));
+    const fill = can('billing.manage') && thin(v) && good.length ? '<div class="banner info">' + ic('spark') + '<div><b>Only a total came with this invoice.</b> Fill in the person, service, period, hours and rate from another invoice of ' + esc(v.clientName) + ': ' +
+      '<select data-native="1" id="tpl-pick">' + good.map(x => '<option value="' + esc(x.id) + '">' + esc(x.number) + ' · ' + esc(fmtDate(x.issueDate)) + ' · ' + esc((x.lines[0] || {}).name || (x.lines[0] || {}).item || '') + '</option>').join('') + '</select> ' +
+      '<button type="button" class="btn xs" data-action="tpl-preview" data-one="' + esc(v.id) + '">This invoice</button> <button type="button" class="btn xs ghost" data-action="tpl-preview">All invoices like it</button></div></div>' : '';
+    openModal('Invoice ' + v.number, fill + invoiceHtml(v) + '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Close</button>' + (can('billing.manage') && !thin(v) && v.lines.some(l => l.employeeId || l.item) ? '<button type="button" class="btn ghost" data-action="tpl-preview" data-tpl="' + esc(v.id) + '">' + ic('doc') + 'Use as a template for other invoices</button>' : '') + '<button type="button" class="btn" data-action="cinv-print">' + ic('download') + 'Print / save as PDF</button></div>', true);
   },
   'cinv-print': () => {
     const w = window.open('', '_blank'); if (!w) return toast('Allow pop-ups to print the invoice.', 'warn');
@@ -5658,6 +5665,31 @@ ACTIONS['cinv-reread'] = async el => {
 };
 ACTIONS['cinv-reread-apply'] = async el => { const r = await busy(el, call('rereadClientInvoice', { id: el.dataset.id, apply: true })); closeModal(); toast('Added ' + (r.updated + r.clientUpdated) + ' detail' + (r.updated + r.clientUpdated === 1 ? '' : 's'), 'ok'); await reloadCurrent(); };
 CHANGES['cinv-pay-all'] = el => document.querySelectorAll('.modal .imp-pay').forEach(c => { c.checked = el.checked; });
+
+ACTIONS['tpl-preview'] = async el => {
+  const tpl = el.dataset.tpl || (document.getElementById('tpl-pick') || {}).value; if (!tpl) return;
+  const r = await busy(el, call('previewInvoiceTemplate', { templateId: tpl, invoiceIds: el.dataset.one ? [el.dataset.one] : [] }));
+  S.cache.tpl = r;
+  const T = r.template, ok = r.plans.filter(p => !p.error);
+  openModal('Fill in from invoice ' + T.number, '<p class="muted">Copied from <b>' + esc(T.number) + '</b>: ' + esc([T.name, T.item].filter(Boolean).join(' · ')) + (T.rule && T.rule.months !== undefined ? ' — the service period is ' + (T.rule.months === 1 ? 'the month before' : T.rule.months === 0 ? 'the month of' : T.rule.months + ' months before') + ' the invoice date' : '') +
+    '. The rate is the person\'s bill rate for that period (else the template\'s); hours = total ÷ rate. Totals and payments are not changed.</p>' +
+    (r.plans.length ? '<div class="tblwrap" style="max-height:420px;overflow:auto"><table class="tbl imp-tbl"><thead><tr><th><input type="checkbox" data-change="tpl-all" checked></th><th>Invoice</th><th>Period</th><th>Line</th><th class="num">Hours × rate</th><th class="num">Total</th><th></th></tr></thead><tbody>' +
+      r.plans.map(p => p.error ? '<tr><td></td><td><b>' + esc(p.number) + '</b></td><td colspan="5"><small style="color:var(--amber)">' + esc(p.error) + '</small></td></tr>' :
+        '<tr><td><input type="checkbox" class="tpl-pick" value="' + esc(p.id) + '"' + (p.notes.length ? '' : ' checked') + '></td><td><b>' + esc(p.number) + '</b><br><small class="muted">' + esc(fmtDate(p.issueDate)) + '</small></td>' +
+        '<td>' + esc(p.periodLabel || (p.period ? fmtDate(p.period.start) + ' – ' + fmtDate(p.period.end) : '—')) + '</td><td><b>' + esc(p.line.item || p.line.name) + '</b><br><small class="muted">' + esc(p.line.description || '') + '</small></td>' +
+        '<td class="num">' + (p.line.rate ? esc(p.line.hours) + ' × ' + esc(cMoney(p.line.rate, 'USD')) + '<br><small class="muted">' + esc(p.rateFrom) + '</small>' : '<span class="muted">no rate</span>') + '</td><td class="num">' + esc(cMoney(p.total, 'USD')) + '</td>' +
+        '<td>' + (p.notes.length ? '<small style="color:var(--amber)">' + p.notes.map(esc).join('<br>') + '</small>' : '') + '</td></tr>').join('') + '</tbody></table></div>' +
+      (r.candidates.length > r.plans.length ? '<p class="hint">' + (r.candidates.length - r.plans.length) + ' more invoice(s) of this client came with only a total — "All invoices like it" lists them all.</p>' : '') +
+      '<p class="hint">Invoices with a note are not ticked — check them first.</p>' : '<p>No invoices of this client came with only a total.</p>') +
+    '<div class="foot-btns"><button type="button" class="btn ghost" data-action="close-modal">Cancel</button>' + (ok.length ? '<button type="button" class="btn" data-action="tpl-apply">' + ic('check') + 'Fill in ticked invoices</button>' : '') + '</div>', 'x');
+};
+CHANGES['tpl-all'] = el => document.querySelectorAll('.modal .tpl-pick').forEach(c => { c.checked = el.checked; });
+ACTIONS['tpl-apply'] = async el => {
+  const ids = Array.from(document.querySelectorAll('.modal .tpl-pick:checked')).map(c => c.value);
+  if (!ids.length) return toast('Tick the invoices to fill in.', 'warn');
+  const r = await busy(el, call('applyInvoiceTemplate', { templateId: S.cache.tpl.template.id, invoiceIds: ids }));
+  closeModal(); toast('Filled in ' + r.updated.length + ' invoice' + (r.updated.length === 1 ? '' : 's') + (r.skipped.length ? ' · ' + r.skipped.length + ' skipped' : ''), 'ok', 6000); await reloadCurrent();
+};
 async function askReason(title, body) {
   const r = await ask({ title: title, body: body, input: { label: 'Reason', required: true, placeholder: 'Entered by mistake' }, ok: 'Void', tone: 'danger', icon: 'trash' });
   return r ? String(r).trim() : '';
